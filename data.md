@@ -1,4 +1,39 @@
 ```javascript
 // TODO: insert your data structure that contains users + channels info here
 // You may also add a short description explaining your design
+
+/* Description : 
+*  The data structure is esentially an object of objects.
+*  It consists of objects (with keys) - 'users' and 'channels'.
+*  Both 'users' and 'channels' are arrays of objects with data on 
+*  individual user information, and individual channel information 
+*  respectively.
+*
+*  The following dataStore contains a sample entry of data.
+*/
+
+dataStore = {
+    users : [
+        {
+            'uId': 71,
+            'nameFirst': 'SampleFirstName',
+            'nameLast': 'SampleLastName',
+            'email': 'sampleemail@email.com',
+            'password' : 'P@$$1234',
+            'handleStr': 'sampleUser11',
+            'channels': [10],
+        },
+        
+    ],  
+    channels : [
+        {
+            'cId': 10,
+            'channelName': 'sampleChannel',
+            'isPublic' : false,
+            'authUsers' : [71], // Optional
+            'users' : [71],
+            'messages': 'Hello WOrld!',
+        },
+    ],
+}
 ```

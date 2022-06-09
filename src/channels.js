@@ -8,3 +8,8 @@ function channelsListV1(authUserId) {
 function channelsListAllV1(authUserId) {
     return 'authUserId';
 }
+
+// Stub for channelsCreateV1 function
+function channelsCreateV1(authUserId, name, isPublic) {
+    return 'authUserId' + 'name' + 'isPublic';
+}
