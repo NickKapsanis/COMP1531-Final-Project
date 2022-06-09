@@ -13,3 +13,7 @@ function channelJoinV1(authUserId, channelId) {
     return ('authUserId' + 'channelId');
 }
 
+// Stub for channelInviteV1 function
+function channelInviteV1(authUserId, channelId, uId) {
+    return ('authUserId' + 'channelId' + 'uId');
+}
