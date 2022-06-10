@@ -5,7 +5,7 @@ function channelsListV1(authUserId) {
 }
 
 // Stub for channelsListAllV1 function
-function channelsListAllV1(authUserId) {
+function channelsListallV1(authUserId) {
     return 'authUserId';
 }
 
