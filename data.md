@@ -36,7 +36,7 @@ dataStore = {
             'messages': [
                 {
                 'messageId' : 10,
-                'uId' : 90,
+                'uId' : ,
                 'timeSent' : 1332049834 //unix timestamp
                 'message' : 'Hello World'
                 },
