@@ -30,6 +30,7 @@ describe('Testing authRegisterV1 for input Error' , () => {
         {email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond', handle: 'jamesbond'},
         {email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: 'J', nameLast: 'Bond', handle: 'jbond'},
         {email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond007', handle: 'jamesbond007'},
+        {email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond0123456789012345678910', handle: 'jamesbond01234567890'},
       ]) ('authRegisterV1($email , $password, $nameFirst, $nameLast)', (
           {
           email,
@@ -44,16 +45,3 @@ describe('Testing authRegisterV1 for input Error' , () => {
 
   }
   )
-describe('Testing containsEmail' , () => {
-    let data = {
-        users : [
-            {
-                'email' : 'jamesbond@gmail.com',
-            }
-        ],
-        channels : [],
-    };
-    expect(containsEmail('jamesbond@gmail.com', data)).toBeTruthy() ;
-    expect(containsEmail('james.bond@gmail.com', data)).toBeFalsy();
-}
-)
