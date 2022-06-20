@@ -1,14 +1,28 @@
 import {getData, setData} from './dataStore'; 
 import {channelsListV1, channelsListallV1 } from './channels.js'
 
-// Stub for channelDetailsV1 function 
+/**
+ * Returns the basic details about the channel (such as its name, public status, 
+ * owners and members) given a channelId and authUserId. 
+ * 
+ * Arguments: 
+ *      authUserId: integer     The user's unique identifier
+ *      channelId:  integer     The channel's unique identifier 
+ *
+ * Returns:
+ *      { error: 'error' }     object     Error message when given invalid input
+ *      { 
+ *        name, isPublic,      object     Object containing specified keys that  
+ *        ownerMembers,                   give detail about the channel 
+ *        allMembers 
+ *      } 
+ */  
 function channelDetailsV1(authUserId, channelId) {
     const store = getData(); 
     const channelsMemberOf = channelsListV1(authUserId); 
 
     if (store.channels.find(channel => channel.channelId === channelId) === undefined) {
         return { error: 'error' }; 
-        
     } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
         return { error: 'error' }; 
     } 
