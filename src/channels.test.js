@@ -1,9 +1,14 @@
+ //this is the test file for the channels.js file
+ //each test tests a different aspect of the
+ //expected functionality of the functions
+ 
  //@module channel.test
 
 
 
+
+
   //testing channelsListV1 function.
-  //similar to previous function test, but no matter if private or not.
   import { channelsListV1 } from './channels';
 
   test('tests if all correct channels are listed in channel list', () => {
@@ -42,6 +47,10 @@
    expect(aliceChannelArray[2].name).toEqual('Alice');
  
   });
+
+
+
+
 
   //testing channelsListallV1 function.
   //similar to previous function test, but no matter if private or not.
@@ -82,28 +91,3 @@
   expect(jamesChannelArray[2].name).toEqual('Alice');
 
  });
-
-
-
-
-
-
-
-
-
- /*
- 
- // You can remove or replace this with your own tests.
- // TIP: you may want to explore "test.each"
- describe('Example block of tests', () => {
-   test('Example test 1', () => {
-     expect(checkPassword('something')).toEqual('Poor Password');
-   });
- 
-   test('Example test 2', () => {
-     expect(checkPassword('not a good test')).toEqual('Poor Password');
-   });
- });
- 
- */
- 
