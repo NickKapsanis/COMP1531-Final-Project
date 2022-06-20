@@ -1,4 +1,4 @@
-import { authRegisterV1, authLoginV1 } from './auth';
+import { authRegisterV1, authLoginV1, containsEmail } from './auth';
 
 describe('Testing authRegisterV1 for input Error' , () => {
     test.each([
@@ -44,4 +44,16 @@ describe('Testing authRegisterV1 for input Error' , () => {
 
   }
   )
-
+describe('Testing containsEmail' , () => {
+    let data = {
+        users : [
+            {
+                'email' : 'jamesbond@gmail.com',
+            }
+        ],
+        channels : [],
+    };
+    expect(containsEmail('jamesbond@gmail.com', data)).toBeTruthy() ;
+    expect(containsEmail('james.bond@gmail.com', data)).toBeFalsy();
+}
+)
