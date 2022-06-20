@@ -17,6 +17,10 @@ export function channelsListV1(authUserId) {
             }
         }
     }
+
+    if (numPublicChannels === 0) {
+        return null;
+    }
     
     const channelsArray = array(numPublicChannels);
     var k = 0;
@@ -39,7 +43,7 @@ export function channelsListV1(authUserId) {
 
 //this function gives an array of all channels the given user is in
 export function channelsListallV1(authUserId) {
-    
+
     const data = getData();
 
     var numChannels = 0;
@@ -53,6 +57,10 @@ export function channelsListallV1(authUserId) {
         }
     }
     
+    if (numChannels === 0) {
+        return null;
+    }
+
     const channelsArray = array(numChannels);
     var k = 0;
 
