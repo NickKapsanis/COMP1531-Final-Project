@@ -6,28 +6,38 @@ import {
 } from './channel';
 
 import { authRegisterV1 } from './auth'; 
+import { channelsCreateV1, channelsListV1 } from './channels'; 
 import { clearV1 } from './other';
 
-
-beforeEach(() => {
-    const authUserId = authRegisterV1('example123@email.com', 'password', 'John', 'Smith'); 
-    const channelId = channelsCreateV1(authUserId, 'Channel 1', true); 
-});
-
-afterEach(() => {
-    clearV1();
-}); 
-
 describe('Testing channelDetailsV1', () => {
-    test('Case 1: channelId does not refer to valid channel', () => {
+    let authUserId;
+    let channelId;
+
+    beforeEach(() => {
+        authUserId = authRegisterV1('example123@email.com', 'password', 'John', 'Smith'); 
+        channelId = channelsCreateV1(authUserId, 'Channel 1', true);  
+    });
+    
+    afterEach(() => {
+        clearV1(); 
+    }); 
+
+    test('Case 1: channelId does not refer to valid channel', () => { 
         const invalidId = Math.floor(Math.random() * 100);
         const details = channelDetailsV1(authUserId, invalidId); 
         expect(details).toStrictEqual({ error: 'error' });  
     });  
 
     test('Case 2: authorised user is not a member of channel', () => {
-        const invalidId = Math.floor(Math.random() * 100);
-        const details = channelDetailsV1(invalidId, channelId); 
+        const memberOf = channelsListV1(authUserId); 
+        let notMemberId = 100; 
+        for (const i in memberOf) {
+            if (notMemberId === memberOf[i].channelId) {
+                notMemberId = notMemberId + 100; 
+            }
+        }
+        
+        const details = channelDetailsV1(authUserId, notMemberId); 
         expect(details).toStrictEqual({ error: 'error' });  
     }); 
 
@@ -36,15 +46,9 @@ describe('Testing channelDetailsV1', () => {
         expect(details).toStrictEqual({
             name: 'Channel 1', 
             isPublic: true, 
-            ownerMembers: [
-                {
-                    
-                }
-            ], 
-            allMembers: [
-
-            ], 
+            ownerMembers: expect.any(Object), 
+            allMembers: expect.any(Object),  
         })
-    })
+    });
 }); 
 
