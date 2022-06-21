@@ -9,7 +9,7 @@ Return Value:
     VOID
 */
 function clearV1() {
-let data = getData();
+let data = getData();  
 data = {
   users : [],
   channels : [],
