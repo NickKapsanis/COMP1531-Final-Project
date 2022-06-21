@@ -1,7 +1,6 @@
 //authLogin V1
 import {getData, setData} from './dataStore';
 import isEmail from "validator/lib/isEmail";
-import v4 from "uuid";
 
 //given a registered users email and password, return their authUserId.
 export function authLoginV1(email, password) {
@@ -11,8 +10,30 @@ export function authLoginV1(email, password) {
 //authRegisterV1
 //given users first annd last name, email and password, create a new account and return new authUserId
 //generate a handle for the user according to specifictions in interface.
+/*
+Given a new user's first and last name, email and a new password, create a unique uId and authId.
+Create a 'handle/username' by concantenating first and last name, forcing lowercase-alphanumeric and length <= 20 characters
+if the handle exists, add a number to the end starting at 0.
+
+Arguments:
+    nameFirst (string)    - first name of the user to register
+    nameLast (string)    - last name of the user to register
+    email (string)      - email of the user to register
+    password (string)       - password of the user to register
+
+Return Value:
+    Returns { error : 'error' } on 
+        -length of nameFirst is >50 or <1
+        -length of nameLast is >50 or <1
+        -email is not a valid email
+        -length of password is < 6
+        -the email is already registered
+
+    Returns authUserId on otherwise
+
+*/
 export function authRegisterV1(email, password, nameFirst, nameLast) {
-    const data = getData();
+    let data = getData();
     if (
         !isEmail(email) || 
         password.length < 6 ||  
@@ -20,11 +41,28 @@ export function authRegisterV1(email, password, nameFirst, nameLast) {
         nameFirst.length > 50 ||
         nameLast.length < 1 ||
         nameLast.length > 50 ||
-        containsEmail(email, data) 
+        containsEmail(email, data)
         ) 
     {
-        return  {error : 'error'};
-    }
+        return { error: 'error'
+
+           // Testing code block
+           /*
+            '1st min' : nameFirst.length < 1 ,
+            '1st max' : nameFirst.length > 50,
+            '2nd min': nameLast.length < 1,
+            '2nd max': nameLast.length > 50,
+            'emailnotvalid': !isEmail(email),
+            'hasemail': containsEmail(email, data),
+            'passwordinvalid' : password.length < 6,
+            'condition' : 'if any true error should return',
+            'userCount' : data.users.length,
+            'prevUserCount' : userCount,
+            'newUserCount' : newUserCount,
+            */
+        }
+        };
+    
     // This block creates a user handle according to specs in Interface V1
     let handle = nameFirst + nameLast
     handle = handle.replace(/\W/g, '');
@@ -32,47 +70,77 @@ export function authRegisterV1(email, password, nameFirst, nameLast) {
     if (handle.length > 20) {
         handle = handle.substring(0,20);
     }
-    if (containsHandle(handle, data)) {
-        let n = countHandles(handle, data);
-        handle = handle + '$n'
-    }
+    //if (containsHandle(handle, data)) {
+        let i = 0
+        let incrementHandle = handle;
+        while (containsHandle(handle, data)) {
+           handle = incrementHandle + i;
+           i++;
+        }
+   // }
     // This block pushes all the above info into the datastore
-    // It also assignes a uID and authUserId using UUID v4 to generate 
-    // random Id's for both.
+    // It also generates a userId and authUserId one greater than the current length of the datastore
     let newUser = {
-        'uId': v4(),
-        'authUserId' : v4(),
+        'uId': data.users.length + 1,
+        'authUserId' : data.users.length + 1,
         'nameFirst': nameFirst,
         'nameLast': nameLast,
         'email': email,
         'password' : password,
         'handleStr': handle,
-        'channels': [],    
+        'channels': [],  
     }
     data.users.push(newUser);
-    return handle;
+    setData(data);
+    return newUser.authUserId;
 }
-// helper function that reads datastore
-// takes in a string (not nessessarily a valid email)
-// returns boolean true or false if that string matches with an 'email' : 
-// key in datastore
+/*
+containsEmail takes the datastore object and an email to check if the email is already registred to a user.
+
+Arguments:
+    emailToCheck (string)    - the email to check the datastore for
+    data (object)    - the datastore imported with getData
+
+Return Value:
+    Returns True if emailToCheck exists with a registred user
+    Returns False if emailToCheck does not exist with a registred user
+*/
 export function containsEmail(emailToCheck, data) {
     const users = data.users;
     // checks if an element is equal to the emailToCheck
     const contains = (element) => element.email === emailToCheck;
     return users.some(contains);
 }
+/*
+containsHandle takes the datastore object and a handle to check if the handle is already registred to a user.
 
+Arguments:
+    handle (string)    - the handle to check the datastore for
+    data (object)    - the datastore imported with getData
+
+Return Value:
+    Returns True if handle exists with a registred user
+    Returns False if handle does not exist with a registred user
+*/
 function containsHandle(handleToCheck, data) {
     const users = data.users;
     // checks if an element is equal to the emailToCheck
     const contains = (element) => element.handleStr === handleToCheck;
     return users.some(contains);
 }
+/*
+countHandles counts the number of occurances of a particular handle in data
 
+Arguments:
+    handleToCheck (string)    - the handle to check for in data
+    data (object)    - the dataStore imported with getData
+
+Return Value:
+    Returns count
+*/
 function countHandles(handleToCheck, data) {
     const users = data.users;
-    count = 0;
+    let count = 0;
     for (let i of users) {
         if (i.handleStr === handleToCheck) {
             count = count + 1;
