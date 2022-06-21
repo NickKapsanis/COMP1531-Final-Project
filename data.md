@@ -16,6 +16,7 @@ dataStore = {
     users : [
         {
             'uId': 71,
+            'authUserId' : 1000,
             'nameFirst': 'SampleFirstName',
             'nameLast': 'SampleLastName',
             'email': 'sampleemail@email.com',
@@ -27,12 +28,19 @@ dataStore = {
     ],  
     channels : [
         {
-            'cId': 10,
-            'channelName': 'sampleChannel',
+            'channelId': 10,
+            'name': 'sampleChannel',
             'isPublic' : false,
-            'authUsers' : [71], // Optional
-            'users' : [71],
-            'messages': 'Hello WOrld!',
+            'allMembers' : [71],
+            'ownerMembers' : [1, 2, 3, 4, 5], //array of uder Id's
+            'messages': [
+                {
+                'messageId' : 10,
+                'uId' : 90,
+                'timeSent' : 1332049834, //unix timestamp
+                'message' : 'Hello World'
+                },
+            ]
         },
     ],
 }
