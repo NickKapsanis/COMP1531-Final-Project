@@ -39,7 +39,8 @@ describe('Testing channelMessagesV1', () => {
     }); 
 
     test('Case 4: All valid arguments', () => {
-        const messages = channelMessagesV1(authUserId, channelId);
+        const start = 0; 
+        const messages = channelMessagesV1(authUserId, channelId, start);
         expect(messages).toStrictEqual({
             messages: [], 
             start: 0, 
