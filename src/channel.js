@@ -1,5 +1,5 @@
-import {getData, setData} from './dataStore.js'; 
-import {channelsListV1, channelsListallV1 } from './channels.js'
+import { getData, setData } from './dataStore.js'; 
+import { channelsListV1 } from './channels.js'
 
 // Stub for channelDetailsV1 function 
 function channelDetailsV1(authUserId, channelId) { 
