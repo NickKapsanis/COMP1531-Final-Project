@@ -1,5 +1,6 @@
-import {getData, setData} from './dataStore'; 
-import {channelsListV1, channelsListallV1 } from './channels.js'
+import { getData, setData } from './dataStore'; 
+import { userProfileV1 } from './users'
+  
 
 /**
  * Returns the basic details about the channel (such as its name, public status, 
@@ -19,21 +20,45 @@ import {channelsListV1, channelsListallV1 } from './channels.js'
  */  
 function channelDetailsV1(authUserId, channelId) {
     const store = getData(); 
-    const channelsMemberOf = channelsListV1(authUserId); 
+    
+    const individual = store.users.find(user => user.authUserId === authUserId); 
+    const channelsMemberOf = individual.channels; 
 
+    // Checking if valid channelIds were given 
     if (store.channels.find(channel => channel.channelId === channelId) === undefined) {
         return { error: 'error' }; 
-    } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
+    } else if (channelsMemberOf.find(channel => channel === channelId) === undefined) {
         return { error: 'error' }; 
     } 
     
+    // Finding the given channel
     const channelDetails = store.channels.find(channel => channel.channelId === channelId); 
+
+    // Iterating through owners (which contains uIds) and finding their details
+    // using userProfileV1 
+    const owners = channelDetails.ownerMembers; 
+    const ownerMembersDetails = []; 
+
+    owners.forEach((uId) => {
+        let user = userProfileV1(authUserId, uId); 
+        ownerMembersDetails.push(user); 
+    }); 
+
+    // Iterating through members (which contains uIds) and finding their details
+    // using userProfileV1 
+    const members = channelDetails.allMembers; 
+    const allMembersDetails = []; 
+
+    members.forEach((uId) => {
+        let user = userProfileV1(authUserId, uId); 
+        allMembersDetails.push(user); 
+    });
 
     return {
         name: channelDetails.name, 
         isPublic: channelDetails.isPublic,
-        ownerMembers: [],
-        allMembers: channelDetails.users,
+        ownerMembers: ownerMembersDetails,
+        allMembers: allMembersDetails,
     };
 }
 
@@ -52,4 +77,8 @@ function channelInviteV1(authUserId, channelId, uId) {
     return ('authUserId' + 'channelId' + 'uId');
 }
 
+
 export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
+
+
+
