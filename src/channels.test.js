@@ -1,7 +1,7 @@
 import { channelsListV1, channelsListallV1, channelsCreateV1 } from './channels.js';
 import { authRegisterV1 } from './auth.js'
 import { clearV1 } from './other.js'
-import { getData } from './dataStore.js'
+import { channelDetailsV1 } from './channel.js'
 
 // Manav 
 ////////////////////////////////////////////////
@@ -25,7 +25,7 @@ describe('Testing channelsCreateV1()', () => {
     clearV1();
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const output = channelsCreateV1(testAuthId, "", true);
-    expect(output1).toStrictEqual({ error : 'error' });
+    expect(output).toStrictEqual({ error : 'error' });
   
   });
 
@@ -34,7 +34,7 @@ describe('Testing channelsCreateV1()', () => {
     clearV1();
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const output = channelsCreateV1(testAuthId, "thisIsAVeryLongChannelNameWhichIsInvalid", true);
-    expect(output1).toStrictEqual({ error : 'error' });
+    expect(output).toStrictEqual({ error : 'error' });
   
   });
 
@@ -43,36 +43,36 @@ describe('Testing channelsCreateV1()', () => {
     clearV1();
     const testAuthId = -111;
     const output = channelsCreateV1(testAuthId, "testChannelName", true);
-    expect(output1).toStrictEqual({ error : 'error' });
+    expect(output).toStrictEqual({ error : 'error' });
   
   });
 
-  test('Testing correct input - (i)', () => {
+  test('Testing correct input - Checking if channel is created (i)', () => {
     
     clearV1();
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
-    const output = channelsCreateV1(testAuthId, "testChannelName", false); 
-    expect(output).toStrictEqual(expect.any(Number));
-    const dataStore = getData();
-    const check = dataStore.channels.find(check => check.channelId === output);
+    const testChannelId = channelsCreateV1(testAuthId, "testChannelName", false); 
+
+    // Checking if channel id is created
+    expect(testChannelId).toStrictEqual(expect.any(Number));
+
+    // Checking if channel is created and pushed in the datastore
+    const allChannels = channelsListallV1(testAuthId);
+    const check = allChannels.find(i => i.channelId === testChannelId);
     expect(check['name']).toStrictEqual('testChannelName');
-    expect(check['isPublic']).toStrictEqual(false);
 
   });
 
-  test('Testing correct input - (ii)', () => {
+  test('Testing correct input - Checking if user is in created channel (ii)', () => {
     
     clearV1();
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
-    const output = channelsCreateV1(testAuthId, "testChannelName", true); 
-    expect(output).toStrictEqual(expect.any(Number));
-    const dataStore = getData();
-    const check = dataStore.channels.find(check => check.channelId === output);
-    // check length of all memebers
-    const checkAllMembers = check.allMembers.find(i => i === testAuthId);
-    expect(check['name']).toStrictEqual('testChannelName');
-    expect(check['isPublic']).toStrictEqual(true);
+    const testChannelId = channelsCreateV1(testAuthId, "testChannelName", true); 
 
+    // Checking if channel is reflected in user's channels
+    const testUserChannels = channelsListV1(testAuthId);
+    const testChannel1 = testUserChannels.find(i => i.channelId === testChannelId);
+    expect(testChannel1['name']).toStrictEqual('testChannelName');
   });
 
 });
@@ -85,34 +85,4 @@ test('Testsing ', () => {
   // Testing if channels includes user  
 });
 
-test('Tests for channelsCreateV1', () => {
-  // Testing if error is returned when authUserId does not exist
-  // Testing if error is returned when name length < 1 or > 20 chars
-  // Testing if valid number is given as channel Id
-  // Testing if dataStore has new channel  
-  // Testing if user channels include new channel
-  // Testing if channels includes user  
-});
-
-test('Tests for channelsCreateV1', () => {
-  // Testing if error is returned when authUserId does not exist
-  // Testing if error is returned when name length < 1 or > 20 chars
-  // Testing if valid number is given as channel Id
-  // Testing if dataStore has new channel  
-  // Testing if user channels include new channel
-  // Testing if channels includes user  
-});
-
-test('Tests for channelsCreateV1', () => {
-  // Testing if error is returned when authUserId does not exist
-  // Testing if error is returned when name length < 1 or > 20 chars
-  // Testing if valid number is given as channel Id
-  // Testing if dataStore has new channel  
-  // Testing if user channels include new channel
-  // Testing if channels includes user  
-});
-
-test('Test invalid echo', () => {
-  expect(echo({ echo: 'echo' })).toStrictEqual({ error: 'error' });
-});
 
