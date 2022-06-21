@@ -1,9 +1,9 @@
 // YOU SHOULD MODIFY THIS OBJECT BELOW
 let data = {
   users : [
-    {
-        'uId': 71,
-        'authUserId' : 1000,
+    { 
+        'uid': 1,
+        'authUserId': 1000,
         'nameFirst': 'SampleFirstName',
         'nameLast': 'SampleLastName',
         'email': 'sampleemail@email.com',

@@ -13,3 +13,5 @@ function channelsListallV1(authUserId) {
 function channelsCreateV1(authUserId, name, isPublic) {
     return 'authUserId' + 'name' + 'isPublic';
 }
+
+export {channelsListV1, channelsListallV1, channelsCreateV1}

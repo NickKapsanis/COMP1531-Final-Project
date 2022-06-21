@@ -14,8 +14,8 @@
 
 dataStore = {
     users : [
-        {
-            'uId': 71,
+        {   
+            'uid' : 1,
             'authUserId' : 1000,
             'nameFirst': 'SampleFirstName',
             'nameLast': 'SampleLastName',
