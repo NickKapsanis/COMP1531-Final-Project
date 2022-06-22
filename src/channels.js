@@ -1,44 +1,31 @@
 import {getData, setData} from './dataStore';
 import {getUId} from './other';
 
-
 //this function gives an array of all public channels the given user is in
 export function channelsListV1(authUserId) {
     const data = getData();
     let uId = getUId(authUserId);
+    var numChannels = 0;
+    let channelsArray = [];
 
-    var numPublicChannels = 0;
-
-    //this finds the required array size.
+    //this loop searches for given user id within every channel.   
     for (var i = 0; data.channels[i] !== -1; i++) {
-        if (data.channels[i].isPublic === true) {
-            for (var m = 0; data.channels[i].allMembers[m] !== -1; m++) {
-                if (data.channels[i].allMembers[m] === uId) {
-                    numPublicChannels++;
+        for (var n = 0; data.channels[i].allMembers[n] !== -1; n++) {
+            if (data.channels[i].allMembers[n] === uId) {
+                numChannels++;
+
+                let newChannel = {
+                    channelId: data.channels[i].channelId,
+                    name: data.channels[i].name
                 }
+                channelsArray.push(newChannel);
             }
         }
     }
 
     //case with no channels
-    if (numPublicChannels === 0) {
+    if (numChannels === 0) {
         return null;
-    }
-    
-    const channelsArray = array(numPublicChannels);
-    var k = 0;
-
-    //this loop finds a public channel,
-    //then searches for given user id within that channel.   
-    for (var i = 0; data.channels[i] !== -1; i++) {
-        if (data.channels[i].isPublic === true) {
-            for (var n = 0; data.channels[i].allMembers[n] !== -1; n++) {
-                if (data.channels[i].allMembers[n] === uId) {
-                    array[k] = data.channels[i];
-                    k++;
-                }
-            }
-        }
     }
 
     return channelsArray;
@@ -48,38 +35,23 @@ export function channelsListV1(authUserId) {
 export function channelsListallV1(authUserId) {
     const data = getData();
     let uId = getUId(authUserId);
-
     var numChannels = 0;
-
-    //this finds the required array size.
-    for (var j = 0; data.channels[j] !== -1; j++) {
-        if (data.channels[j].isPublic === true) {
-            numChannels++;
-        }
-        if (data.channels[j].isPublic === false) {
-            numChannels++;
-        }
-    }
-    
-    //case with no channels
-    if (numChannels === 0) {
-        return null;
-    }
-
-    const channelsArray = array(numChannels);
-    j = 0;
-    var k = 0;
+    var allChannelsArray = [];
 
     //this loop finds all arrays, adds them to channelsArray  
     for (var j = 0; data.channels[j] !== -1; j++) {
-        if (data.channels[j].isPublic === true) {
-            array[k] = data.channels[j];
-            k++;
+        numChannels++;
+
+        let newChannel = {
+            channelId: data.channels[i].channelId,
+            name: data.channels[i].name
         }
-        if (data.channels[j].isPublic === false) {
-            array[k] = data.channels[j];
-            k++;
-        }
+        allChannelsArray.push(newChannel);
+    }
+
+    //case with no channels
+    if (numChannels === 0) {
+        return null;
     }
 
     return channelsArray;
