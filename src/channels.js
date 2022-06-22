@@ -13,13 +13,17 @@ export function channelsListV1(authUserId) {
     for (var i = 0; i !== -1; i++) {
         if (data.channels[i].isPublic === true) {
             for (var j = 0; j !== -1; j++) {
-                if (data.channels[j].ownerMembers === uId) {
-                    numPublicChannels++;
+                for (var n = 0; n !== -1; n++) {
+                    if (data.channels[j].ownerMembers[n] === uId ||
+                        data.channels[j].allMembers[n] === uId) {
+                        numPublicChannels++;
+                    }
                 }
             }
         }
     }
 
+    //case with no channels
     if (numPublicChannels === 0) {
         return null;
     }
@@ -32,9 +36,12 @@ export function channelsListV1(authUserId) {
     for (var i = 0; i !== -1; i++) {
         if (data.channels[i].isPublic === true) {
             for (var j = 0; j !== -1; j++) {
-                if (data.channels[j].ownerMembers === uId) {
-                    array[k] = data.channels[j];
-                    k++;
+                for (var n = 0; n !== -1; n++) {
+                    if (data.channels[j].ownerMembers[n] === uId ||
+                        data.channels[j].allMembers[n] === uId) {
+                        array[k] = data.channels[j];
+                        k++;
+                    }
                 }
             }
         }
@@ -53,12 +60,16 @@ export function channelsListallV1(authUserId) {
     //this finds the required array size.
     for (var i = 0; i !== -1; i++) {
         for (var j = 0; j !== -1; j++) {
-            if (data.channels[j].ownerMembers === uId) {
-                numChannels++;
+            for (var n = 0; n !== -1; n++) {
+                if (data.channels[j].ownerMembers[n] === uId ||
+                    data.channels[j].allMembers[n] === uId) {
+                    numChannels++;
+                }
             }
         }
     }
     
+    //case with no channels
     if (numChannels === 0) {
         return null;
     }
@@ -70,9 +81,12 @@ export function channelsListallV1(authUserId) {
     //then searches for given user id within that channel.   
     for (var i = 0; i !== -1; i++) {
         for (var j = 0; j !== -1; j++) {
-            if (data.channels[j].ownerMembers === uId) {
-                array[k] = data.channels[j];
-                k++;
+            for (var n = 0; n !== -1; n++) {
+                if (data.channels[j].ownerMembers[n] === uId ||
+                    data.channels[j].allMembers[n] === uId) {
+                    array[k] = data.channels[j];
+                    k++;
+                }
             }
         }
     }
