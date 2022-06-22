@@ -14,11 +14,11 @@ export function channelsListV1(authUserId) {
             if (data.channels[i].allMembers[n] === uId) {
                 numChannels++;
 
-                let newChannel = {
+                let channel = {
                     channelId: data.channels[i].channelId,
                     name: data.channels[i].name
                 }
-                channelsArray.push(newChannel);
+                channelsArray.push(channel);
             }
         }
     }
@@ -42,11 +42,11 @@ export function channelsListallV1(authUserId) {
     for (var j = 0; data.channels[j] !== -1; j++) {
         numChannels++;
 
-        let newChannel = {
+        let channel = {
             channelId: data.channels[i].channelId,
             name: data.channels[i].name
         }
-        allChannelsArray.push(newChannel);
+        allChannelsArray.push(channel);
     }
 
     //case with no channels
