@@ -9,8 +9,8 @@ export function channelsListV1(authUserId) {
     let channelsArray = [];
 
     //this loop searches for given user id within every channel.   
-    for (var i = 0; data.channels[i] !== -1; i++) {
-        for (var n = 0; data.channels[i].allMembers[n] !== -1; n++) {
+    for (var i = 0; i < data.channels.length; i++) {
+        for (var n = 0; n < data.channels[i].allMembers.length; n++) {
             if (data.channels[i].allMembers[n] === uId) {
                 numChannels++;
 
@@ -39,7 +39,7 @@ export function channelsListallV1(authUserId) {
     var allChannelsArray = [];
 
     //this loop finds all arrays, adds them to channelsArray  
-    for (var j = 0; data.channels[j] !== -1; j++) {
+    for (var j = 0; j < data.channels.length; j++) {
         numChannels++;
 
         let channel = {
@@ -54,7 +54,7 @@ export function channelsListallV1(authUserId) {
         return null;
     }
 
-    return channelsArray;
+    return allChannelsArray;
 }
 
 // Stub for channelsCreateV1 function
