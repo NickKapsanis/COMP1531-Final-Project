@@ -53,6 +53,36 @@ describe('Testing authRegisterV1 for input Error' , () => {
   }
   )
   */
-  
-expect(authRegisterV1('james.bond@gmail.com', '1234567', 'James', 'Bond')).toEqual(1);
-expect(authRegisterV1('007Bond@gmail.com','1234567', 'Jimmy', 'Bond', )).toEqual(2);
+describe('testing that sequential registration does not produce identical authUserId', () => {
+  test('non matching authUserId for sequential registration', () => {
+    const authUserId1 = authRegisterV1('james.bond@gmail.com', '1234567', 'James', 'Bond');
+    expect(authRegisterV1('jimmyBond@gmail.com','1234567', 'Jimmy', 'Bond')).toEqual(expect.any(Number));
+    expect(authRegisterV1('jimBond@gmail.com','1234567', 'Jim', 'Bond')).not.toEqual(authUserId1);
+  });
+});
+
+describe('Testing authLoginV1 for input error and sucessful input', () => {
+ 
+  const tUser = {
+    email : 'anEmail@gmail.com',
+    password : '1234567',
+    nameFirst : 'James',
+    nameLast : 'Bond',
+    wrongemail : 'differentEmail@gmail.com',
+    wrongpassword : '7654321',
+  }
+  let authUserId1 = authRegisterV1(tUser.email, tUser.password, tUser.nameFirst, tUser.nameLast);
+
+  test('incorrect email (email does not belong to a user)', (tUser) => {
+    expect(authLoginV1(tUser.wrongemail, tUser.password)).toEqual({error: 'error'});
+  });
+  test('incorrect password (password does not match the email given)', (tUser) => {
+    expect(authLoginV1(tUser.email, tUser.wrongpassword)).toEqual({error: 'error'});
+  });
+  test('incorrect email and password', (tUser) => {
+    expect(authLoginV1(tUser.wrongemail, tUser.wrongpassword)).toEqual({error: 'error'});
+  });
+  test('correct email and password', (tUser, authUserId1) => {
+    expect(authLoginV1(tUser.email, tUser.password)).toEqual(authUserId1);
+  });
+});
