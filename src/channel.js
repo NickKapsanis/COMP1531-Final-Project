@@ -1,3 +1,5 @@
+import {getData, setData} from './dataStore';
+
 // Stub for channelDetailsV1 function 
 function channelDetailsV1(authUserId, channelId) { 
     return 'authUserId' + 'channelId'; 
@@ -10,7 +12,15 @@ function channelMessagesV1(authUserId, channelId, start) {
 
 // Stub for channelJoinV1 function
 function channelJoinV1(authUserId, channelId) {
-    return ('authUserId' + 'channelId');
+    let data = getData;
+
+
+    if (! channelID in data.channels) return {error:'error'};
+    if (! authUserId in data.users) return {error:'error'};
+    
+
+    //setData(data);
+    return {};
 }
 
 // Stub for channelInviteV1 function
