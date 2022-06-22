@@ -64,3 +64,10 @@ function channelJoinV1(authUserId, channelId) {
 function channelInviteV1(authUserId, channelId, uId) {
     return ('authUserId' + 'channelId' + 'uId');
 }
+
+export {
+    channelDetailsV1, 
+    channelJoinV1, 
+    channelInviteV1, 
+    channelMessagesV1 
+};
