@@ -6,7 +6,7 @@ import {
 } from './channel';
 
 import { authRegisterV1 } from './auth'; 
-import { channelsCreateV1, channelsListV1, channelsListallV1 } from '.channels'
+import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels'
 import { clearV1 } from './other'; 
 
 describe('Testing channelMessagesV1', () => {
@@ -25,10 +25,10 @@ describe('Testing channelMessagesV1', () => {
     test('Case 1: channelId does not refer to valid channel', () => {
         // Finding an invalid channelId to pass in 
         const allChannels = channelsListallV1(authUserId);
-        let invalidId = 199; 
+        let invalidId = 199;  
         for (const i in allChannels) {
-            if (notMemberId === allChannels[i].channelId) {
-                notMemberId = notMemberId + 100; 
+            if (invalidId === allChannels[i].channelId) {
+                invalidId = invalidId + 100; 
             }
         }
 
