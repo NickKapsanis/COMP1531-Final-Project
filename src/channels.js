@@ -10,14 +10,11 @@ export function channelsListV1(authUserId) {
     var numPublicChannels = 0;
 
     //this finds the required array size.
-    for (var i = 0; i !== -1; i++) {
+    for (var i = 0; data.channels[i] !== -1; i++) {
         if (data.channels[i].isPublic === true) {
-            for (var j = 0; j !== -1; j++) {
-                for (var n = 0; n !== -1; n++) {
-                    if (data.channels[j].ownerMembers[n] === uId ||
-                        data.channels[j].allMembers[n] === uId) {
-                        numPublicChannels++;
-                    }
+            for (var m = 0; data.channels[i].allMembers[m] !== -1; m++) {
+                if (data.channels[i].allMembers[m] === uId) {
+                    numPublicChannels++;
                 }
             }
         }
@@ -33,15 +30,12 @@ export function channelsListV1(authUserId) {
 
     //this loop finds a public channel,
     //then searches for given user id within that channel.   
-    for (var i = 0; i !== -1; i++) {
+    for (var i = 0; data.channels[i] !== -1; i++) {
         if (data.channels[i].isPublic === true) {
-            for (var j = 0; j !== -1; j++) {
-                for (var n = 0; n !== -1; n++) {
-                    if (data.channels[j].ownerMembers[n] === uId ||
-                        data.channels[j].allMembers[n] === uId) {
-                        array[k] = data.channels[j];
-                        k++;
-                    }
+            for (var n = 0; data.channels[i].allMembers[n] !== -1; n++) {
+                if (data.channels[i].allMembers[n] === uId) {
+                    array[k] = data.channels[i];
+                    k++;
                 }
             }
         }
@@ -58,14 +52,12 @@ export function channelsListallV1(authUserId) {
     var numChannels = 0;
 
     //this finds the required array size.
-    for (var i = 0; i !== -1; i++) {
-        for (var j = 0; j !== -1; j++) {
-            for (var n = 0; n !== -1; n++) {
-                if (data.channels[j].ownerMembers[n] === uId ||
-                    data.channels[j].allMembers[n] === uId) {
-                    numChannels++;
-                }
-            }
+    for (var j = 0; data.channels[j] !== -1; j++) {
+        if (data.channels[j].isPublic === true) {
+            numChannels++;
+        }
+        if (data.channels[j].isPublic === false) {
+            numChannels++;
         }
     }
     
@@ -75,19 +67,18 @@ export function channelsListallV1(authUserId) {
     }
 
     const channelsArray = array(numChannels);
+    j = 0;
     var k = 0;
 
-    //this loop finds a public channel,
-    //then searches for given user id within that channel.   
-    for (var i = 0; i !== -1; i++) {
-        for (var j = 0; j !== -1; j++) {
-            for (var n = 0; n !== -1; n++) {
-                if (data.channels[j].ownerMembers[n] === uId ||
-                    data.channels[j].allMembers[n] === uId) {
-                    array[k] = data.channels[j];
-                    k++;
-                }
-            }
+    //this loop finds all arrays, adds them to channelsArray  
+    for (var j = 0; data.channels[j] !== -1; j++) {
+        if (data.channels[j].isPublic === true) {
+            array[k] = data.channels[j];
+            k++;
+        }
+        if (data.channels[j].isPublic === false) {
+            array[k] = data.channels[j];
+            k++;
         }
     }
 
