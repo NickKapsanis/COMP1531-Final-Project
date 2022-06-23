@@ -1,3 +1,4 @@
+import {getData} from './datStore'
 /*
 Given an authUserId and a uId, the function userProfileV1
 returns the user information of the corresponding uId
