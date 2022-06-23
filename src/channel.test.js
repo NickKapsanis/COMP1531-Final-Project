@@ -66,4 +66,9 @@ describe('Testing channelMessagesV1', () => {
             end: -1,
         })
     })
+
+    test('Case 5: Deals with invalid/undefined inputs', () => {
+        const messages = channelMessagesV1('', '', '');
+        expect(messages).toStrictEqual({ error: 'error' });
+    }); 
 });
