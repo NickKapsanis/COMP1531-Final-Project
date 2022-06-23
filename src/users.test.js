@@ -11,7 +11,7 @@ describe('Testing userProfileV1()', () => {
   test('Testing if error is returned if both authUserId and uId do not exist', () => {
 
     clearV1();
-    expect(userProfileV1(-1,-2)).toStrictEqual({ error : 'error' });
+    expect(userProfileV1(-1,-3)).toStrictEqual({ error : 'error' });
   
   });
 
