@@ -23,6 +23,12 @@ function channelDetailsV1(authUserId, channelId) {
  */ 
 function channelMessagesV1(authUserId, channelId, start) {
     const store = getData(); 
+    
+    // Checking if authUserId is valid
+    if (store.users.find(user => user.authUserId === authUserId) === undefined) {
+        return { error: 'error' }; 
+    }
+
     const channelsMemberOf = channelsListV1(authUserId);  
 
     // Checking validity of 'channelId' input 
