@@ -15,40 +15,66 @@ test('tests the empty case', () => {
    });
 
   test('tests if all correct channels are listed in channel list', () => {
-   let firstCreatedChannel = channelsCreateV1(1234, 'James', true);
-   let secondCreatedChannel = channelsCreateV1(1234, 'James', false);
-   let thirdCreatedChannel = channelsCreateV1(6969, 'Rufus', true);
-   let fourthCreatedChannel = channelsCreateV1(1234, 'James', true);
-   let fifthCreatedChannel = channelsCreateV1(6969, 'Rufus', false);
+
+    clearV1();
+
+    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
+    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
+
+   let firstCreatedChannel = channelsCreateV1(jamesAuthId, 'James C1', true);
+   let secondCreatedChannel = channelsCreateV1(jamesAuthId, 'James C2', false);
+   let thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', true);
+   let fourthCreatedChannel = channelsCreateV1(jamesAuthId, 'James C3', true);
  
-   let jamesChannelArray = channelsListV1(1234);
+   let jamesChannelArray = channelsListV1(jamesAuthId);
  
-   expect(jamesChannelArray[0].name).toEqual(firstCreatedChannel.name);
-   expect(jamesChannelArray[1].name).toEqual(secondCreatedChannel.name);
-   expect(jamesChannelArray[2].name).toEqual(fourthCreatedChannel.name);
+   let findC1 = jamesChannelArray.find(i => i.channelId === firstCreatedChannel);
+   let findC2 = jamesChannelArray.find(i => i.channelId === secondCreatedChannel);
+   let findC3 = jamesChannelArray.find(i => i.channelId === thirdCreatedChannel);
+   let findC4 = jamesChannelArray.find(i => i.channelId === fourthCreatedChannel);
+
+   expect(findC1.name).toEqual('James C1');
+   expect(findC2.name).toEqual('James C2');
+   expect(findC4.name).toEqual('James C3');
  
-   expect(jamesChannelArray[0].channelId).toEqual(firstCreatedChannel.channelId);
-   expect(jamesChannelArray[1].channelId).toEqual(secondCreatedChannel.channelId);
-   expect(jamesChannelArray[2].channelId).toEqual(fourthCreatedChannel.channelId);
+   expect(findC1.channelId).toEqual(firstCreatedChannel);
+   expect(findC2.channelId).toEqual(secondCreatedChannel);
+   expect(findC4.channelId).toEqual(fourthCreatedChannel);
+   expect(findC3).toEqual(undefined);
+
   });
   
  
   test('tests if correct channel properties are listed in channel list', () => {
-    let firstCreatedChannel = channelsCreateV1(4321, 'Alice', true);
-    let secondCreatedChannel = channelsCreateV1(4321, 'Alice', true);
-    let thirdCreatedChannel = channelsCreateV1(4210, 'Damian', false);
-    let fourthCreatedChannel = channelsCreateV1(4321, 'Alice', true);
-    let fifthCreatedChannel = channelsCreateV1(4210, 'Damian', true);
+
+    clearV1();
+
+    const aliceAuthId = authRegisterV1('Alice@email.com', 'testPassword123', 'Alice', 'Alice');
+    const damianAuthId = authRegisterV1('Damian@email.com', 'testPassword123', 'Damian', 'Damian');
+
+    let firstCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C1', true);
+    let secondCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C2', true);
+    let thirdCreatedChannel = channelsCreateV1(damianAuthId, 'Damian C1', false);
+    let fourthCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C3', true);
+    let fifthCreatedChannel = channelsCreateV1(damianAuthId, 'Damian C2', true);
  
-   let aliceChannelArray = channelsListV1(4321);
+   let aliceChannelArray = channelsListV1(aliceAuthId);
+
+   let findC1 = aliceChannelArray.find(i => i.channelId === firstCreatedChannel);
+   let findC2 = aliceChannelArray.find(i => i.channelId === secondCreatedChannel);
+   let findC3 = aliceChannelArray.find(i => i.channelId === thirdCreatedChannel);
+   let findC4 = aliceChannelArray.find(i => i.channelId === fourthCreatedChannel);
+   let findC5 = aliceChannelArray.find(i => i.channelId === fifthCreatedChannel);
  
-   expect(aliceChannelArray[0].channelId).toEqual(firstCreatedChannel.channelId);
-   expect(aliceChannelArray[1].channelId).toEqual(secondCreatedChannel.channelId);
-   expect(aliceChannelArray[2].channelId).toEqual(fourthCreatedChannel.channelId);
+   expect(findC1.name).toEqual('Alice C1');
+   expect(findC2.name).toEqual('Alice C2');
+   expect(findC4.name).toEqual('Alice C3');
  
-   expect(aliceChannelArray[0].name).toEqual(firstCreatedChannel.name);
-   expect(aliceChannelArray[1].name).toEqual(secondCreatedChannel.name);
-   expect(aliceChannelArray[2].name).toEqual(fourthCreatedChannel.name);
+   expect(findC1.channelId).toEqual(firstCreatedChannel);
+   expect(findC2.channelId).toEqual(secondCreatedChannel);
+   expect(findC3).toEqual(undefined);
+   expect(findC4.channelId).toEqual(fourthCreatedChannel);
+   expect(findC5).toEqual(undefined);
 
    expect(aliceChannelArray.length).toEqual(3);
  
@@ -62,51 +88,75 @@ test('tests the empty case', () => {
 
  test('tests the empty case', () => {
 
+  clearV1();
+
   let everyChannelArray = channelsListallV1(9696);
   expect(everyChannelArray).toEqual(null);
 
  });
 
  test('tests if all correct channels are listed in channel list', () => {
-  let firstCreatedChannel = channelsCreateV1(1234, 'James', false);
-  let secondCreatedChannel = channelsCreateV1(1234, 'James', false);
-  let thirdCreatedChannel = channelsCreateV1(6969, 'Rufus', false);
-  let fourthCreatedChannel = channelsCreateV1(1234, 'James', true);
 
-  let everyChannelArray = channelsListallV1(1234);
+  clearV1();
 
-  expect(everyChannelArray[0].name).toEqual(firstCreatedChannel.name);
-  expect(everyChannelArray[1].name).toEqual(secondCreatedChannel.name);
-  expect(everyChannelArray[2].name).toEqual(thirdCreatedChannel.name);
-  expect(everyChannelArray[2].name).toEqual(fourthCreatedChannel.name);
+  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
+  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
 
-  expect(everyChannelArray[0].channelId).toEqual(firstCreatedChannel.channelId);
-  expect(everyChannelArray[1].channelId).toEqual(secondCreatedChannel.channelId);
-  expect(everyChannelArray[2].channelId).toEqual(thirdCreatedChannel.channelId);
-  expect(everyChannelArray[3].channelId).toEqual(fourthCreatedChannel.channelId);
+  let firstCreatedChannel = channelsCreateV1(jamesAuthId, 'James C1', false);
+  let secondCreatedChannel = channelsCreateV1(jamesAuthId, 'James C2', false);
+  let thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', false);
+  let fourthCreatedChannel = channelsCreateV1(jamesAuthId, 'James C3', true);
+
+  let everyChannelArray = channelsListallV1(rufusAuthId);
+
+  let findC1 = everyChannelArray.find(i => i.channelId === firstCreatedChannel);
+  let findC2 = everyChannelArray.find(i => i.channelId === secondCreatedChannel);
+  let findC3 = everyChannelArray.find(i => i.channelId === thirdCreatedChannel);
+  let findC4 = everyChannelArray.find(i => i.channelId === fourthCreatedChannel);
+
+  expect(findC1.name).toEqual('James C1');
+  expect(findC2.name).toEqual('James C2');
+  expect(findC3.name).toEqual('Rufus C1');
+  expect(findC4.name).toEqual('James C3');
+
+  expect(findC1.channelId).toEqual(firstCreatedChannel);
+  expect(findC2.channelId).toEqual(secondCreatedChannel);
+  expect(findC3.channelId).toEqual(thirdCreatedChannel);
+  expect(findC4.channelId).toEqual(fourthCreatedChannel);
 
  });
  
 
  test('tests if correct channel properties are listed in channel list', () => {
-  let firstCreatedChannel = channelsCreateV1(4321, 'Alice', false);
-  let secondCreatedChannel = channelsCreateV1(4321, 'Alice', true);
-  let thirdCreatedChannel = channelsCreateV1(6969, 'Rufus', false);
-  let fourthCreatedChannel = channelsCreateV1(4321, 'Alice', true);
 
-  let everyChannelArray = channelsListallV1(4321);
+  clearV1();
 
-  expect(everyChannelArray[0].name).toEqual(firstCreatedChannel.name);
-  expect(everyChannelArray[1].name).toEqual(secondCreatedChannel.name);
-  expect(everyChannelArray[2].name).toEqual(thirdCreatedChannel.name);
-  expect(everyChannelArray[2].name).toEqual(fourthCreatedChannel.name);
+  const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Alice');
+  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
 
-  expect(everyChannelArray[0].channelId).toEqual(firstCreatedChannel.channelId);
-  expect(everyChannelArray[1].channelId).toEqual(secondCreatedChannel.channelId);
-  expect(everyChannelArray[2].channelId).toEqual(thirdCreatedChannel.channelId);
-  expect(everyChannelArray[2].channelId).toEqual(fourthCreatedChannel.channelId);
+  let firstCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C1', false);
+  let secondCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C2', false);
+  let thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', false);
+  let fourthCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C3', true);
 
-  expect(everyChannelArray.length).toEqual(3);
+  let everyChannelArray = channelsListallV1(aliceAuthId);
+
+  let findC1 = everyChannelArray.find(i => i.channelId === firstCreatedChannel);
+  let findC2 = everyChannelArray.find(i => i.channelId === secondCreatedChannel);
+  let findC3 = everyChannelArray.find(i => i.channelId === thirdCreatedChannel);
+  let findC4 = everyChannelArray.find(i => i.channelId === fourthCreatedChannel);
+
+  expect(findC1.name).toEqual('Alice C1');
+  expect(findC2.name).toEqual('Alice C2');
+  expect(findC3.name).toEqual('Rufus C1');
+  expect(findC4.name).toEqual('Alice C3');
+
+  expect(findC1.channelId).toEqual(firstCreatedChannel);
+  expect(findC2.channelId).toEqual(secondCreatedChannel);
+  expect(findC3.channelId).toEqual(thirdCreatedChannel);
+  expect(findC4.channelId).toEqual(fourthCreatedChannel);
+
+  expect(everyChannelArray.length).toEqual(4);
 
  });
 
