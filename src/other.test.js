@@ -6,9 +6,9 @@ import { clearV1, getUId} from './other.js'
 /////          Tests for clearV1()         /////
 ////////////////////////////////////////////////
 
-describe('Testing clear()', () => {
+describe('Testing clearV1()', () => {
 
-  test('', () => {
+  test('Testing if dataStore is cleared after new data is added', () => {
     
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     clearV1();
@@ -20,8 +20,20 @@ describe('Testing clear()', () => {
 /////          Tests for getUId()     	   /////
 ////////////////////////////////////////////////
 
-test('Testing getUId', () => {
-  clearV1();
-  const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
-  expect(getUId(testAuthId)).toStrictEqual(testAuthId);
+describe('Testing getUID()', () => {
+  test('Testing getUId for correct input', () => {
+
+    clearV1();
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    expect(getUId(testAuthId)).toStrictEqual(testAuthId);
+
+  });
+
+  test('Testing getUId for incorrect input', () => {
+
+    clearV1();
+    expect(getUId(-1)).toStrictEqual({ error : 'error' });
+    
+  });
+
 });

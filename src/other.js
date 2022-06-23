@@ -1,8 +1,16 @@
 import {getData, setData} from './dataStore';
-// Given an authUId returns the uId of the corresponding user
-// returns error if user does not exist
-// parameter - authUserId (integer)
-// returns - uId (integer)
+
+/* Given an authUId returns the uId of the corresponding user
+Parameters:
+    authUserId - (integer)
+
+Return Value:
+    (1) Error returned if authUserId does not exist
+    {error : 'error'}
+
+    (2) In case of no error
+    uId - (integer)
+*/
 function getUId(authUserId) {
   let data = getData();
   let user = data.users.find(i => i.authUserId === authUserId);
@@ -16,7 +24,7 @@ function getUId(authUserId) {
 /*
 clearV1 resets the data from dataStore.js to be empty as according to the structure in data.md
 
-Arguments:
+Parameters:
     VOID
 
 Return Value:

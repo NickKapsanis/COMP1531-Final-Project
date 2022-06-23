@@ -1,86 +1,61 @@
-import { channelsListV1, channelsListallV1, channelsCreateV1 } from './channels.js';
 import { authRegisterV1 } from './auth.js'
 import { clearV1, getUId } from './other.js'
-import { channelDetailsV1 } from './channel.js'
-
-// Manav 
-////////////////////////////////////////////////
-/////      Tests for channelsListV1() 	   /////
-////////////////////////////////////////////////
-
-//  Manav
-////////////////////////////////////////////////
-/////    Tests for channelsListAllV1()	   /////
-////////////////////////////////////////////////
-
+import { userProfileV1 } from './users.js'
 
 ////////////////////////////////////////////////
-/////    Tests for channelsCreateV1() 	   /////
+/////      Tests for userProfileV1() 	     /////
 ////////////////////////////////////////////////
 
-describe('Testing channelsCreateV1()', () => {
+describe('Testing userProfileV1()', () => {
 
-  test('Testing if error is returned when name length < 1', () => {
+  test('Testing if error is returned if both authUserId and uId do not exist', () => {
 
     clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
-    const output = channelsCreateV1(testAuthId, "", true);
-    expect(output).toStrictEqual({ error : 'error' });
+    expect(userProfileV1(-1,-2)).toStrictEqual({ error : 'error' });
   
   });
 
-  test('Testing if error is returned when name length > 20', () => {
+  test('Testing if error is returned if authUserId does not exist', () => {
 
     clearV1();
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
-    const output = channelsCreateV1(testAuthId, "thisIsAVeryLongChannelNameWhichIsInvalid", true);
-    expect(output).toStrictEqual({ error : 'error' });
-  
-  });
-
-  test('Testing if error is returned when authUserId does not exist', () => {
-
-    clearV1();
-    const testAuthId = -111;
-    const output = channelsCreateV1(testAuthId, "testChannelName", true);
-    expect(output).toStrictEqual({ error : 'error' });
-  
-  });
-
-  test('Testing correct input - Checking if channel is created (i)', () => {
-    
-    clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
-    const testChannelId = channelsCreateV1(testAuthId, "testChannelName", false); 
-
-    // Checking if channel id is created
-    expect(testChannelId).toStrictEqual(expect.any(Number));
-
-    // Checking if channel is created and pushed in the datastore
-    const allChannels = channelsListallV1(testAuthId);
-    const check = allChannels.find(i => i.channelId === testChannelId);
-    expect(check['name']).toStrictEqual('testChannelName');
-
-  });
-
-  test('Testing correct input - Checking if user is in created channel (ii)', () => {
-    
-    clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
-    const testChannelId = channelsCreateV1(testAuthId, "testChannelName", true); 
-
-    // Checking if channel is reflected in user's channels
-    const testUserChannels = channelsListV1(testAuthId);
-    const testChannel1 = testUserChannels.find(i => i.channelId === testChannelId);
-    expect(testChannel1['name']).toStrictEqual('testChannelName');
-
-    // Checking if user is reflected in channel's all members and user array
     const testUId = getUId(testAuthId);
-    const testChannel2 = channelDetailsV1(testAuthId, testChannelId);
-    const testAllMembers = testChannel2.allMembers.find(i => i === testUId);
-    const testOwnerMembers = testChannel2.ownerMembers.find(i => i === testUId);
-    expect(testAllMembers).toStrictEqual(testUId);
-    expect(testOwnerMembers).toStrictEqual(testUId);
+    expect(userProfileV1(-1, testUId)).toStrictEqual({ error : 'error' });
+  
+  });
+
+  test('Testing if error is returned if uId does not exist', () => {
+
+    clearV1();
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    expect(userProfileV1(testAuthId, -1)).toStrictEqual({ error : 'error' });
+  
+  });
+
+  test('Testing correct output for when authUserId and uId belong to same person', () => {
+
+    clearV1();
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    const testUId = getUId(testAuthId);
+    const output =  userProfileV1(testAuthId, testUId);
+    expect(output.uId).toStrictEqual(testUId);
+    expect(output.email).toStrictEqual('testemail@email.com');
+    expect(output.nameFirst).toStrictEqual('testFirstName');
+    expect(output.nameLast).toStrictEqual('testLastName');
+
+  });
+
+  test('Testing correct output for when authUserId and uId belong to different people', () => {
+
+    clearV1();
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    const testAuthId2 = authRegisterV1('correct@email.com', 'correctPassword1', 'correctFirstName', 'correctLastName');
+    const testUId = getUId(testAuthId2);
+    const output =  userProfileV1(testAuthId, testUId);
+    expect(output.uId).toStrictEqual(testUId);
+    expect(output.email).toStrictEqual('correct@email.com');
+    expect(output.nameFirst).toStrictEqual('correctFirstName');
+    expect(output.nameLast).toStrictEqual('correctLastName');
 
   });
 
