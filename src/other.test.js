@@ -15,4 +15,26 @@ describe('Testing clear()', () => {
   });
 });
 
+////////////////////////////////////////////////
+/////          Tests for getUId()     	   /////
+////////////////////////////////////////////////
+
+describe('Testing getUID()', () => {
+  test('Testing getUId for correct input', () => {
+
+    clearV1();
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    expect(getUId(testAuthId)).toStrictEqual(testAuthId);
+
+  });
+
+  test('Testing getUId for incorrect input', () => {
+
+    clearV1();
+    expect(getUId(-1)).toStrictEqual({ error : 'error' });
+    
+  });
+
+});
+
 
