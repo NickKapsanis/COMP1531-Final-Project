@@ -159,25 +159,25 @@ describe('Testing channelsCreateV1()', () => {
 
   });
 
-  test('Testing correct input - Checking if user is in created channel (ii)', () => {
+  // test('Testing correct input - Checking if user is in created channel (ii)', () => {
     
-    clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
-    const testChannelId = channelsCreateV1(testAuthId, "testChannelName", true); 
+  //   clearV1();
+  //   const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+  //   const testChannelId = channelsCreateV1(testAuthId, "testChannelName", true); 
 
-    // Checking if channel is reflected in user's channels
-    const testUserChannels = channelsListV1(testAuthId);
-    const testChannel1 = testUserChannels.find(i => i.channelId === testChannelId);
-    expect(testChannel1['name']).toStrictEqual('testChannelName');
+  //   // Checking if channel is reflected in user's channels
+  //   const testUserChannels = channelsListV1(testAuthId);
+  //   const testChannel1 = testUserChannels.find(i => i.channelId === testChannelId);
+  //   expect(testChannel1['name']).toStrictEqual('testChannelName');
 
-    // Checking if user is reflected in channel's all members and user array
-    const testUId = getUId(testAuthId);
-    const testChannel2 = channelDetailsV1(testAuthId, testChannelId);
-    const testAllMembers = testChannel2.allMembers.find(i => i === testUId);
-    const testOwnerMembers = testChannel2.ownerMembers.find(i => i === testUId);
-    expect(testAllMembers).toStrictEqual(testUId);
-    expect(testOwnerMembers).toStrictEqual(testUId);
+  //   // Checking if user is reflected in channel's all members and user array
+  //   const testUId = getUId(testAuthId);
+  //   const testChannel2 = channelDetailsV1(testAuthId, testChannelId);
+  //   const testAllMembers = testChannel2.allMembers.find(i => i === testUId);
+  //   const testOwnerMembers = testChannel2.ownerMembers.find(i => i === testUId);
+  //   expect(testAllMembers).toStrictEqual(testUId);
+  //   expect(testOwnerMembers).toStrictEqual(testUId);
 
-  });
+  // });
 
 });

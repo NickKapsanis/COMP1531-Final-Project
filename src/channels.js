@@ -10,7 +10,7 @@ Arguments:
 Return Value:
     channelsArray: array    - an array of all channels user is in.
 */
-export function channelsListV1(authUserId) {
+function channelsListV1(authUserId) {
     const data = getData();
     let uId = getUId(authUserId);
     let numChannels = 0;
@@ -50,7 +50,7 @@ Arguments:
 Return Value:
     allChannelsArray: array    - an array of all channels.
 */
-export function channelsListallV1(authUserId) {
+function channelsListallV1(authUserId) {
     const data = getData();
     let uId = getUId(authUserId);
     let numChannels = 0;
