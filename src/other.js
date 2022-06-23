@@ -14,6 +14,7 @@ data = {
   users : [],
   channels : [],
 };
+
 setData(data);
   return {};
 }
