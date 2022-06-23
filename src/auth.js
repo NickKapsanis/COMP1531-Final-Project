@@ -92,6 +92,10 @@ export function authRegisterV1(email, password, nameFirst, nameLast) {
            handle = incrementHandle + i;
            i++;
         }
+    //checks if the user is the first user and sets global permissions
+    let isGlobalOwner;
+    if(data.users.length <= 0) {isGlobalOwner = 1}
+    else{isGlobalOwner = 2};
    // }
     // This block pushes all the above info into the datastore
     // It also generates a userId and authUserId one greater than the current length of the datastore
@@ -103,7 +107,8 @@ export function authRegisterV1(email, password, nameFirst, nameLast) {
         'email': email,
         'password' : password,
         'handleStr': handle,
-        'channels': [],  
+        'channels': [],
+        'isGlobalOwner': isGlobalOwner,
     }
     data.users.push(newUser);
     setData(data);
