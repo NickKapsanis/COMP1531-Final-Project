@@ -1,5 +1,4 @@
 import {getData, setData} from './dataStore';
-
 // Given an authUId returns the uId of the corresponding user
 // returns error if user does not exist
 // parameter - authUserId (integer)
@@ -14,15 +13,23 @@ function getUId(authUserId) {
   
 }
 
+/*
+clearV1 resets the data from dataStore.js to be empty as according to the structure in data.md
 
-// Clears the dataStore 
+Arguments:
+    VOID
+
+Return Value:
+    VOID
+*/
 function clearV1() {
-  let data = getData();
-  data = {
-    users : [],
-    channels : [],
-  };
-  setData(data);
+let data = getData();  
+data = {
+  users : [],
+  channels : [],
+};
+
+setData(data);
   return {};
 }
 

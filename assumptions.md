@@ -1,2 +1,6 @@
-
-the helper function containsEmail, called in authRegisterV1 in auth.js assumes that the data contains an array called 'users'
+clearV1 in other.js assumes that the blank data object is of the form;
+data = {
+  users : [],
+  channels : [],
+};
+It also assumes that getData and setData work appropriately.
