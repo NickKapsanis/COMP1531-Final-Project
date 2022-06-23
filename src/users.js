@@ -1,5 +1,27 @@
 import {getData, setData} from './dataStore'
 
+/*
+Given an authUserId and a uId, the function userProfileV1
+returns the user information of the corresponding uId
+
+* Parameters :
+    authUserId (integer)
+    uId        (integer)
+
+* Return values :
+  (1) Error returned if either authUserId or uId do not exist
+    {error : 'error'} 
+   
+  (2) User information returned for user with uId given as parameter
+    { 
+      uId       : (integer)   
+      email     : (string)
+      nameFirst : (string)
+      nameLast  : (string)
+      handleStr : (string)
+    }
+*/
+
 function userProfileV1(authUserId, uId) {
   let data = getData();
   let user1 = data.users.find(i => i.authUserId === authUserId);
