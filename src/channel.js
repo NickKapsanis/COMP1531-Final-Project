@@ -1,5 +1,6 @@
 import { getData, setData } from './dataStore'; 
-import { userProfileV1 } from './users'
+import { userProfileV1 } from './users'; 
+import { channelsListV1 } from './channels'; 
   
 
 /**
@@ -25,13 +26,12 @@ function channelDetailsV1(authUserId, channelId) {
         return { error: 'error' }; 
     }
     
-    const individual = store.users.find(user => user.authUserId === authUserId); 
-    const channelsMemberOf = individual.channels; 
+    const channelsMemberOf = channelsListV1(authUserId); 
 
     // Checking if valid channelIds were given 
     if (store.channels.find(channel => channel.channelId === channelId) === undefined) {
         return { error: 'error' }; 
-    } else if (channelsMemberOf.find(channel => channel === channelId) === undefined) {
+    } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
         return { error: 'error' }; 
     } 
     
