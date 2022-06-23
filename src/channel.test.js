@@ -58,5 +58,10 @@ describe('Testing channelDetailsV1', () => {
             allMembers: expect.any(Object),  
         })
     });
+
+    test('Case 4: Deals with invalid/undefined inputs', () => {
+        const details = channelDetailsV1('', '');
+        expect(details).toStrictEqual({ error: 'error' });
+    }); 
 }); 
 
