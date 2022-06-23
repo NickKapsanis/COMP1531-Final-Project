@@ -1,7 +1,7 @@
 import { channelsListV1, channelsListallV1, channelsCreateV1 } from './channels.js';
 import { authRegisterV1 } from './auth.js'
 import { clearV1, getUId } from './other.js'
-import { channelDetailsV1 } from './channel.js'
+// import { channelDetailsV1 } from './channel.js'
 
 ////////////////////////////////////////////////
 /////      Tests for channelsListV1() 	   /////
