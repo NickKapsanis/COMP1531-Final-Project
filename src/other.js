@@ -24,7 +24,7 @@ function getUId(authUserId) {
 /*
 clearV1 resets the data from dataStore.js to be empty as according to the structure in data.md
 
-Parameters:
+Arguments:
     VOID
 
 Return Value:
