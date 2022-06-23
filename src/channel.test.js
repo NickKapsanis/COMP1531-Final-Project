@@ -3,7 +3,7 @@ import { authRegisterV1 } from './auth';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels'; 
 import { clearV1 } from './other';
 
-// Tests for channelDetailsV1
+// Testing for channelDetailsV1
 describe('Testing channelDetailsV1', () => {
     let authUserId;
     let channelId;
@@ -59,6 +59,7 @@ describe('Testing channelDetailsV1', () => {
         expect(details).toStrictEqual({ error: 'error' });
     }); 
 }); 
+
 
 // Tests for channelMessagesV1 
 describe('Testing channelMessagesV1', () => {
@@ -124,3 +125,4 @@ describe('Testing channelMessagesV1', () => {
         expect(messages).toStrictEqual({ error: 'error' });
     }); 
 });
+
