@@ -20,6 +20,10 @@ import { userProfileV1 } from './users'
  */  
 function channelDetailsV1(authUserId, channelId) {
     const store = getData(); 
+
+    if (store.users.find(user => user.authUserId === authUserId) === undefined) {
+        return { error: 'error' }; 
+    }
     
     const individual = store.users.find(user => user.authUserId === authUserId); 
     const channelsMemberOf = individual.channels; 
