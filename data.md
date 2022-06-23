@@ -23,6 +23,7 @@ dataStore = {
             'password' : 'P@$$1234',
             'handleStr': 'sampleUser11',
             'channels': [10],
+            'isGlobalOwner': 1 || 2, //1 or 2 for global owner or not global owner respectivly
         },
         
     ],  
