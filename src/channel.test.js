@@ -9,7 +9,7 @@ describe('Testing channelDetailsV1', () => {
     let channelId;
 
     beforeEach(() => {
-        authUserId = authRegisterV1('example123@gmail.com', 'password', 'John', 'Smith'); 
+        authUserId = authRegisterV1('example123@email.com', 'password', 'John', 'Smith'); 
         channelId = channelsCreateV1(authUserId, 'Channel 1', true);  
     });
     
