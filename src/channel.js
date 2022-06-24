@@ -121,41 +121,62 @@ function channelMessagesV1(authUserId, channelId, start) {
     return messageDetails;
 }
 
+
 function channelJoinV1(authUserId, channelId) {
     let data = getData();
+    //return data;
+    
     // setup to find the correct user and channel object
     let usersArray = data.users;
     let channelsArray = data.channels;
-    if (usersArray || channelsArray === undefined) {return { error : 'error' }}
-    let user, channel;
-    for (let users of usersArray) {
-        if (authUserId === users.authUserId) {
-            user = users;}}
-    for (let channels of channelsArray) {
-        if (channelId === channels.channelId) {
-            channel = channels;}}
+    let user, userIndex, channel, channelIndex;
+    //console.log("USER AUTHID:\n", authUserId)
+    for (let i = 0; i < usersArray.length; i++) {
+        //console.log("USER AUTHID in arr:\n", usersArray[i].authUserId)
+        if (authUserId == usersArray[i].authUserId) {
+            user = usersArray[i];
+            userIndex = i;
+        }
+    }
+    for (let i = 0; i < channelsArray.length; i++) {
+        if (channelId == channelsArray[i].channelId) {
+            channel = channelsArray[i];
+            channelIndex = i;
+        } 
+    }
+
+    // error when we can't find a valid user or channel
+    if (user == undefined || channel == undefined) {
+        return { error : 'error' };
+    }
 
     // error when any of channelId does not refer to a valid channel
-    if (! channel.channelId === channelId) {return { error : 'error' }};
+    if (channel.channelId !== channelId) {
+        return { error : 'error' };
+    }
 
     // error when userId does not refer to a valid user
-    if (! user.authUserId === authUserId) {return { error : 'error' }};
+    if (user.authUserId !== authUserId) {
+        return { error : 'error' };
+    }
 
     // error when the authorized user is already a member of the channel
     for (let joinedChannels of user.channels) {
-        if (channel === joinedChannels) {return { error : 'error' }};
+        if (channel.channelId === joinedChannels) {
+            return { error : 'error' }
+        }
     }
 
     // error when the channel is private, and the user is not already a member or a global owner
     if (!channel.isPublic) {
-        if (!user.isGlobalOwner === 1) {
+        if (user.isGlobalOwner !== 1) {
             return { error : 'error' };
         }
     }
 
     // update dataStore.js
-    data.users.authUserId.channels.push(channel);
-    data.channels.channelId.allMembers.push(user);
+    data.users[userIndex].channels.push(channel);
+    data.channels[channelIndex].allMembers.push(user);
     setData(data);
     return {};
 }
@@ -169,39 +190,60 @@ function channelInviteV1(authUserId, channelId, uId) {
     // setup to find the correct user and channel object
     let usersArray = data.users;
     let channelsArray = data.channels;
-    let userInviting, channel, userJoining;
-    for (let users of usersArray) {
-        if (authUserId === users.authUserId) {
-            userInviting = users;}
-        if (uId === users.uId) {
-            userJoining = users;}}
-    for (let channels of channelsArray) {
-        if (channelId === channels.channelId) {
-            user = users;}}
+    let userInviting, channel, userJoining, userInvitingIndex, channelIndex, userJoiningIndex;
+    for (let i = 0; i < usersArray.length; i++) {
+        if (authUserId == usersArray[i].authUserId) {
+            userInviting = usersArray[i]
+            userInvitingIndex = i;
+        }
+        if (uId == usersArray[i].uId) {
+            userJoining = usersArray[i];
+            userJoiningIndex = i;
+        }
+    }
+    for (let i = 0; i < channelsArray.length; i++) {
+        if (channelId == channelsArray[i].channelId) {
+            channel = channelsArray[i];
+            channelIndex = i;
+        }
+    }
+
+    // error when we can't find a valid user or channel ID
+    if (userJoining === undefined || channel === undefined || userInviting === undefined) {
+        return { error : 'error' };
+    }
     
     // error when any of channelId does not refer to a valid channel
-    if (! channel.channelId === channelId) {return { error : 'error' }};
+    if ( channel.channelId !== channelId) {
+        return { error : 'error' };
+    }
 
     // error when AuthuserId or uId does not refer to a valid user
-    if (! userInviting.authUserId === authUserId) {return { error : 'error' }};
-    if (! userJoining.uId === uId) {return { error : 'error' }};
+    if ( userInviting.authUserId !== authUserId) {return { error : 'error' }};
+    if ( userJoining.uId !== uId) {
+        return { error : 'error' };
+    }
 
     // error when uId refers to user already in channel
     for (let joinedChannels of userJoining.channels) {
-        if (channel === joinedChannels) {return { error : 'error' }};
+        if (channel === joinedChannels) {
+            return { error : 'error' };
+        }
     }
 
     // error when authUserId is not a member of the channel
     let seen = false;
     for (let joinedChannels of userInviting.channels) {
-        if (joinedChannels.channelId === channelId) {
+        if (joinedChannels === channelId) {
             seen = true;
         }
-    } if (!seen) {return { error : 'error' }};
+    } if (!seen) {
+        return { error : 'error' };
+    }
     
     // updating dataStore.js
-    data.users.uId.channels.push(channel);
-    data.channels.channelId.allMembers.push(userJoining);
+    data.users[userJoiningIndex].channels.push(channel);
+    data.channels[channelIndex].allMembers.push(userJoining);
     setData(data);
     return {};
 }

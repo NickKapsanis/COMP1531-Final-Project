@@ -9,7 +9,7 @@ describe('Testing channelDetailsV1', () => {
     let channelId;
 
     beforeEach(() => {
-        authUserId = authRegisterV1('example123@email.com', 'password', 'John', 'Smith'); 
+        authUserId = authRegisterV1('example123@gmail.com', 'password', 'John', 'Smith'); 
         channelId = channelsCreateV1(authUserId, 'Channel 1', true);  
     });
     
@@ -67,7 +67,7 @@ describe('Testing channelMessagesV1', () => {
     let channelId; 
 
     beforeEach(() => {
-        authUserId = authRegisterV1('example123@email.com', 'password', 'John', 'Smith'); 
+        authUserId = authRegisterV1('example123@gmail.com', 'password', 'John', 'Smith'); 
         channelId = channelsCreateV1(authUserId, 'Channel 1', true); 
     });
     
@@ -131,31 +131,35 @@ describe('Testing channelMessagesV1', () => {
 ////////////////////////////////////////////////
 
 test('tests the case that authUserId is invalid', () => {
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown');
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Greem');
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true);
     let output = channelJoinV1('wrongUId', testCreatedChannel);
     expect(output).toStrictEqual({ error : 'error' });
 });
 
 test('tests the case that channelId is invalid', () => {
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown');
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true);
     let output = channelJoinV1(rufusAuthId, 'wrongChannel');
     expect(output).toStrictEqual({ error : 'error' });
 });
 
 test('tests the case that the user is already a member of the channel', () => {
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown');
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true);
     let output = channelJoinV1(jamesAuthId, testCreatedChannel);
     expect(output).toStrictEqual({ error : 'error' });
 });
 
 test('tests the case that the channel is private and the user is not a global owner', () => {
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown');
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', false);
     let output = channelJoinV1(rufusAuthId, testCreatedChannel);
     expect(output).toStrictEqual({ error : 'error' });
@@ -163,17 +167,18 @@ test('tests the case that the channel is private and the user is not a global ow
 
 test('tests the case that the channel is private and the user is a global owner', () => {
     clearV1();
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown');
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
     let testCreatedChannel = channelsCreateV1(rufusAuthId, 'testChannel1', false);
     let output = channelJoinV1(jamesAuthId, testCreatedChannel);
     expect(output).toStrictEqual({});
 });
 
 test('tests the case of a success', () => {
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
-    const alexAuthId = authRegisterV1('alex@email.com', 'bigBrainPassword', 'Alex', 'Alex');
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown');
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+    const alexAuthId = authRegisterV1('alex@gmail.com', 'bigBrainPassword', 'Alex', 'John');
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true);
     let output1 = channelJoinV1(rufusAuthId, testCreatedChannel);
     let output2 = channelJoinV1(alexAuthId, testCreatedChannel);
@@ -186,33 +191,37 @@ test('tests the case of a success', () => {
 ////////////////////////////////////////////////
 
 test('tests the case that user inviting does not exist', () => {
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown');
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true);
     let output = channelInviteV1('fakeUser', testCreatedChannel, getUId(rufusAuthId));
     expect(output).toStrictEqual({ error : 'error' });
 });
 
 test('tests the case user joining does not exist', () => {
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown');
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true);
     let output = channelInviteV1(jamesAuthId, testCreatedChannel, 'fakeUId');
     expect(output).toStrictEqual({ error : 'error' });
 });
 
 test('tests the case channel does not exist', () => {
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown');
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true);
     let output = channelInviteV1(jamesAuthId, 'fakeChannel', getUId(rufusAuthId));
     expect(output).toStrictEqual({ error : 'error' });
 });
 
 test('tests the case channel uId refers to an existing channel member', () => {
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
-    const alexAuthId = authRegisterV1('alex@email.com', 'bigBrainPassword', 'Alex', 'Alex');
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown');
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+    const alexAuthId = authRegisterV1('alex@gmail.com', 'bigBrainPassword', 'Alex', 'John');
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true);
     let joinAlex = channelJoinV1(alexAuthId, testCreatedChannel);
     let output = channelInviteV1(jamesAuthId, testCreatedChannel, getUId(alexAuthId));
@@ -220,25 +229,28 @@ test('tests the case channel uId refers to an existing channel member', () => {
 });
 
 test('tests the case that the user inviting is not a member of the channel', () => {
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
-    const alexAuthId = authRegisterV1('alex@email.com', 'bigBrainPassword', 'Alex', 'Alex');
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown');
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+    const alexAuthId = authRegisterV1('alex@gmail.com', 'bigBrainPassword', 'Alex', 'Alex');
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true);
     let output = channelInviteV1(alexAuthId, testCreatedChannel, getUId(rufusAuthId));
     expect(output).toStrictEqual({ error : 'error' });
 });
 
 test('tests the case that the user invites themself', () => {
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown');
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true);
     let output = channelInviteV1(rufusAuthId, testCreatedChannel, getUId(rufusAuthId));
     expect(output).toStrictEqual({ error : 'error' });
 });
 
 test('tests the successful case', () => {
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown');
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true);
     let output = channelInviteV1(jamesAuthId, testCreatedChannel, getUId(rufusAuthId));
     expect(output).toStrictEqual({});
