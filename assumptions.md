@@ -24,3 +24,8 @@ end: -1}, where [] is an empty array.
 (5) 
 When testing for channelMessageV1, we assume that the start index is greater than 
 or equal to zero. 
+
+(6)
+When testing all files, we assume tests will fail at the intended point, however
+as all errors have the same error message (as per the specs), there is a possibilty
+tests match the intended output (error : error), but at incorrect points 
