@@ -24,20 +24,20 @@ function channelJoinV1(authUserId, channelId) {
             channel = channels;}}
 
     // error when any of channelId does not refer to a valid channel
-    if (! channel.channelId === channelId) {return {error:'error'}};
+    if (! channel.channelId === channelId) {return { error : 'error' }};
 
     // error when userId does not refer to a valid user
-    if (! user.authUserId === authUserId) {return {error:'error'}};
+    if (! user.authUserId === authUserId) {return { error : 'error' }};
 
     // error when the authorized user is already a member of the channel
     for (let joinedChannels of user.channels) {
-        if (channel === joinedChannels) {return {error:'error'}};
+        if (channel === joinedChannels) {return { error : 'error' }};
     }
 
     // error when the channel is private, and the user is not already a member or a global owner
     if (!channel.isPublic) {
         if (!user.isGlobalOwner === 1) {
-            return {error:'error'};
+            return { error : 'error' };
         }
     }
 
@@ -68,15 +68,15 @@ function channelInviteV1(authUserId, channelId, uId) {
             user = users;}}
     
     // error when any of channelId does not refer to a valid channel
-    if (! channel.channelId === channelId) {return {error:'error'}};
+    if (! channel.channelId === channelId) {return { error : 'error' }};
 
     // error when AuthuserId or uId does not refer to a valid user
-    if (! userInviting.authUserId === authUserId) {return {error:'error'}};
-    if (! userJoining.uId === uId) {return {error:'error'}};
+    if (! userInviting.authUserId === authUserId) {return { error : 'error' }};
+    if (! userJoining.uId === uId) {return { error : 'error' }};
 
     // error when uId refers to user already in channel
     for (let joinedChannels of userJoining.channels) {
-        if (channel === joinedChannels) {return {error:'error'}};
+        if (channel === joinedChannels) {return { error : 'error' }};
     }
 
     // error when authUserId is not a member of the channel
@@ -85,7 +85,7 @@ function channelInviteV1(authUserId, channelId, uId) {
         if (joinedChannels.channelId === channelId) {
             seen = true;
         }
-    } if (!seen) {return {error:'error'}};
+    } if (!seen) {return { error : 'error' }};
     
     // updating dataStore.js
     data.users.uId.channels.push(channel);
@@ -93,3 +93,5 @@ function channelInviteV1(authUserId, channelId, uId) {
     setData(data);
     return {};
 }
+
+export {channelDetailsV1, channelInviteV1, channelJoinV1};
