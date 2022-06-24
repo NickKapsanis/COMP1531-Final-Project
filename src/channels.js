@@ -12,9 +12,14 @@ Return Value:
 */
 function channelsListV1(authUserId) {
     const data = getData();
+
+    let user = data.users.find(i => i.authUserId === authUserId);
+    if (user === undefined) { return { error : 'error' } };
+
     let uId = getUId(authUserId);
     let numChannels = 0;
     let channelsArray = [];
+
 
     //this loop searches for given user id within every channel.   
     for (let i = 0; i < data.channels.length; i++) {
@@ -33,7 +38,7 @@ function channelsListV1(authUserId) {
 
     //case with no channels
     if (numChannels === 0) {
-        return null;
+        return [];
     }
 
     return channelsArray;
@@ -52,24 +57,24 @@ Return Value:
 */
 function channelsListallV1(authUserId) {
     const data = getData();
-    let uId = getUId(authUserId);
-    let numChannels = 0;
     let allChannelsArray = [];
+
+    let user = data.users.find(i => i.authUserId === authUserId);
+    if (user === undefined) { return { error : 'error' } };
+
+    //case with no channels
+    if (data.channels.length === 0) {
+        return [];
+    }
 
     //this loop finds all arrays, adds them to channelsArray  
     for (let j = 0; j < data.channels.length; j++) {
-        numChannels++;
 
         let channel = {
             channelId: data.channels[j].channelId,
             name: data.channels[j].name
         }
         allChannelsArray.push(channel);
-    }
-
-    //case with no channels
-    if (numChannels === 0) {
-        return null;
     }
 
     return allChannelsArray;
@@ -113,7 +118,7 @@ function channelsCreateV1(authUserId, name, isPublic) {
     }
 
     data.channels.push(newChannel);
-    data.users = data.users.filter(i => i.authUserId != authUserId);
+    data.users = data.users.filter(i => i.authUserId !== authUserId);
     creator.channels.push(newChannelId);
     data.users.push(creator);
 
