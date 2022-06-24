@@ -31,13 +31,13 @@ Return Value:
     VOID
 */
 function clearV1() {
-let data = getData();  
-data = {
-  users : [],
-  channels : [],
-};
+  let data = getData();  
+  data = {
+    users : [],
+    channels : [],
+  };
 
-setData(data);
+  setData(data);
   return {};
 }
 
