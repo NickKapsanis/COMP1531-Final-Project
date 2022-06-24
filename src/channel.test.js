@@ -39,6 +39,7 @@ test('tests the case that the channel is private and the user is not a global ow
 });
 
 test('tests the case that the channel is private and the user is a global owner', () => {
+    clearV1();
     const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
     const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
     let testCreatedChannel = channelsCreateV1(rufusAuthId, 'testChannel1', false);
