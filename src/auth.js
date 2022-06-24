@@ -1,16 +1,32 @@
-//authLogin V1
 import {getData, setData} from './dataStore';
 import isEmail from "validator/lib/isEmail";
 
-//given a registered users email and password, return their authUserId.
+
+/*
+authLoginV1
+Given a registered users email and password, return their authUserId.
+
+Arguments:
+    email (string)      - email of the user to check for
+    password (string)       - password of the user to check for
+
+Return Value:
+    Returns { error : 'error' } on 
+        -email is not registered to any user in data
+        -password does not match that of the user with 'email'
+
+    Returns authUserId on sucessfull login, email and password both exist and are values of the same "User"
+*/
 export function authLoginV1(email, password) {
-    return 'email' + 'password';
+    const data = getData();
+    if (!containsEmail(email, data)) {return {error: 'error'}};
+    let user = data.users.find(u => u.email === email);
+    if (user.password !== password) {return {error: 'error'}};
+    return user.authUserId;
 }
 
-//authRegisterV1
-//given users first annd last name, email and password, create a new account and return new authUserId
-//generate a handle for the user according to specifictions in interface.
 /*
+authRegisterV1
 Given a new user's first and last name, email and a new password, create a unique uId and authId.
 Create a 'handle/username' by concantenating first and last name, forcing lowercase-alphanumeric and length <= 20 characters
 if the handle exists, add a number to the end starting at 0.
@@ -30,7 +46,6 @@ Return Value:
         -the email is already registered
 
     Returns authUserId on otherwise
-
 */
 export function authRegisterV1(email, password, nameFirst, nameLast) {
     let data = getData();
@@ -77,6 +92,10 @@ export function authRegisterV1(email, password, nameFirst, nameLast) {
            handle = incrementHandle + i;
            i++;
         }
+    //checks if the user is the first user and sets global permissions
+    let isGlobalOwner;
+    if(data.users.length <= 0) {isGlobalOwner = 1}
+    else{isGlobalOwner = 2};
    // }
     // This block pushes all the above info into the datastore
     // It also generates a userId and authUserId one greater than the current length of the datastore
@@ -88,7 +107,8 @@ export function authRegisterV1(email, password, nameFirst, nameLast) {
         'email': email,
         'password' : password,
         'handleStr': handle,
-        'channels': [],  
+        'channels': [],
+        'isGlobalOwner': isGlobalOwner,
     }
     data.users.push(newUser);
     setData(data);
@@ -124,7 +144,7 @@ Return Value:
 */
 function containsHandle(handleToCheck, data) {
     const users = data.users;
-    // checks if an element is equal to the emailToCheck
+    // checks if an element is equal to the handleToCheck
     const contains = (element) => element.handleStr === handleToCheck;
     return users.some(contains);
 }
