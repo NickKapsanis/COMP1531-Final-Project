@@ -1,86 +1,125 @@
 import {getData, setData} from './dataStore';
 import {getUId} from './other';
 
+/*
+this function gives an array of all channels the user is in
 
-//this function gives an array of all public channels the given user is in
-export function channelsListV1(authUserId) {
+Arguments:
+    authUserId: integer    - the users unique identification number
+
+Return Value:
+    channelsArray: array    - an array of all channels user is in.
+*/
+function channelsListV1(authUserId) {
     const data = getData();
     let uId = getUId(authUserId);
+    let numChannels = 0;
+    let channelsArray = [];
 
-    var numPublicChannels = 0;
-
-    //this finds the required array size.
-    for (var i = 0; i !== -1; i++) {
-        if (data.channels[i].isPublic === true) {
-            for (var j = 0; j !== -1; j++) {
-                if (data.channels[j].ownerMembers === uId) {
-                    numPublicChannels++;
-                }
-            }
-        }
-    }
-
-    if (numPublicChannels === 0) {
-        return null;
-    }
-    
-    const channelsArray = array(numPublicChannels);
-    var k = 0;
-
-    //this loop finds a public channel,
-    //then searches for given user id within that channel.   
-    for (var i = 0; i !== -1; i++) {
-        if (data.channels[i].isPublic === true) {
-            for (var j = 0; j !== -1; j++) {
-                if (data.channels[j].ownerMembers === uId) {
-                    array[k] = data.channels[j];
-                    k++;
-                }
-            }
-        }
-    }
-
-    return channelsArray;
-}
-
-//this function gives an array of all channels the given user is in
-export function channelsListallV1(authUserId) {
-    const data = getData();
-    let uId = getUId(authUserId);
-
-    var numChannels = 0;
-
-    //this finds the required array size.
-    for (var i = 0; i !== -1; i++) {
-        for (var j = 0; j !== -1; j++) {
-            if (data.channels[j].ownerMembers === uId) {
+    //this loop searches for given user id within every channel.   
+    for (let i = 0; i < data.channels.length; i++) {
+        for (let n = 0; n < data.channels[i].allMembers.length; n++) {
+            if (data.channels[i].allMembers[n] === uId) {
                 numChannels++;
+
+                let channel = {
+                    channelId: data.channels[i].channelId,
+                    name: data.channels[i].name
+                }
+                channelsArray.push(channel);
             }
         }
     }
-    
+
+    //case with no channels
     if (numChannels === 0) {
         return null;
     }
 
-    const channelsArray = array(numChannels);
-    var k = 0;
-
-    //this loop finds a public channel,
-    //then searches for given user id within that channel.   
-    for (var i = 0; i !== -1; i++) {
-        for (var j = 0; j !== -1; j++) {
-            if (data.channels[j].ownerMembers === uId) {
-                array[k] = data.channels[j];
-                k++;
-            }
-        }
-    }
-
     return channelsArray;
 }
 
-// Stub for channelsCreateV1 function
-function channelsCreateV1(authUserId, name, isPublic) {
-    return 'authUserId' + 'name' + 'isPublic';
+
+
+/*
+this function gives an array of all channels
+
+Arguments:
+    authUserId: integer    - the users unique identification number
+
+Return Value:
+    allChannelsArray: array    - an array of all channels.
+*/
+function channelsListallV1(authUserId) {
+    const data = getData();
+    let uId = getUId(authUserId);
+    let numChannels = 0;
+    let allChannelsArray = [];
+
+    //this loop finds all arrays, adds them to channelsArray  
+    for (let j = 0; j < data.channels.length; j++) {
+        numChannels++;
+
+        let channel = {
+            channelId: data.channels[j].channelId,
+            name: data.channels[j].name
+        }
+        allChannelsArray.push(channel);
+    }
+
+    //case with no channels
+    if (numChannels === 0) {
+        return null;
+    }
+
+    return allChannelsArray;
 }
+
+/*
+The function channelsCreateV1() creates a channel and adds it to 
+the dataStore. the user is added as the owner and member of the channel.
+Returns the unique channelId for the created channel.
+
+* Parameters -
+    authUserId - (integer) 
+    name       - (string)
+    isPublic   - (boolean)
+
+* Returns - 
+    (1) error if authUserId does not exist
+    {error : 'error'}
+
+    (2)
+    channelId - (integer)
+*/
+function channelsCreateV1(authUserId, name, isPublic) {
+    let data = getData();
+    let creator = data.users.find(i => i.authUserId === authUserId);
+    
+    // Error cases
+    if (creator === undefined) { return { error : 'error' } };
+    if (name.length > 20 || name.length < 1) { return { error : 'error' } };
+
+    const newChannelId = data.channels.length + 1;
+
+    let newChannel = {
+        
+        'channelId': newChannelId,
+        'name': name,
+        'isPublic' : isPublic,
+        'allMembers' : [creator.uId],
+        'ownerMembers' : [creator.uId], 
+        'messages': []
+    }
+
+    data.channels.push(newChannel);
+    data.users = data.users.filter(i => i.authUserId != authUserId);
+    creator.channels.push(newChannelId);
+    data.users.push(creator);
+
+    setData(data);
+
+    return newChannelId;
+}
+
+export {channelsListV1, channelsListallV1, channelsCreateV1}
