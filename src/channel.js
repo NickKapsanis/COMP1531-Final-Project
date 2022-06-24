@@ -15,6 +15,7 @@ function channelJoinV1(authUserId, channelId) {
     // setup to find the correct user and channel object
     let usersArray = data.users;
     let channelsArray = data.channels;
+    if (usersArray || channelsArray === undefined) {return { error : 'error' }}
     let user, channel;
     for (let users of usersArray) {
         if (authUserId === users.authUserId) {
