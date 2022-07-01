@@ -18,7 +18,7 @@ describe('Testing userProfileV1()', () => {
   test('Testing if error is returned if authUserId does not exist', () => {
 
     clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
     const testUId = getUId(testAuthId);
     expect(userProfileV1(-1, testUId)).toStrictEqual({ error : 'error' });
   
@@ -27,7 +27,7 @@ describe('Testing userProfileV1()', () => {
   test('Testing if error is returned if uId does not exist', () => {
 
     clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
     expect(userProfileV1(testAuthId, -1)).toStrictEqual({ error : 'error' });
   
   });
@@ -35,7 +35,7 @@ describe('Testing userProfileV1()', () => {
   test('Testing correct output for when authUserId and uId belong to same person', () => {
 
     clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
     const testUId = getUId(testAuthId);
     const output =  userProfileV1(testAuthId, testUId);
     expect(output.uId).toStrictEqual(testUId);
@@ -48,8 +48,8 @@ describe('Testing userProfileV1()', () => {
   test('Testing correct output for when authUserId and uId belong to different people', () => {
 
     clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
-    const testAuthId2 = authRegisterV1('correct@email.com', 'correctPassword1', 'correctFirstName', 'correctLastName');
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
+    const testAuthId2 = authRegisterV1('correct@email.com', 'correctPassword1', 'correctFirstName', 'correctLastName').authUserId;
     const testUId = getUId(testAuthId2);
     const output =  userProfileV1(testAuthId, testUId);
     expect(output.uId).toStrictEqual(testUId);

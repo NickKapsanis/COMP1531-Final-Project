@@ -18,8 +18,8 @@ test('testing when authUserId doesn\'t exist', () => {
 test('testing when user is not in any channel', () => {
 
   clearV1();
-  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-  let JamesChannelArray = channelsListV1(jamesAuthId);
+  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
+  let JamesChannelArray = channelsListV1(jamesAuthId).channels;
   expect(JamesChannelArray).toEqual([]);
   
 });
@@ -28,15 +28,15 @@ test('tests if all correct channels are listed in channel list', () => {
 
   clearV1();
 
-  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
+  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
+  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').authUserId;
 
-  let firstCreatedChannel = channelsCreateV1(jamesAuthId, 'James C1', true);
-  let secondCreatedChannel = channelsCreateV1(jamesAuthId, 'James C2', false);
-  let thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', true);
-  let fourthCreatedChannel = channelsCreateV1(jamesAuthId, 'James C3', true);
+  let firstCreatedChannel = channelsCreateV1(jamesAuthId, 'James C1', true).channelId;
+  let secondCreatedChannel = channelsCreateV1(jamesAuthId, 'James C2', false).channelId;
+  let thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', true).channelId;
+  let fourthCreatedChannel = channelsCreateV1(jamesAuthId, 'James C3', true).channelId;
  
-  let jamesChannelArray = channelsListV1(jamesAuthId);
+  let jamesChannelArray = channelsListV1(jamesAuthId).channels;
  
   let findC1 = jamesChannelArray.find(i => i.channelId === firstCreatedChannel);
   let findC2 = jamesChannelArray.find(i => i.channelId === secondCreatedChannel);
@@ -59,16 +59,16 @@ test('tests if correct channel properties are listed in channel list', () => {
 
   clearV1();
 
-  const aliceAuthId = authRegisterV1('Alice@email.com', 'testPassword123', 'Alice', 'Alice');
-  const damianAuthId = authRegisterV1('Damian@email.com', 'testPassword123', 'Damian', 'Damian');
+  const aliceAuthId = authRegisterV1('Alice@email.com', 'testPassword123', 'Alice', 'Alice').authUserId;
+  const damianAuthId = authRegisterV1('Damian@email.com', 'testPassword123', 'Damian', 'Damian').authUserId;
 
-  let firstCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C1', true);
-  let secondCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C2', true);
-  let thirdCreatedChannel = channelsCreateV1(damianAuthId, 'Damian C1', false);
-  let fourthCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C3', true);
-  let fifthCreatedChannel = channelsCreateV1(damianAuthId, 'Damian C2', true);
+  let firstCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C1', true).channelId;
+  let secondCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C2', true).channelId;
+  let thirdCreatedChannel = channelsCreateV1(damianAuthId, 'Damian C1', false).channelId;
+  let fourthCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C3', true).channelId;
+  let fifthCreatedChannel = channelsCreateV1(damianAuthId, 'Damian C2', true).channelId;
  
-  let aliceChannelArray = channelsListV1(aliceAuthId);
+  let aliceChannelArray = channelsListV1(aliceAuthId).channels;
 
   let findC1 = aliceChannelArray.find(i => i.channelId === firstCreatedChannel);
   let findC2 = aliceChannelArray.find(i => i.channelId === secondCreatedChannel);
@@ -99,8 +99,8 @@ test('tests if correct channel properties are listed in channel list', () => {
 test('tests when no channel exists', () => {
 
   clearV1();
-  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-  let everyChannelArray = channelsListallV1(jamesAuthId);
+  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
+  let everyChannelArray = channelsListallV1(jamesAuthId).channels;
   expect(everyChannelArray).toEqual([]);
 
 });
@@ -117,15 +117,15 @@ test('tests if all correct channels are listed in channel list', () => {
 
   clearV1();
 
-  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James');
-  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
+  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
+  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').authUserId;
 
-  let firstCreatedChannel = channelsCreateV1(jamesAuthId, 'James C1', false);
-  let secondCreatedChannel = channelsCreateV1(jamesAuthId, 'James C2', false);
-  let thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', false);
-  let fourthCreatedChannel = channelsCreateV1(jamesAuthId, 'James C3', true);
+  let firstCreatedChannel = channelsCreateV1(jamesAuthId, 'James C1', false).channelId;
+  let secondCreatedChannel = channelsCreateV1(jamesAuthId, 'James C2', false).channelId;
+  let thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', false).channelId;
+  let fourthCreatedChannel = channelsCreateV1(jamesAuthId, 'James C3', true).channelId;
 
-  let everyChannelArray = channelsListallV1(rufusAuthId);
+  let everyChannelArray = channelsListallV1(rufusAuthId).channels;
 
   let findC1 = everyChannelArray.find(i => i.channelId === firstCreatedChannel);
   let findC2 = everyChannelArray.find(i => i.channelId === secondCreatedChannel);
@@ -149,15 +149,15 @@ test('tests if correct channel properties are listed in channel list', () => {
 
   clearV1();
 
-  const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Alice');
-  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus');
+  const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Alice').authUserId;
+  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').authUserId;
 
-  let firstCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C1', false);
-  let secondCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C2', false);
-  let thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', false);
-  let fourthCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C3', true);
+  let firstCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C1', false).channelId;
+  let secondCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C2', false).channelId;
+  let thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', false).channelId;
+  let fourthCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C3', true).channelId;
 
-  let everyChannelArray = channelsListallV1(aliceAuthId);
+  let everyChannelArray = channelsListallV1(aliceAuthId).channels;
 
   let findC1 = everyChannelArray.find(i => i.channelId === firstCreatedChannel);
   let findC2 = everyChannelArray.find(i => i.channelId === secondCreatedChannel);
@@ -187,7 +187,7 @@ describe('Testing channelsCreateV1()', () => {
   test('Testing if error is returned when name length < 1', () => {
 
     clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
     const output = channelsCreateV1(testAuthId, "", true);
     expect(output).toStrictEqual({ error : 'error' });
   
@@ -196,7 +196,7 @@ describe('Testing channelsCreateV1()', () => {
   test('Testing if error is returned when name length > 20', () => {
 
     clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
     const output = channelsCreateV1(testAuthId, "thisIsAVeryLongChannelNameWhichIsInvalid", true);
     expect(output).toStrictEqual({ error : 'error' });
   
@@ -214,14 +214,14 @@ describe('Testing channelsCreateV1()', () => {
   test('Testing correct input - Checking if channel is created (i)', () => {
     
     clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
-    const testChannelId = channelsCreateV1(testAuthId, "testChannelName", false); 
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
+    const testChannelId = channelsCreateV1(testAuthId, "testChannelName", false).channelId; 
 
     // Checking if channel id is created
     expect(testChannelId).toStrictEqual(expect.any(Number));
 
     // Checking if channel is created and pushed in the datastore
-    const allChannels = channelsListallV1(testAuthId);
+    const allChannels = channelsListallV1(testAuthId).channels;
     const check = allChannels.find(i => i.channelId === testChannelId);
     expect(check['name']).toStrictEqual('testChannelName');
 
@@ -230,11 +230,11 @@ describe('Testing channelsCreateV1()', () => {
   test('Testing correct input - Checking if user is in created channel (ii)', () => {
     
     clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
-    const testChannelId = channelsCreateV1(testAuthId, "testChannelName", true); 
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
+    const testChannelId = channelsCreateV1(testAuthId, "testChannelName", true).channelId; 
 
     // Checking if channel is reflected in user's channels
-    const testUserChannels = channelsListV1(testAuthId);
+    const testUserChannels = channelsListV1(testAuthId).channels;
     const testChannel1 = testUserChannels.find(i => i.channelId === testChannelId);
     expect(testChannel1['name']).toStrictEqual('testChannelName');
 
