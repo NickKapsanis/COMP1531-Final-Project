@@ -26,7 +26,7 @@ function channelDetailsV1(authUserId, channelId) {
         return { error: 'error' }; 
     }
     
-    const channelsMemberOf = channelsListV1(authUserId); 
+    const channelsMemberOf = channelsListV1(authUserId).channels; 
 
     // Checking if valid channelIds were given 
     if (store.channels.find(channel => channel.channelId === channelId) === undefined) {
@@ -89,7 +89,7 @@ function channelMessagesV1(authUserId, channelId, start) {
         return { error: 'error' }; 
     }
 
-    const channelsMemberOf = channelsListV1(authUserId);  
+    const channelsMemberOf = channelsListV1(authUserId).channels;  
 
     // Checking validity of 'channelId' input 
     if (store.channels.find(channel => channel.channelId === channelId) === undefined) {

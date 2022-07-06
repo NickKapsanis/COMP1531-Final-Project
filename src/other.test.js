@@ -9,7 +9,7 @@ describe('Testing clear()', () => {
 
   test('', () => {
     
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
     clearV1();
     expect(authLoginV1('testemail@email.com', 'testPassword123')).toStrictEqual({ error : 'error' });
   });
@@ -23,7 +23,7 @@ describe('Testing getUID()', () => {
   test('Testing getUId for correct input', () => {
 
     clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
     expect(getUId(testAuthId)).toStrictEqual(testAuthId);
 
   });

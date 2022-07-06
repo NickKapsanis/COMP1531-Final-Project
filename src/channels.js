@@ -38,10 +38,10 @@ function channelsListV1(authUserId) {
 
     //case with no channels
     if (numChannels === 0) {
-        return [];
+        return { channels: [] };
     }
 
-    return channelsArray;
+    return { channels: channelsArray };
 }
 
 
@@ -64,7 +64,7 @@ function channelsListallV1(authUserId) {
 
     //case with no channels
     if (data.channels.length === 0) {
-        return [];
+        return { channels: [] };
     }
 
     //this loop finds all arrays, adds them to channelsArray  
@@ -77,7 +77,7 @@ function channelsListallV1(authUserId) {
         allChannelsArray.push(channel);
     }
 
-    return allChannelsArray;
+    return { channels: allChannelsArray };
 }
 
 /*
@@ -124,7 +124,7 @@ function channelsCreateV1(authUserId, name, isPublic) {
 
     setData(data);
 
-    return newChannelId;
+    return { channelId: newChannelId };
 }
 
 export {channelsListV1, channelsListallV1, channelsCreateV1}

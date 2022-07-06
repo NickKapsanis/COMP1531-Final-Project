@@ -58,9 +58,9 @@ describe('Testing authRegisterV1 for input Error' , () => {
 describe('testing that sequential registration does not produce identical authUserId', () => {
   test('non matching authUserId for sequential registration', () => {
     clearV1();
-    const authUserId1 = authRegisterV1('james.bond@gmail.com', '1234567', 'James', 'Bond');
-    expect(authRegisterV1('jimmyBond@gmail.com','1234567', 'Jimmy', 'Bond')).toEqual(expect.any(Number));
-    expect(authRegisterV1('jimBond@gmail.com','1234567', 'Jim', 'Bond')).not.toEqual(authUserId1);
+    const authUserId1 = authRegisterV1('james.bond@gmail.com', '1234567', 'James', 'Bond').authUserId;
+    expect(authRegisterV1('jimmyBond@gmail.com','1234567', 'Jimmy', 'Bond').authUserId).toEqual(expect.any(Number));
+    expect(authRegisterV1('jimBond@gmail.com','1234567', 'Jim', 'Bond').authUserId).not.toEqual(authUserId1);
   });
 
 });
@@ -70,7 +70,7 @@ describe('testing authLoginV1 for input errors', () => {
   let authUserId1;
   beforeEach( () => {
     clearV1();
-    authUserId1 = authRegisterV1('TheEmail@gmail.com', '1234567', 'James', 'Bond');
+    authUserId1 = authRegisterV1('TheEmail@gmail.com', '1234567', 'James', 'Bond').authUserId;
   });
 
   test.each([
@@ -86,7 +86,7 @@ describe('testing authLoginV1 for input errors', () => {
     {email: 'TheEmail@gmail.com', password: '1234567', d: 'email and password match'},
    // {email: '', password: '', d: ''},
   ]) ('$d', ({email, password, d}) => {
-    expect(authLoginV1(email, password)).toEqual(authUserId1);
+    expect(authLoginV1(email, password).authUserId).toEqual(authUserId1);
   });
 
   test.each([

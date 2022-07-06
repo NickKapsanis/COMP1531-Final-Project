@@ -15,14 +15,14 @@ Return Value:
         -email is not registered to any user in data
         -password does not match that of the user with 'email'
 
-    Returns authUserId on sucessfull login, email and password both exist and are values of the same "User"
+    Returns {authUserId: authUserId} on sucessfull login, email and password both exist and are values of the same "User"
 */
 export function authLoginV1(email, password) {
     const data = getData();
     if (!containsEmail(email, data)) {return {error: 'error'}};
     let user = data.users.find(u => u.email === email);
     if (user.password !== password) {return {error: 'error'}};
-    return user.authUserId;
+    return { authUserId: user.authUserId };
 }
 
 /*
@@ -45,7 +45,7 @@ Return Value:
         -length of password is < 6
         -the email is already registered
 
-    Returns authUserId on otherwise
+    Returns {authUserId: authUserId} on otherwise
 */
 export function authRegisterV1(email, password, nameFirst, nameLast) {
     let data = getData();
@@ -112,7 +112,7 @@ export function authRegisterV1(email, password, nameFirst, nameLast) {
     }
     data.users.push(newUser);
     setData(data);
-    return newUser.authUserId;
+    return { authUserId: newUser.authUserId };
 }
 /*
 containsEmail takes the datastore object and an email to check if the email is already registred to a user.
