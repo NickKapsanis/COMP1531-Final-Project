@@ -37,4 +37,40 @@ function userProfileV1(authUserId, uId) {
   }
 }
 
-export { userProfileV1 }
+/*
+Given n authUserId, firstname and lastname, the function userSetnameV1
+changes the user details according to what was inputted.
+
+* Parameters :
+    authUserId (integer)
+    nameFirst        (string)
+    nameLast         (string)
+
+* Return values :
+  (1) Error returned if either authUserId or uId do not exist
+    {error : 'error'} 
+   
+  (2) nothing
+    {}
+*/
+function userSetnameV1(authUserId, nameFirst, nameLast) {
+
+  //does all the error checking
+  if (nameFirst.length > 50 || nameFirst.length < 1 || 
+    nameLast.length > 50 || nameLast.length < 1) {
+    return {error: 'error'};
+  }
+
+  //finds person from the data, and changes their firstname.
+  let data = getData();
+  let user = data.users.find(i => i.authUserId === authUserId);
+  if (user === undefined) {
+    return { error : 'error'};
+  }
+  user.nameFirst = nameFirst;
+
+  return {};
+}
+
+
+export { userProfileV1, userSetnameV1 }

@@ -1,6 +1,6 @@
 import { authRegisterV1 } from './auth.js'
 import { clearV1, getUId } from './other.js'
-import { userProfileV1 } from './users.js'
+import { userProfileV1, userSetnameV1 } from './users.js'
 
 ////////////////////////////////////////////////
 /////      Tests for userProfileV1() 	     /////
@@ -60,6 +60,69 @@ describe('Testing userProfileV1()', () => {
   });
 
 });
+
+
+////////////////////////////////////////////////
+/////      Tests for userSetnameV1() 	     /////
+////////////////////////////////////////////////
+test('Testing if changing nothing still returns same name.', () => {
+
+  clearV1();
+
+  const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
+  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'James').authUserId;
+
+  userSetnameV1{aliceAuthId, Alice, Smith};
+
+  expect(userProfileV1(aliceAuthId.nameFirst)).toEqual({ Alice });
+  expect(userProfileV1(aliceAuthId.lastFirst)).toEqual({ Smith });
+
+
+});
+
+test('Testing changing only first name.', () => {
+
+  clearV1();
+
+  const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
+  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'James').authUserId;
+
+  userSetnameV1{aliceAuthId, Alison, Smith};
+
+  expect(userProfileV1(aliceAuthId.nameFirst)).toEqual({ Alison });
+  expect(userProfileV1(aliceAuthId.lastFirst)).toEqual({ Smith });
+
+
+});
+
+test('Testing changing only last name.', () => {
+
+  clearV1();
+
+  const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
+  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'James').authUserId;
+
+  userSetnameV1{aliceAuthId, Alice, Sithlord};
+
+  expect(userProfileV1(aliceAuthId.nameFirst)).toEqual({ Alice });
+  expect(userProfileV1(aliceAuthId.lastFirst)).toEqual({ Sithlord });
+
+});
+
+test('Testing changing both names.', () => {
+
+  clearV1();
+
+  const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
+  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'James').authUserId;
+
+  userSetnameV1{aliceAuthId, Alison, Sithlord};
+
+  expect(userProfileV1(aliceAuthId.nameFirst)).toEqual({ Alison });
+  expect(userProfileV1(aliceAuthId.lastFirst)).toEqual({ Sithlord });
+
+});
+
 
 
 
