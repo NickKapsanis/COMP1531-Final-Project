@@ -255,3 +255,77 @@ test('tests the successful case', () => {
     let output = channelInviteV1(jamesAuthId, testCreatedChannel, getUId(rufusAuthId));
     expect(output).toStrictEqual({});
 });
+
+
+////////////////////////////////////////////////
+/////      Tests for channelLeaveV1() 	   /////
+////////////////////////////////////////////////
+
+test('tests the case that user isn\'t valid', () => {
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown').authUserId;
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green').authUserId;
+    let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true).channelId;
+
+    channelsLeaveV1(rufusAuthId, testCreatedChannel);
+
+    let output = channelsListV1(jamesAuthId);
+    expect(output).toStrictEqual({ channels: [] });
+});
+
+
+test('tests the case with only given user in channel', () => {
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown').authUserId;
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green').authUserId;
+    let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true).channelId;
+
+    channelsLeaveV1(jamesAuthId, testCreatedChannel);
+
+    let output = channelsListV1(jamesAuthId);
+    expect(output).toStrictEqual({ channels: [] });
+});
+
+
+
+test('tests the general case, channel with multiple people.', () => {
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown').authUserId;
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green').authUserId;
+    let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true).channelId;
+    let joinrufus = channelJoinV1(rufusAuthId, testCreatedChannel);
+
+    //james and rufus are both in the channel at this point.
+
+    channelsLeaveV1(rufusAuthId, testCreatedChannel);
+
+    let output = channelsListV1(rufusAuthId);
+    expect(output).toStrictEqual({ channels: [] });
+});
+
+
+
+test('tests the multiple channels and multiple people.', () => {
+    clearV1();
+    const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown').authUserId;
+    const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green').authUserId;
+    const alexAuthId = authRegisterV1('alex@gmail.com', 'testPassword123', 'Alex', 'John').authUserId;
+    let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true).channelId;
+    let secondTestCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true).channelId;
+    let joinrufus = channelJoinV1(rufusAuthId, testCreatedChannel);
+    let joinalex = channelJoinV1(alexAuthId, secondTestCreatedChannel)
+
+    //james and rufus are both in the channel at this point.
+    //james and aqlex are both in the second channel at this point.
+
+
+    channelsLeaveV1(rufusAuthId, testCreatedChannel);
+
+    let output = channelsListV1(rufusAuthId);
+    expect(output[0].channelId).toStrictEqual({ secondTestCreatedChannel });
+});
+
+
+
+
+

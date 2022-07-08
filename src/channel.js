@@ -250,4 +250,50 @@ function channelInviteV1(authUserId, channelId, uId) {
     return {};
 }
 
-export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
+/**
+* channelLeaveV1
+* this function makes a user leave a channel. 
+* (public or private) given their token and the channelId of leaving channel.
+* 
+* Arguments:
+*   token: integer - the authUserID for the member inviting a new member
+*   channelId - The channel to be joined
+*  
+* Return Value:
+*   {error: 'error'}     object         Error message when given invalid channelId
+*                                       or valid channelId given member is not a part of.
+*   {}                   empty object   Successful run
+*/
+function channelsLeaveV1(authUserId, channelId) {
+    const data = getData();
+
+    let user = data.users.find(i => i.authUserId === authUserId);
+    if (user === undefined) { return { error : 'error' } };
+
+    //the channelsListV1, which uses getUId function already does error checking within.
+    let channelsArray = channelsListV1(authUserId);
+    let uId = getUId(authUserId);
+
+    if (channelsArray === undefined) {
+        return {error: 'error'};
+    }
+
+    //loops through all channels given member is a part of, removes member.
+    for (let i = 0; i < channelsArray[i].length; i++) {
+        if (channelsArray[i].channelId === channelId) {
+            for (let n = 0; n < channelsArray[i].allMembers.length; n++) {
+                if (channelsArray[i].allMembers[n] === uId) {
+                    channelsArray[i] = channelsArray[i].filter(item => item !== uId);   
+                    return {};                  
+                }
+            }
+        }
+
+    }
+
+    //case given user wawsn't a part of channel. 
+    return {error: 'error'};
+
+}
+
+export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1, channelsLeaveV1};
