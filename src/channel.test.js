@@ -261,6 +261,8 @@ test('tests the successful case', () => {
 /////      Tests for channelLeaveV1() 	   /////
 ////////////////////////////////////////////////
 
+//need to update these after talking with group about specific HTML requirements.
+
 test('tests the case that user isn\'t valid', () => {
     clearV1();
     const jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown').authUserId;
