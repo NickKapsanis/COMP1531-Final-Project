@@ -1,6 +1,6 @@
 import { authRegisterV1 } from './auth.js'
 import { clearV1, getUId } from './other.js'
-import { userProfileV1, userSetnameV1 } from './users.js'
+import { userProfileV1, userSetnameV1, userSetemailV1 } from './users.js'
 
 ////////////////////////////////////////////////
 /////      Tests for userProfileV1() 	     /////
@@ -125,5 +125,32 @@ test('Testing changing both names.', () => {
 
 
 
+////////////////////////////////////////////////
+/////      Tests for userSetemailV1() 	   /////
+////////////////////////////////////////////////
+test('Testing if changing nothing still returns same email.', () => {
+
+  clearV1();
+
+  const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
+
+  userSetemailV1{aliceAuthId, alice@email.com};
+
+  expect(userProfileV1(aliceAuthId.email)).toEqual({ alice@email.com });
+
+
+});
+
+test('Testing changing email.', () => {
+
+  clearV1();
+
+  const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
+
+  userSetemailV1{aliceAuthId, supercoolnew@email.com};
+
+  expect(userProfileV1(aliceAuthId.email)).toEqual({ supercoolnew@email.com });
+
+});
 
 

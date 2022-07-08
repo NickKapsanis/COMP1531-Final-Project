@@ -1,4 +1,5 @@
 import {getData} from './dataStore'
+import isEmail from "validator/lib/isEmail";
 /*
 Given an authUserId and a uId, the function userProfileV1
 returns the user information of the corresponding uId
@@ -38,7 +39,7 @@ function userProfileV1(authUserId, uId) {
 }
 
 /*
-Given n authUserId, firstname and lastname, the function userSetnameV1
+Given an authUserId, firstname and lastname, the function userSetnameV1
 changes the user details according to what was inputted.
 
 * Parameters :
@@ -73,4 +74,40 @@ function userSetnameV1(authUserId, nameFirst, nameLast) {
 }
 
 
-export { userProfileV1, userSetnameV1 }
+/*
+Given an authUserId, and email, the function userSetnameV1
+changes the user details according to what was inputted.
+
+* Parameters :
+    authUserId (integer)
+    email        (string)
+
+* Return values :
+  (1) Error returned if either authUserId or uId do not exist
+    {error : 'error'} 
+   
+  (2) nothing
+    {}
+*/
+function userSetemailV1(authUserId, email) {
+
+  //does all the error checking
+  if (!isEmail(email)) {
+    return {error: 'error'};
+  }
+
+  //finds person from the data, and changes their firstname.
+  let data = getData();
+  let user = data.users.find(i => i.authUserId === authUserId);
+  if (user === undefined) {
+    return { error : 'error'};
+  }
+  user.email = email;
+
+  return {};
+}
+
+
+
+
+export { userProfileV1, userSetnameV1, userSetemailV1 }
