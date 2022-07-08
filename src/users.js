@@ -107,7 +107,44 @@ function userSetemailV1(authUserId, email) {
   return {};
 }
 
+/*
+Given an authUserId, and handle, the function userSetnameV1
+changes the user details according to what was inputted.
+
+* Parameters :
+    authUserId (integer)
+    handle        (string)
+
+* Return values :
+  (1) Error returned if either authUserId or uId do not exist
+    {error : 'error'} 
+   
+  (2) nothing
+    {}
+*/
+function userSethandlelV1(authUserId, handleStr) {
+
+  //does all the error checking
+  //this regex string is from the internet, checks that characters are alphanumeric,
+  if (nameFirst.length > 20 || nameFirst.length < 3 || !nameFirst.match(/^[0-9a-z]+$/)) {
+    return {error: 'error'};
+  }
+
+  //checks that the handle isn't already used by another user.
+  if (data.users.find(i => i.handleStr === handleStr) !== undefined) {
+    return {error: 'error'};
+  }
+
+  //finds person from the data, and changes their firstname.
+  let data = getData();
+  let user = data.users.find(i => i.authUserId === authUserId);
+  if (user === undefined) {
+    return { error : 'error'};
+  }
+  user.handleStr = handleStr;
+
+  return {};
+}
 
 
-
-export { userProfileV1, userSetnameV1, userSetemailV1 }
+export { userProfileV1, userSetnameV1, userSetemailV1, userSethandlelV1 }

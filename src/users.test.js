@@ -1,6 +1,6 @@
 import { authRegisterV1 } from './auth.js'
 import { clearV1, getUId } from './other.js'
-import { userProfileV1, userSetnameV1, userSetemailV1 } from './users.js'
+import { userProfileV1, userSetnameV1, userSetemailV1, userSethandlelV1 } from './users.js'
 
 ////////////////////////////////////////////////
 /////      Tests for userProfileV1() 	     /////
@@ -153,4 +153,30 @@ test('Testing changing email.', () => {
 
 });
 
+////////////////////////////////////////////////
+/////      Tests for userSethandleV1() 	   /////
+////////////////////////////////////////////////
+test('Testing if changing nothing still returns same handle.', () => {
 
+  clearV1();
+
+  const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
+
+  userSethandleV1{aliceAuthId, AliceSmith};
+
+  expect(userProfileV1(aliceAuthId.handleStr)).toEqual({ alice@AliceSmith });
+
+
+});
+
+test('Testing changing handle.', () => {
+
+  clearV1();
+
+  const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
+
+  userSethandleV1{aliceAuthId, AwesomeNewHandle};
+
+  expect(userProfileV1(aliceAuthId.handleStr)).toEqual({ AwesomeNewHandle });
+
+});
