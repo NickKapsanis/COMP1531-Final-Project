@@ -1,5 +1,7 @@
-import {getData, setData} from './dataStore';
+import { getData, setData } from './dataStore';
 import isEmail from "validator/lib/isEmail";
+import { user, message, channel, dataStoreType} from './dataStore'
+
 
 
 /*
@@ -17,10 +19,10 @@ Return Value:
 
     Returns {authUserId: authUserId} on sucessfull login, email and password both exist and are values of the same "User"
 */
-export function authLoginV1(email, password) {
-    const data = getData();
+export function authLoginV1(email: string, password: string) {
+    const data: dataStoreType = getData();
     if (!containsEmail(email, data)) {return {error: 'error'}};
-    let user = data.users.find(u => u.email === email);
+    let user: user = data.users.find(u => u.email === email);
     if (user.password !== password) {return {error: 'error'}};
     return { authUserId: user.authUserId };
 }
@@ -47,8 +49,8 @@ Return Value:
 
     Returns {authUserId: authUserId} on otherwise
 */
-export function authRegisterV1(email, password, nameFirst, nameLast) {
-    let data = getData();
+export function authRegisterV1(email: string, password: string, nameFirst: string, nameLast: string) {
+    let data: dataStoreType = getData();
     if (
         !isEmail(email) || 
         password.length < 6 ||  
@@ -93,13 +95,13 @@ export function authRegisterV1(email, password, nameFirst, nameLast) {
            i++;
         }
     //checks if the user is the first user and sets global permissions
-    let isGlobalOwner;
+    let isGlobalOwner: user["isGlobalOwner"];
     if(data.users.length <= 0) {isGlobalOwner = 1}
     else{isGlobalOwner = 2};
    // }
     // This block pushes all the above info into the datastore
     // It also generates a userId and authUserId one greater than the current length of the datastore
-    let newUser = {
+    let newUser: user = {
         'uId': data.users.length + 1,
         'authUserId' : data.users.length + 1,
         'nameFirst': nameFirst,
@@ -125,10 +127,10 @@ Return Value:
     Returns True if emailToCheck exists with a registred user
     Returns False if emailToCheck does not exist with a registred user
 */
-export function containsEmail(emailToCheck, data) {
-    const users = data.users;
+export function containsEmail(emailToCheck: string, data: dataStoreType) {
+    const users: user[] = data.users;
     // checks if an element is equal to the emailToCheck
-    const contains = (element) => element.email === emailToCheck;
+    const contains = (element: user) => element.email === emailToCheck;
     return users.some(contains);
 }
 /*
@@ -142,10 +144,10 @@ Return Value:
     Returns True if handle exists with a registred user
     Returns False if handle does not exist with a registred user
 */
-function containsHandle(handleToCheck, data) {
-    const users = data.users;
+function containsHandle(handleToCheck: string, data: dataStoreType) {
+    const users: user[] = data.users;
     // checks if an element is equal to the handleToCheck
-    const contains = (element) => element.handleStr === handleToCheck;
+    const contains = (element: user) => element.handleStr === handleToCheck;
     return users.some(contains);
 }
 /*
@@ -158,7 +160,7 @@ Arguments:
 Return Value:
     Returns count
 */
-function countHandles(handleToCheck, data) {
+function countHandles(handleToCheck: string, data: dataStoreType) {
     const users = data.users;
     let count = 0;
     for (let i of users) {
