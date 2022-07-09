@@ -25,7 +25,12 @@ export function authLoginV1(email: string, password: string) {
     if (!containsEmail(email, data)) {return {error: 'error'}};
     let user: user = data.users.find(u => u.email === email);
     if (user.password !== password) {return {error: 'error'}};
-    return { authUserId: user.authUserId };
+
+    let newtoken = assignToken(user.authUserId);
+    return { 
+        token: newtoken,
+        authUserId: user.authUserId 
+    };
 }
 
 /*
