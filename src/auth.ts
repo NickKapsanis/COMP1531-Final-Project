@@ -67,23 +67,7 @@ export function authRegisterV1(email: string, password: string, nameFirst: strin
         containsEmail(email, data)
         ) 
     {
-        return { error: 'error'
-
-           // Testing code block
-           /*
-            '1st min' : nameFirst.length < 1 ,
-            '1st max' : nameFirst.length > 50,
-            '2nd min': nameLast.length < 1,
-            '2nd max': nameLast.length > 50,
-            'emailnotvalid': !isEmail(email),
-            'hasemail': containsEmail(email, data),
-            'passwordinvalid' : password.length < 6,
-            'condition' : 'if any true error should return',
-            'userCount' : data.users.length,
-            'prevUserCount' : userCount,
-            'newUserCount' : newUserCount,
-            */
-        }
+        return { error: 'error'}
         };
     
     // This block creates a user handle according to specs in Interface V1
@@ -107,9 +91,12 @@ export function authRegisterV1(email: string, password: string, nameFirst: strin
    // }
     // This block pushes all the above info into the datastore
     // It also generates a userId and authUserId one greater than the current length of the datastore
+    const newUid = data.users.length + 1;
+    const newAuthUserId = data.users.length + 1;
     let newUser: user = {
-        'uId': data.users.length + 1,
-        'authUserId' : data.users.length + 1,
+        'uId': newUid,
+        'authUserId' : newAuthUserId,
+        'tokens' : assignToken(newAuthUserId),
         'nameFirst': nameFirst,
         'nameLast': nameLast,
         'email': email,
@@ -120,7 +107,10 @@ export function authRegisterV1(email: string, password: string, nameFirst: strin
     }
     data.users.push(newUser);
     setData(data);
-    return { authUserId: newUser.authUserId };
+    return { 
+        token : newUser.tokens[0],
+        authUserId : newUser.authUserId
+    };
 }
 /*
 containsEmail takes the datastore object and an email to check if the email is already registred to a user.
