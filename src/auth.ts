@@ -1,6 +1,7 @@
 import { getData, setData } from './dataStore';
 import isEmail from "validator/lib/isEmail";
 import { user, message, channel, dataStoreType} from './dataStore'
+import { uuidv4 } from 'uuid'
 
 
 
@@ -169,4 +170,38 @@ function countHandles(handleToCheck: string, data: dataStoreType) {
         }
     }
     return count;
+}
+/*
+assignToken assignes a new random token to a user storing it in data
+
+Arguments:
+    authUserId (number)    - the user to assign a token to
+
+Return Value:
+    Returns the new token
+*/
+function assignToken(authUserId: number) {
+    const newToken = uuidv4();
+    let data = getData();
+    let userIndex = data.users.findIndex(user => user.authUserId === authUserId);
+    data.users[userIndex].tokens.push(newToken);
+    setData(data);
+    return newToken;
+}
+/*
+removeToken removes a given token from a user storing it in data
+
+Arguments:
+    authUserId (number)    - the user to remove a token from
+    token (string) - the token to remove from the user
+
+Return Value:
+    null
+*/
+function removeToken(authUserId: number, token: string) {
+    let data = getData();
+    let userIndex = data.users.findIndex(user => user.authUserId === authUserId);
+    let tokenIndex = data.users[userIndex].tokens.findIndex(tok => tok === token);
+    data.users[userIndex].tokens.splice(tokenIndex, 1);
+    setData(data);
 }

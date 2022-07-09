@@ -17,6 +17,7 @@ dataStore = {
         {
             'uId': 71,
             'authUserId' : 1000,
+            'tokens' : [1, 2, 3 ...],
             'nameFirst': 'SampleFirstName',
             'nameLast': 'SampleLastName',
             'email': 'sampleemail@email.com',

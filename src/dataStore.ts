@@ -2,6 +2,7 @@
 type user = {
     uId: number;
     authUserId : number;
+    tokens : string[];
     nameFirst: string;
     nameLast: string;
     email: string;
