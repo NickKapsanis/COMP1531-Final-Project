@@ -2,7 +2,7 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
-import { authRegisterV1 } from './auth';
+import { authRegisterV1, authLoginV1 } from './auth';
 
 export { PORT, HOST };
 // Set up web app, use JSON
@@ -30,6 +30,16 @@ app.post('/auth/register/v2', (req, res, next) => {
   try {
     const data = req.body;
     return authRegisterV1(data.email, data.password, data.namefirst, data.namelast); 
+  } catch (err) {
+    next(err);
+  }
+});
+
+// authLogin
+app.post('/auth/login/v2', (req, res, next) => {
+  try {
+    const data = req.body;
+    return authLoginV1(data.email, data.password); 
   } catch (err) {
     next(err);
   }
