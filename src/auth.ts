@@ -1,8 +1,9 @@
 import { getData, setData } from './dataStore';
 import isEmail from "validator/lib/isEmail";
-import { user, message, channel, dataStoreType} from './dataStore'
-import { uuidv4 } from 'uuid'
+import { user, message, channel, dataStoreType} from './dataStore';
+import { v4 as uuidv4 } from 'uuid';
 
+export { checkValidToken };
 
 
 /*
@@ -96,7 +97,7 @@ export function authRegisterV1(email: string, password: string, nameFirst: strin
     let newUser: user = {
         'uId': newUid,
         'authUserId' : newAuthUserId,
-        'tokens' : assignToken(newAuthUserId),
+        'tokens' : [],
         'nameFirst': nameFirst,
         'nameLast': nameLast,
         'email': email,
@@ -105,12 +106,11 @@ export function authRegisterV1(email: string, password: string, nameFirst: strin
         'channels': [],
         'isGlobalOwner': isGlobalOwner,
     }
+    //put the new user into data and set the data.
     data.users.push(newUser);
     setData(data);
-    return { 
-        token : newUser.tokens[0],
-        authUserId : newUser.authUserId
-    };
+    //now log in the new user, and return token and authuserId as per authLogin
+    return authLoginV1(newUser.email, newUser.password);
 }
 /*
 containsEmail takes the datastore object and an email to check if the email is already registred to a user.
@@ -167,7 +167,8 @@ function countHandles(handleToCheck: string, data: dataStoreType) {
     return count;
 }
 /*
-assignToken assignes a new random token to a user storing it in data
+assignToken assignes a new random token to a user that must already
+exist in dataStore, storing it in data.
 
 Arguments:
     authUserId (number)    - the user to assign a token to
@@ -199,4 +200,22 @@ function removeToken(authUserId: number, token: string) {
     let tokenIndex = data.users[userIndex].tokens.findIndex(tok => tok === token);
     data.users[userIndex].tokens.splice(tokenIndex, 1);
     setData(data);
+}
+/*
+checkValidToken checks if a token exists and is valid
+
+Arguments:
+    token (string) - the token to check
+
+Return Value:
+    boolean
+*/
+function checkValidToken(token: string) {
+    let data = getData();
+    if (data.users.find(user => user.tokens.find(tok => tok === token)) !== undefined) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }

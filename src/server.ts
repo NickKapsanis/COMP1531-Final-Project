@@ -16,9 +16,6 @@ const HOST: string = process.env.IP || 'localhost';
 app.get('/echo', (req, res, next) => {
   try {
     const data = req.query.echo as string;
- //   res.send(JSON.stringify({
- //     url: 'http://' + HOST + ':' + PORT,
-//    }))
     return res.json(echo(data));
   } catch (err) {
     next(err);
@@ -26,23 +23,9 @@ app.get('/echo', (req, res, next) => {
 });
 
 // authRegister
-app.post('/auth/register/v2', (req, res, next) => {
-  try {
-    const data = req.body;
-    return authRegisterV1(data.email, data.password, data.namefirst, data.namelast); 
-  } catch (err) {
-    next(err);
-  }
-});
-
-// authLogin
-app.post('/auth/login/v2', (req, res, next) => {
-  try {
-    const data = req.body;
-    return authLoginV1(data.email, data.password); 
-  } catch (err) {
-    next(err);
-  }
+app.post('/auth/register/v2', (req, res) => {
+  const data = req.body;
+  res.json(authRegisterV1(data.email, data.password, data.nameFirst, data.nameLast));
 });
 
 // for logging errors
