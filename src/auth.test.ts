@@ -1,6 +1,6 @@
 
-import request from "sync-request"
-import { PORT, HOST } from './server'
+import request from 'sync-request';
+import { PORT, HOST } from './server';
 
 const url = 'http://' + HOST + ':' + PORT;
 
@@ -10,48 +10,54 @@ const url = 'http://' + HOST + ':' + PORT;
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
 
-describe('Testing authRegisterV1 for input Error' , () => {
-    test.each([
-    {email: 'notanemail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond'},
-    {email: 'ThisisAnEmail@gmail.com', password: 'sub6', nameFirst: 'James', nameLast: 'Bond'},
-    {email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: '', nameLast: 'Bond'},
-    {email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: 'James', nameLast: ''},
-    {email: 'ThisisAnEmail@gmail.com', password: '1234567',
+describe('Testing authRegisterV1 for input Error', () => {
+  test.each([
+    { email: 'notanemail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond' },
+    { email: 'ThisisAnEmail@gmail.com', password: 'sub6', nameFirst: 'James', nameLast: 'Bond' },
+    { email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: '', nameLast: 'Bond' },
+    { email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: 'James', nameLast: '' },
+    {
+      email: 'ThisisAnEmail@gmail.com',
+      password: '1234567',
       nameFirst: 'James012345678901234567890123456789012345678901234567890',
-       nameLast: 'Bond'},
-    {email: 'ThisisAnEmail@gmail.com', password: '1234567',
+      nameLast: 'Bond'
+    },
+    {
+      email: 'ThisisAnEmail@gmail.com',
+      password: '1234567',
       nameFirst: 'James',
-      nameLast: 'Bond012345678901234567890123456789012345678901234567890'},
-        //{email: 'email123@gmail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond'},
-    ]) ('authRegisterV1($email , $password, $nameFirst, $nameLast)', (
-        {
-        email,
-        password,
-        nameFirst,
-        nameLast,
+      nameLast: 'Bond012345678901234567890123456789012345678901234567890'
+    },
+    // {email: 'email123@gmail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond'},
+  ])('authRegisterV1($email , $password, $nameFirst, $nameLast)', (
+    {
+      email,
+      password,
+      nameFirst,
+      nameLast,
     }
-    ) => {
-      const res = request(
-        'POST', 
-        url + '/auth/register/v2', 
-        {
-          body: JSON.stringify({
-            email: email,
-            password: password,
-            nameFirst: nameFirst,
-            nameLast: nameLast,
-          }),
-          headers: {
-            'Content-type' : 'application/json',
-          },
-        }
-      )
-      const bodyObj = JSON.parse(String(res.getBody()));
-      expect(bodyObj).toStrictEqual({ error: 'error'});
-      expect(res.statusCode).toStrictEqual(200);
-    });
-  }
-  )
+  ) => {
+    const res = request(
+      'POST',
+      url + '/auth/register/v2',
+      {
+        body: JSON.stringify({
+          email: email,
+          password: password,
+          nameFirst: nameFirst,
+          nameLast: nameLast,
+        }),
+        headers: {
+          'Content-type': 'application/json',
+        },
+      }
+    );
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(bodyObj).toStrictEqual({ error: 'error' });
+    expect(res.statusCode).toStrictEqual(200);
+  });
+}
+);
 
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
@@ -59,8 +65,8 @@ describe('Testing authRegisterV1 for input Error' , () => {
 describe('testing registration for sucess', () => {
   test('registration correct parameters', () => {
     const res = request(
-      'POST', 
-      url + '/auth/register/v2', 
+      'POST',
+      url + '/auth/register/v2',
       {
         body: JSON.stringify({
           email: 'james.bond@gmail.com',
@@ -69,10 +75,10 @@ describe('testing registration for sucess', () => {
           nameLast: 'Bond',
         }),
         headers: {
-          'Content-type' : 'application/json',
+          'Content-type': 'application/json',
         },
       }
-    )
+    );
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(bodyObj).toEqual(
       expect.objectContaining({
@@ -90,12 +96,11 @@ describe('testing registration for sucess', () => {
 // /////////////////////////////////////////////////////////////////////////
 
 describe('testing authLoginV1 for input errors', () => {
-
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
     request(
-      'POST', 
-      url + '/auth/register/v2', 
+      'POST',
+      url + '/auth/register/v2',
       {
         body: JSON.stringify({
           email: 'TheEmail@gmail.com',
@@ -104,53 +109,53 @@ describe('testing authLoginV1 for input errors', () => {
           nameLast: 'Tester',
         }),
         headers: {
-          'Content-type' : 'application/json',
+          'Content-type': 'application/json',
         },
       }
     );
-    });
+  });
 
   test.each([
-    {email: 'NotTheEmail@gmail.com', password: '1234567', d: 'incorrect email (email does not belong to a user)'},
-    {email: 'TheEmail@gmail.com', password: 'notThePassword', d: 'incorrect password (password does not match the email given)'},
-    {email: 'NotTheEmail@gmail.com', password: 'notThePassword', d: 'incorrect email and password'},
-  ]) ('$d', ({email, password, d}) => {
+    { email: 'NotTheEmail@gmail.com', password: '1234567', d: 'incorrect email (email does not belong to a user)' },
+    { email: 'TheEmail@gmail.com', password: 'notThePassword', d: 'incorrect password (password does not match the email given)' },
+    { email: 'NotTheEmail@gmail.com', password: 'notThePassword', d: 'incorrect email and password' },
+  ])('$d', ({ email, password, d }) => {
     const res = request(
-      'POST', 
-      url + '/auth/login/v2', 
+      'POST',
+      url + '/auth/login/v2',
       {
         body: JSON.stringify({
           email: email,
           password: password,
         }),
         headers: {
-          'Content-type' : 'application/json',
+          'Content-type': 'application/json',
         },
       }
-    )
+    );
     const bodyObj = JSON.parse(String(res.getBody()));
-    expect(bodyObj).toEqual({error: 'error'});
+    expect(bodyObj).toEqual({ error: 'error' });
     expect(res.statusCode).toStrictEqual(200);
   });
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
+  /// /////////////////////////////////////////////////////////////////////////
+  /// /////////////////////////////////////////////////////////////////////////
 
   test.each([
-    {email: 'TheEmail@gmail.com', password: '1234567', d: 'email and password match'},
-  ]) ('$d', ({email, password, d}) => {
+    { email: 'TheEmail@gmail.com', password: '1234567', d: 'email and password match' },
+  ])('$d', ({ email, password, d }) => {
     const res = request(
-      'POST', 
-      url + '/auth/login/v2', 
+      'POST',
+      url + '/auth/login/v2',
       {
         body: JSON.stringify({
           email: email,
           password: password,
         }),
         headers: {
-          'Content-type' : 'application/json',
+          'Content-type': 'application/json',
         },
       }
-    )
+    );
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(bodyObj).toEqual(
       expect.objectContaining({
@@ -168,10 +173,10 @@ describe('testing authLoginV1 for input errors', () => {
 // /////////////////////////////////////////////////////////////////////////
 describe('testing auth/logout/v1', () => {
   test('given an active token log out', () => {
-    //register and log in
+    // register and log in
     const res1 = request(
-      'POST', 
-      url + '/auth/register/v2', 
+      'POST',
+      url + '/auth/register/v2',
       {
         body: JSON.stringify({
           email: 'ThisIsaUser@gmail.com',
@@ -180,33 +185,31 @@ describe('testing auth/logout/v1', () => {
           nameLast: 'Tester',
         }),
         headers: {
-          'Content-type' : 'application/json',
+          'Content-type': 'application/json',
         },
       }
     );
-    const tok = JSON.parse(String(res1.getBody())).token
-    //log out the user
+    const tok = JSON.parse(String(res1.getBody())).token;
+    // log out the user
     const res2 = request(
-      'POST', 
-      url + '/auth/logout/v1', 
+      'POST',
+      url + '/auth/logout/v1',
       {
         body: JSON.stringify({
           token: tok,
         }),
         headers: {
-          'Content-type' : 'application/json',
+          'Content-type': 'application/json',
         },
       }
-    )
+    );
     const bodyObj = JSON.parse(String(res2.getBody()));
     expect(bodyObj).toEqual({});
     expect(res2.statusCode).toStrictEqual(200);
-  })
-})
+  });
+});
 
 //  ///////////////////////////////////////////////////////////////////
 //  ///////////////////////////////////////////////////////////////////
 //  ///////////////////////////////////////////////////////////////////
 //  ///////////////////////////////////////////////////////////////////
-
- 

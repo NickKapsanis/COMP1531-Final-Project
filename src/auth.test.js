@@ -1,9 +1,5 @@
 import { authRegisterV1, authLoginV1 } from './auth';
 import { clearV1 } from './other'
-import { request } from 'sync-request'
-import { PORT, HOST } from './server'
-
-const url = 'http://' + HOST + ':' + PORT;
 
 describe('Testing authRegisterV1 for input Error' , () => {
     test.each([
@@ -26,21 +22,7 @@ describe('Testing authRegisterV1 for input Error' , () => {
         nameLast,
     }
     ) => {
-      const res = request(
-        'POST', 
-        url + '/auth/register/v2', 
-        {
-          body: JSON.stringify({
-            email: email,
-            password: password,
-            nameFirst: nameFirst,
-            nameLast: nameLast,
-          })
-        }
-      )
-      const bodyObj = JSON.parse(String(res.getBody()));
-      expect(bodyObj).toStrictEqual(2);
-      //expect(authRegisterV1(email, password, nameFirst, nameLast)).toStrictEqual({ error: 'error' });
+      expect(authRegisterV1(email, password, nameFirst, nameLast)).toStrictEqual({ error: 'error' });
     });
  
   }
