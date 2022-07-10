@@ -35,6 +35,25 @@ export function authLoginV1(email: string, password: string) {
 }
 
 /*
+authLogoutV1
+Given an active token, log out the user, removing their token
+
+Arguments:
+    token (string)      - token of the session to logout
+
+Return Value:
+    Returns {} on sucsess
+    does not have an error return,
+    interface specifies only active tokens will be input.
+*/
+export function authLogoutV1(token: string) {
+    let data = getData();
+    let authUserId = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
+    removeToken(authUserId, token);
+    return {};
+}
+
+/*
 authRegisterV1
 Given a new user's first and last name, email and a new password, create a unique uId and authId.
 Create a 'handle/username' by concantenating first and last name, forcing lowercase-alphanumeric and length <= 20 characters
