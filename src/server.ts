@@ -27,6 +27,11 @@ app.post('/auth/register/v2', (req, res) => {
   const data = req.body;
   res.json(authRegisterV1(data.email, data.password, data.nameFirst, data.nameLast));
 });
+// authLogin
+app.post('/auth/login/v2', (req, res) => {
+  const data = req.body;
+  res.json(authLoginV1(data.email, data.password));
+});
 
 // for logging errors
 app.use(morgan('dev'));
