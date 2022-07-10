@@ -73,14 +73,14 @@ describe('testing registration for sucess', () => {
         },
       }
     )
-      const bodyObj = JSON.parse(String(res.getBody()));
-      expect(bodyObj).toEqual(
-        expect.objectContaining({
-          token: expect.any(String),
-          authUserId: expect.any(Number),
-        })
-      );
-      expect(res.statusCode).toStrictEqual(200);
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(bodyObj).toEqual(
+      expect.objectContaining({
+        token: expect.any(String),
+        authUserId: expect.any(Number),
+      })
+    );
+    expect(res.statusCode).toStrictEqual(200);
   });
 });
 // /////////////////////////////////////////////////////////////////////////
@@ -88,28 +88,26 @@ describe('testing registration for sucess', () => {
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
-/*
+
 describe('testing authLoginV1 for input errors', () => {
 
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
-    const info = {
-      email: 'TheEmail@gmail.com',
-      password: '1234567',
-      nameFirst: 'James',
-      nameLast: 'Bond',
-    }
-    const res = request(
+    request(
       'POST', 
       url + '/auth/register/v2', 
       {
         body: JSON.stringify({
-          email: info.email,
-          password: info.password,
-          nameFirst: info.nameFirst,
-          nameLast: info.nameLast,
-        })
-      })
+          email: 'TheEmail@gmail.com',
+          password: '1234567',
+          nameFirst: 'The',
+          nameLast: 'Tester',
+        }),
+        headers: {
+          'Content-type' : 'application/json',
+        },
+      }
+    );
     });
 
   test.each([
@@ -124,16 +122,21 @@ describe('testing authLoginV1 for input errors', () => {
         body: JSON.stringify({
           email: email,
           password: password,
-        })
-      })
-        const bodyObj = JSON.parse(String(res.getBody()));
-        expect(bodyObj).toEqual({error: 'error'});
-        expect(res.statusCode).toStrictEqual(200);
-   });
+        }),
+        headers: {
+          'Content-type' : 'application/json',
+        },
+      }
+    )
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(bodyObj).toEqual({error: 'error'});
+    expect(res.statusCode).toStrictEqual(200);
+  });
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 
   test.each([
     {email: 'TheEmail@gmail.com', password: '1234567', d: 'email and password match'},
-   // {email: '', password: '', d: ''},
   ]) ('$d', ({email, password, d}) => {
     const res = request(
       'POST', 
@@ -142,21 +145,22 @@ describe('testing authLoginV1 for input errors', () => {
         body: JSON.stringify({
           email: email,
           password: password,
-        })
-      })
+        }),
+        headers: {
+          'Content-type' : 'application/json',
+        },
+      }
+    )
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(bodyObj).toEqual(
       expect.objectContaining({
-        token: expect.any(Number),
+        token: expect.any(String),
         authUserId: expect.any(Number),
       })
     );
     expect(res.statusCode).toStrictEqual(200);
   });
- });
-
-
-                                                                                                */
+});
 
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
