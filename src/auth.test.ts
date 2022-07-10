@@ -169,7 +169,7 @@ describe('testing authLoginV1 for input errors', () => {
 describe('testing auth/logout/v1', () => {
   test('given an active token log out', () => {
     //register and log in
-    request(
+    const res1 = request(
       'POST', 
       url + '/auth/register/v2', 
       {
@@ -184,23 +184,23 @@ describe('testing auth/logout/v1', () => {
         },
       }
     );
+    const tok = JSON.parse(String(res1.getBody())).token
     //log out the user
-    const res = request(
+    const res2 = request(
       'POST', 
-      url + '/auth/logout/v2', 
+      url + '/auth/logout/v1', 
       {
         body: JSON.stringify({
-          email: 'ThisIsaUser@gmail.com',
-          password: '1234567',
+          token: tok,
         }),
         headers: {
           'Content-type' : 'application/json',
         },
       }
     )
-    const bodyObj = JSON.parse(String(res.getBody()));
+    const bodyObj = JSON.parse(String(res2.getBody()));
     expect(bodyObj).toEqual({});
-    expect(res.statusCode).toStrictEqual(200);
+    expect(res2.statusCode).toStrictEqual(200);
   })
 })
 
