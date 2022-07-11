@@ -2,6 +2,7 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
+import { clearV1 } from ''
 
 // Set up web app, use JSON
 const app = express();
@@ -18,6 +19,11 @@ app.get('/echo', (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+// clearV1()
+app.delete('/clear/v1', (req, res) => {
+  return res.json(clearV1());
 });
 
 // for logging errors
