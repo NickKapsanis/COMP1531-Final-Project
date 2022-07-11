@@ -372,3 +372,5 @@ const removeOwner = (tokens: string, channelIds: number, uIds: number) => {
   );
   return JSON.parse(String(res.getBody()));
 };
+
+export { createChannel, createUser, channelJoin };

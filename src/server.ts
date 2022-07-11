@@ -43,23 +43,23 @@ app.post('/auth/logout/v1', (req, res) => {
 // channelJoin
 app.post('/channel/join/v2', (req, res) => {
   const data = req.body;
-  res.json(channelJoinV2(data.token, data.channelId))
-})
+  res.json(channelJoinV2(data.token, data.channelId));
+});
 // channelInvite
 app.post('/channel/invite/v2', (req, res) => {
   const data = req.body;
-  res.json(channelInviteV2(data.token, data.channelId, data.uId))
-})
+  res.json(channelInviteV2(data.token, data.channelId, data.uId));
+});
 // addChannelOwner
 app.post('/channel/addowner/v1', (req, res) => {
   const data = req.body;
-  res.json(addChannelOwnerV1(data.token, data.channelId, data.uId))
-})
+  res.json(addChannelOwnerV1(data.token, data.channelId, data.uId));
+});
 // removeChannelOwner
 app.post('/channel/removeowner/v1', (req, res) => {
   const data = req.body;
-  res.json(removeChannelOwnerV1(data.token, data.channelId, data.uId))
-})
+  res.json(removeChannelOwnerV1(data.token, data.channelId, data.uId));
+});
 // clear
 app.delete('/clear/v1', (req, res) => {
   res.json(clearV1());
@@ -67,7 +67,7 @@ app.delete('/clear/v1', (req, res) => {
 // usersAll
 app.get('/users/all/v1', (req, res) => {
   const token = req.query.token;
-  if ( typeof token !== "string" ) {
+  if (typeof token !== 'string') {
     res.status(500).json({ error: 'Invalid dataset' });
     return;
   }

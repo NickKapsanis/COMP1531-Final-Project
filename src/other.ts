@@ -1,4 +1,4 @@
-import {getData, setData} from './dataStore';
+import { getData, setData } from './dataStore';
 
 /* Given an authUId returns the uId of the corresponding user
 Parameters:
@@ -12,13 +12,12 @@ Return Value:
     uId - (integer)
 */
 function getUId(authUserId) {
-  let data = getData();
-  let user = data.users.find(i => i.authUserId === authUserId);
+  const data = getData();
+  const user = data.users.find(i => i.authUserId === authUserId);
   if (user === undefined) {
-    return { error : 'error'};
+    return { error: 'error' };
   }
   return user.uId;
-  
 }
 
 /*
@@ -31,10 +30,10 @@ Return Value:
     VOID
 */
 function clearV1() {
-  let data = getData();  
+  let data = getData();
   data = {
-    users : [],
-    channels : [],
+    users: [],
+    channels: [],
   };
 
   setData(data);

@@ -1,4 +1,4 @@
-import { createChannel, createUser, channelJoin } from './channel.test'
+import { createChannel, createUser, channelJoin } from './channel.test';
 import { userSethandlelV1 } from './users';
 import { getUId } from './other';
 
@@ -7,9 +7,9 @@ import { PORT, HOST } from './server';
 
 const url = 'http://' + HOST + ':' + PORT;
 
-////////////////////////////////////////////////
-/////      Tests for userProfileV1() 	     /////
-////////////////////////////////////////////////
+/// /////////////////////////////////////////////
+/// //      Tests for userProfileV1() 	     /////
+/// /////////////////////////////////////////////
 
 /*
 describe('Testing userProfileV1()', () => {
@@ -18,7 +18,7 @@ describe('Testing userProfileV1()', () => {
 
     clearV1();
     expect(userProfileV1(-1,-3)).toStrictEqual({ error : 'error' });
-  
+
   });
 
   test('Testing if error is returned if authUserId does not exist', () => {
@@ -27,7 +27,7 @@ describe('Testing userProfileV1()', () => {
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
     const testUId = getUId(testAuthId);
     expect(userProfileV1(-1, testUId)).toStrictEqual({ error : 'error' });
-  
+
   });
 
   test('Testing if error is returned if uId does not exist', () => {
@@ -35,7 +35,7 @@ describe('Testing userProfileV1()', () => {
     clearV1();
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
     expect(userProfileV1(testAuthId, -1)).toStrictEqual({ error : 'error' });
-  
+
   });
 
   test('Testing correct output for when authUserId and uId belong to same person', () => {
@@ -68,9 +68,9 @@ describe('Testing userProfileV1()', () => {
 });
 */
 
-////////////////////////////////////////////////
-/////      Tests for usersAllV1() 	         /////
-////////////////////////////////////////////////
+/// /////////////////////////////////////////////
+/// //      Tests for usersAllV1() 	         /////
+/// /////////////////////////////////////////////
 
 describe('Testing usersAllV1 - should all work if other functions work', () => {
   let james, rufus, alex, rufusChannel, alexUId, rufusUId, jamesUId;
@@ -80,15 +80,15 @@ describe('Testing usersAllV1 - should all work if other functions work', () => {
 
     james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
     jamesUId = getUId(james.authUserId);
-    userSethandlelV1(james.token, "coolJames");
+    userSethandlelV1(james.token, 'coolJames');
 
     rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Hayes');
     rufusUId = getUId(rufus.authUserId);
-    userSethandlelV1(rufus.token, "epicRufus");
+    userSethandlelV1(rufus.token, 'epicRufus');
 
     alex = createUser('alex@gmail.com', 'testPassword123', 'Alex', 'King');
     alexUId = getUId(alex.authUserId);
-    userSethandlelV1(alex.token, "amazingAlex");
+    userSethandlelV1(alex.token, 'amazingAlex');
 
     rufusChannel = createChannel(rufus.authUserId, 'testChannel2', true);
     channelJoin(alex.token, rufusChannel);
@@ -96,18 +96,17 @@ describe('Testing usersAllV1 - should all work if other functions work', () => {
 
   test('test successful case', () => {
     expect(usersAll(james.token)).toEqual([
-      {userId: jamesUId, email: 'james@gmail.com', nameFirst: 'James', nameLast: 'Brown', handleStr: 'coolJames'}, 
-      {userId: rufusUId, email: 'rufus@gmail.com', nameFirst: 'Rufus', nameLast: 'Hayes', handleStr: 'epicRufus'}, 
-      {userId: alexUId, email: 'alex@gmail.com', nameFirst: 'Alex', nameLast: 'King', handleStr: 'amazingAlex'}, 
+      { userId: jamesUId, email: 'james@gmail.com', nameFirst: 'James', nameLast: 'Brown', handleStr: 'coolJames' },
+      { userId: rufusUId, email: 'rufus@gmail.com', nameFirst: 'Rufus', nameLast: 'Hayes', handleStr: 'epicRufus' },
+      { userId: alexUId, email: 'alex@gmail.com', nameFirst: 'Alex', nameLast: 'King', handleStr: 'amazingAlex' },
     ]);
   });
-
 });
 
 const usersAll = (tokens: string) => {
   const res = request(
     'GET', url + '/users/all/v1',
-    {qs: {token: tokens}}
+    { qs: { token: tokens } }
   );
   return JSON.parse(String(res.getBody()));
 };
