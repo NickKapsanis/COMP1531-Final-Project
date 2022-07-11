@@ -1,4 +1,6 @@
 import {getData} from './dataStore'
+import isEmail from "validator/lib/isEmail";
+import { stringify } from 'querystring';
 /*
 Given an authUserId and a uId, the function userProfileV1
 returns the user information of the corresponding uId
@@ -21,7 +23,7 @@ returns the user information of the corresponding uId
     }
 */
 
-function userProfileV1(authUserId, uId) {
+function userProfileV1(authUserId: number, uId: number) {
   let data = getData();
   let user1 = data.users.find(i => i.authUserId === authUserId);
   let user2 = data.users.find(i => i.uId === uId);
@@ -37,4 +39,122 @@ function userProfileV1(authUserId, uId) {
   }
 }
 
-export { userProfileV1 }
+/*
+Given an authUserId, firstname and lastname, the function userSetnameV1
+changes the user details according to what was inputted.
+
+* Parameters :
+    authUserId (integer)
+    nameFirst        (string)
+    nameLast         (string)
+
+* Return values :
+  (1) Error returned if either authUserId or uId do not exist
+    {error : 'error'} 
+   
+  (2) nothing
+    {}
+*/
+function userSetnameV1(authUserId, nameFirst, nameLast) {
+
+  //does all the error checking
+  if (nameFirst.length > 50 || nameFirst.length < 1 || 
+    nameLast.length > 50 || nameLast.length < 1) {
+    return {error: 'error'};
+  }
+
+  //finds person from the data, and changes their firstname.
+  let data = getData();
+  let user = data.users.find(i => i.authUserId === authUserId);
+  if (user === undefined) {
+    return { error : 'error'};
+  }
+  user.nameFirst = nameFirst;
+
+  return {};
+}
+
+
+/*
+Given an authUserId, and email, the function userSetnameV1
+changes the user details according to what was inputted.
+
+* Parameters :
+    authUserId (integer)
+    email        (string)
+
+* Return values :
+  (1) Error returned if either authUserId or uId do not exist
+    {error : 'error'} 
+   
+  (2) nothing
+    {}
+*/
+function userSetemailV1(authUserId, email) {
+
+  //does all the error checking
+  if (!isEmail(email)) {
+    return {error: 'error'};
+  }
+
+  //finds person from the data, and changes their firstname.
+  let data = getData();
+  let user = data.users.find(i => i.authUserId === authUserId);
+  if (user === undefined) {
+    return { error : 'error'};
+  }
+  user.email = email;
+
+  return {};
+}
+
+/*
+Given an authUserId, and handle, the function userSetnameV1
+changes the user details according to what was inputted.
+
+* Parameters :
+    authUserId (integer)
+    handle        (string)
+
+* Return values :
+  (1) Error returned if either authUserId or uId do not exist
+    {error : 'error'} 
+   
+  (2) nothing
+    {}
+*/
+function userSethandlelV1(authUserId, handleStr) {
+  //finds person from the data, and changes their firstname.
+  let data = getData();
+  let user = data.users.find(i => i.authUserId === authUserId);
+  if (user === undefined) {
+    return { error : 'error'};
+  }
+
+  //does all the error checking
+  //this regex string is from the internet, checks that characters are alphanumeric,
+  if (user.nameFirst.length > 20 || user.nameFirst.length < 3 || !user.nameFirst.match(/^[0-9a-z]+$/)) {
+    return {error: 'error'};
+  }
+
+  //checks that the handle isn't already used by another user.
+  if (data.users.find(i => i.handleStr === handleStr) !== undefined) {
+    return {error: 'error'};
+  }
+
+  user.handleStr = handleStr;
+  return {};
+}
+
+function usersAllV1(token: string) {
+  let outputArray: { uId: number, email: string, nameFirst: string, nameLast: string, handleStr: string}[] = [];
+  const data = getData();
+  for (let user of data.users) {
+    outputArray.push(
+      { uId: user.uId, email: user.email, nameFirst: user.nameFirst, nameLast: user.nameLast, handleStr: user.handleStr}
+      )
+  }
+  return outputArray;  
+}
+
+export { userProfileV1, userSetnameV1, userSetemailV1, userSethandlelV1, usersAllV1 }
