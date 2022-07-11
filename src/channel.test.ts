@@ -274,7 +274,20 @@ test('tests the case that user isn\'t valid', () => {
     const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green').authUserId;
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true).channelId;
 
-    const res = channelsLeaveV1(rufusAuthId, testCreatedChannel);
+
+    const res = request(
+        'POST',
+        url + '/channel/leave/v1',
+        {
+          body: JSON.stringify({
+            token: rufusAuthId,
+            channelId: testCreatedChannel,
+          }),
+          headers: {
+            'Content-type': 'application/json',
+          },
+        }
+      );
     const output = channelsListV1(jamesAuthId);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -289,7 +302,19 @@ test('tests the case with only given user in channel', () => {
     const rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green').authUserId;
     let testCreatedChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true).channelId;
 
-    const res = channelsLeaveV1(jamesAuthId, testCreatedChannel);
+    const res = request(
+        'POST',
+        url + '/channel/leave/v1',
+        {
+          body: JSON.stringify({
+            token: jamesAuthId,
+            channelId: testCreatedChannel,
+          }),
+          headers: {
+            'Content-type': 'application/json',
+          },
+        }
+      );
     const output = channelsListV1(jamesAuthId);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -307,7 +332,19 @@ test('tests the general case, channel with multiple people.', () => {
 
     //james and rufus are both in the channel at this point.
 
-    const res = channelsLeaveV1(rufusAuthId, testCreatedChannel);
+    const res = request(
+        'POST',
+        url + '/channel/leave/v1',
+        {
+          body: JSON.stringify({
+            token: rufusAuthId,
+            channelId: testCreatedChannel,
+          }),
+          headers: {
+            'Content-type': 'application/json',
+          },
+        }
+      );
     const output = channelsListV1(rufusAuthId);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -329,7 +366,19 @@ test('tests the multiple channels and multiple people.', () => {
     //james and rufus are both in the channel at this point.
     //james and aqlex are both in the second channel at this point.
 
-    const res = channelsLeaveV1(rufusAuthId, testCreatedChannel);
+    const res = request(
+        'POST',
+        url + '/channel/leave/v1',
+        {
+          body: JSON.stringify({
+            token: rufusAuthId,
+            channelId: testCreatedChannel,
+          }),
+          headers: {
+            'Content-type': 'application/json',
+          },
+        }
+      );
     const output = channelsListV1(rufusAuthId);
 
     const bodyObj = JSON.parse(String(res.getBody()));
