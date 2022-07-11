@@ -13,7 +13,7 @@ describe('Tests for message/senddm/V1', () => {
 
   beforeEach(() => {
     //  member of: token1: [1], token2: [2]
-    // TODO: find the uIDs of token1 and token2 to pass in
+    // TODO: find uIDs of token1 and token2 to pass in
     token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
     dmId1 = requestDmCreateV1(token1, [1, 2]);
