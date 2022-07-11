@@ -72,10 +72,10 @@ test('Testing if changing nothing still returns same name.', () => {
   const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
   const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'James').authUserId;
 
-  userSetnameV1{aliceAuthId, Alice, Smith};
+  userSetnameV1(aliceAuthId, Alice, Smith);
 
-  expect(userProfileV1(aliceAuthId.nameFirst)).toEqual({ Alice });
-  expect(userProfileV1(aliceAuthId.lastFirst)).toEqual({ Smith });
+  expect(userProfileV1(aliceAuthId.nameFirst)).toEqual( 'Alice' );
+  expect(userProfileV1(aliceAuthId.lastFirst)).toEqual( 'Smith' );
 
 
 });
@@ -87,10 +87,10 @@ test('Testing changing only first name.', () => {
   const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
   const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'James').authUserId;
 
-  userSetnameV1{aliceAuthId, Alison, Smith};
+  userSetnameV1(aliceAuthId, Alison, Smith);
 
-  expect(userProfileV1(aliceAuthId.nameFirst)).toEqual({ Alison });
-  expect(userProfileV1(aliceAuthId.lastFirst)).toEqual({ Smith });
+  expect(userProfileV1(aliceAuthId.nameFirst)).toEqual( 'Alison' );
+  expect(userProfileV1(aliceAuthId.lastFirst)).toEqual( 'Smith' );
 
 
 });
@@ -102,10 +102,10 @@ test('Testing changing only last name.', () => {
   const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
   const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'James').authUserId;
 
-  userSetnameV1{aliceAuthId, Alice, Sithlord};
+  userSetnameV1(aliceAuthId, Alice, Sithlord);
 
-  expect(userProfileV1(aliceAuthId.nameFirst)).toEqual({ Alice });
-  expect(userProfileV1(aliceAuthId.lastFirst)).toEqual({ Sithlord });
+  expect(userProfileV1(aliceAuthId.nameFirst)).toEqual( 'Alice' );
+  expect(userProfileV1(aliceAuthId.lastFirst)).toEqual( 'Sithlord' );
 
 });
 
@@ -116,10 +116,10 @@ test('Testing changing both names.', () => {
   const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
   const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'James').authUserId;
 
-  userSetnameV1{aliceAuthId, Alison, Sithlord};
+  userSetnameV1(aliceAuthId, Alison, Sithlord);
 
-  expect(userProfileV1(aliceAuthId.nameFirst)).toEqual({ Alison });
-  expect(userProfileV1(aliceAuthId.lastFirst)).toEqual({ Sithlord });
+  expect(userProfileV1(aliceAuthId.nameFirst)).toEqual( 'Alison' );
+  expect(userProfileV1(aliceAuthId.lastFirst)).toEqual( 'Sithlord' );
 
 });
 
@@ -134,9 +134,9 @@ test('Testing if changing nothing still returns same email.', () => {
 
   const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
 
-  userSetemailV1{aliceAuthId, alice@email.com};
+  userSetemailV1(aliceAuthId, 'alice@email.com');
 
-  expect(userProfileV1(aliceAuthId.email)).toEqual({ alice@email.com });
+  expect(userProfileV1(aliceAuthId.email)).toEqual( 'alice@email.com' );
 
 
 });
@@ -147,9 +147,9 @@ test('Testing changing email.', () => {
 
   const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
 
-  userSetemailV1{aliceAuthId, supercoolnew@email.com};
+  userSetemailV1(aliceAuthId, 'supercoolnew@email.com');
 
-  expect(userProfileV1(aliceAuthId.email)).toEqual({ supercoolnew@email.com });
+  expect(userProfileV1(aliceAuthId.email)).toEqual( 'supercoolnew@email.com' );
 
 });
 
@@ -162,9 +162,9 @@ test('Testing if changing nothing still returns same handle.', () => {
 
   const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
 
-  userSethandleV1{aliceAuthId, AliceSmith};
+  userSethandleV1(aliceAuthId, AliceSmith);
 
-  expect(userProfileV1(aliceAuthId.handleStr)).toEqual({ alice@AliceSmith });
+  expect(userProfileV1(aliceAuthId.handleStr)).toEqual( 'alice@AliceSmith' );
 
 
 });
@@ -175,8 +175,8 @@ test('Testing changing handle.', () => {
 
   const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Smith').authUserId;
 
-  userSethandleV1{aliceAuthId, AwesomeNewHandle};
+  userSethandleV1(aliceAuthId, AwesomeNewHandle);
 
-  expect(userProfileV1(aliceAuthId.handleStr)).toEqual({ AwesomeNewHandle });
+  expect(userProfileV1(aliceAuthId.handleStr)).toEqual( 'AwesomeNewHandle' );
 
 });

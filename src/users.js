@@ -126,9 +126,9 @@ function userSethandlelV1(authUserId, handleStr) {
 
   //does all the error checking
   //this regex string is from the internet, checks that characters are alphanumeric,
-  if (nameFirst.length > 20 || nameFirst.length < 3 || !nameFirst.match(/^[0-9a-z]+$/)) {
+  /*if (nameFirst.length > 20 || nameFirst.length < 3 || !nameFirst.match(/^[0-9a-z]+$/)) {
     return {error: 'error'};
-  }
+  }*/
 
   //checks that the handle isn't already used by another user.
   if (data.users.find(i => i.handleStr === handleStr) !== undefined) {
