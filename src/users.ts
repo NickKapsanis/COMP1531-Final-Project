@@ -142,6 +142,20 @@ function userSethandlelV1(authUserId, handleStr) {
   return {};
 }
 
+/*
+Given a session token, output all public user details in the system
+
+* Parameters :
+    token: string
+
+* Return values :
+    array of user details, including:
+    uId
+    email
+    name
+    surname
+    handleStr
+*/
 function usersAllV1(token: string) {
   const outputArray: { uId: number, email: string, nameFirst: string, nameLast: string, handleStr: string}[] = [];
   const data = getData();
