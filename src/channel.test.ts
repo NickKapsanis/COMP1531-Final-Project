@@ -1,14 +1,14 @@
-import { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1, addChannelOwnerV1, removeChannelOwnerV1 } from './channel';
+import { channelDetailsV1, channelJoinV2, channelInviteV2, channelMessagesV1, addChannelOwnerV1, removeChannelOwnerV1 } from './channel';
 import { authRegisterV1 } from './auth'; 
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels'; 
 import { clearV1, getUId } from './other';
-import express from 'express';
+
 import request from 'sync-request';
+import { PORT, HOST } from './server';
 
-//TODO figure out whats happening with ports
-// const PORT = ___
+const url = 'http://' + HOST + ':' + PORT;
 
-
+/*
 // Testing for channelDetailsV1
 describe('Testing channelDetailsV1', () => {
     let authUserId;
@@ -131,110 +131,80 @@ describe('Testing channelMessagesV1', () => {
         expect(messages).toStrictEqual({ error: 'error' });
     }); 
 });
-
+*/
 ////////////////////////////////////////////////
-/////      Tests for channelJoinV1() 	   /////
+/////      Tests for channelJoinV2() 	   /////
 ////////////////////////////////////////////////
 
-
-describe('Testing channelJoinV1 HTTP', () => {
-    let jamesAuthId, rufusAuthId, testChannel;
+describe('Testing channelJoinV2', () => {
+    let james, rufus, alex, publicChannel, privateChannel, rufusPrivateChannel;
 
     beforeEach(() => {
-        jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown').authUserId;
-        rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green').authUserId;
-        testChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true).channelId;
-        const res = request(
-            'POST',
-            'http:/localhost:${PORT}/channel/join/v2',
-//TODO Confused as to how to test what changes on the server if there is only a change to the backend?
-        )
-    });
+        const res = request('DELETE', url + "/clear/v1");
 
-    afterEach(() => {
-        clearV1();
-    });
+        james = createUser('james@gmail.com','testPassword123', 'James', 'Brown');
+        rufus = createUser('rufus@gmail.com','testPassword123', 'Alex', 'Hayes');
+        alex = createUser('alex@gmail.com','testPassword123', 'Alex', 'King');
 
-    test('tests the case that authUserId is invalid', () => {
-        let testChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true).channelId;
-        expect(channelJoinV1(-100, testChannel)).toStrictEqual({ error : 'error' });
+        publicChannel = createChannel(james.authUserId, 'testChannel1', true);
+        privateChannel = createChannel(james.authUserId, 'testChannel2', false);
+        rufusPrivateChannel = createChannel(rufus.authUserId, 'testChannel3', false);
     });
-
-    test('tests the case that channelId is invalid', () => {
-        expect(channelJoinV1(rufusAuthId, -100)).toStrictEqual({ error : 'error' });
+    
+    test('channelId does not refer to a valid channel', () => {
+        expect(channelJoin(rufus.token, -100)).toEqual({ error : 'error' })
     });
-
-    test('tests the case that the user is already a member of the channel', () => {
-        expect(channelJoinV1(jamesAuthId, testChannel)).toStrictEqual({ error : 'error' });
+    test('the user is already a channel member', () => {
+        expect(channelJoin(james.token, publicChannel)).toEqual({ error : 'error' })
     });
-
-    test('tests the case that the channel is private and the user is not a global owner', () => {
-        let newChannel = channelsCreateV1(jamesAuthId, 'testChannel1', false).channelId;
-        expect(channelJoinV1(rufusAuthId, newChannel)).toStrictEqual({ error : 'error' });
+    test('the channel is private and user is not global owner', () => {
+        expect(channelJoin(rufus.token, privateChannel)).toEqual({ error : 'error' })
     });
-
-    test('tests the case that the channel is private and the user is a global owner', () => {
-        let newChannel = channelsCreateV1(rufusAuthId, 'testChannel1', false).channelId;
-        expect(channelJoinV1(jamesAuthId, testChannel)).toStrictEqual({});
+    test('the channel is private and the user is a global owner', () => {
+        expect(channelJoin(james.token, rufusPrivateChannel)).toEqual({})
     });
-
-    test('tests the case of a success', () => {
-        expect(channelJoinV1(rufusAuthId, testChannel)).toStrictEqual({});
+    test('successful add', () => {
+        expect(channelJoin(rufus.token, publicChannel)).toEqual({})
     });
 });
 
-
 ////////////////////////////////////////////////
-/////      Tests for channelInviteV1() 	   /////
+/////      Tests for channelInviteV2() 	   /////
 ////////////////////////////////////////////////
 
-describe('Testing channelInviteV1', () => {
-    let jamesAuthId, rufusAuthId, testChannel;
+describe('Testing channelInviteV2', () => {
+    let james, rufus, alex, publicChannel, rufusChannel, rufusuId;
 
     beforeEach(() => {
-        jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown').authUserId;
-        rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green').authUserId;
-        testChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true).channelId;
-        const res = request(
-            'POST',
-            'http:/localhost:${PORT}/channel/invite/v2',
-//TODO Confused as to how to test what changes on the server if there is only a change to the backend?
-        )
-    });
+        const res = request('DELETE', url + "/clear/v1");
 
-    afterEach(() => {
-        clearV1();
-    });
+        james = createUser('james@gmail.com','testPassword123', 'James', 'Brown');
+        rufus = createUser('rufus@gmail.com','testPassword123', 'Rufus', 'Hayes');
+        alex = createUser('alex@gmail.com','testPassword123', 'Alex', 'King');
+        rufusuId = getUId(rufus.authUserId);
 
-    test('tests the case that user inviting does not exist', () => {
-        expect(channelInviteV1('fakeUser', testChannel, getUId(rufusAuthId))).toStrictEqual({ error : 'error' });
+        publicChannel = createChannel(james.authUserId, 'testChannel1', true);
+        rufusChannel = createChannel(rufus.authUserId, 'testChannel2', true);
     });
-
-    test('tests the case user joining does not exist', () => {
-        expect(channelInviteV1(jamesAuthId, testChannel, -100)).toStrictEqual({ error : 'error' });
+    
+    test('channelId does not refer to a valid channel', () => {
+        expect(channelInvite(james.token, -100, rufusuId)).toEqual({ error : 'error' })
     });
-
-    test('tests the case channel does not exist', () => {
-        expect(channelInviteV1(jamesAuthId, 'fakeChannel', getUId(rufusAuthId))).toStrictEqual({ error : 'error' });
+    test('user inviting does not exist', () => {
+        expect(channelInvite('fakeUser', publicChannel, rufusuId)).toEqual({ error : 'error' })
     });
-
-    test('tests the case channel uId refers to an existing channel member', () => {
-        const alexAuthId = authRegisterV1('alex@gmail.com', 'bigBrainPassword', 'Alex', 'John').authUserId;
-        let joinAlex = channelJoinV1(alexAuthId, testChannel);
-        expect(channelInviteV1(jamesAuthId, testChannel, getUId(alexAuthId))).toStrictEqual({ error : 'error' });
+    test('user joining does not exist', () => {
+        expect(channelInvite(james.token, publicChannel, -100)).toEqual({ error : 'error' })
     });
-
-    test('tests the case that the user inviting is not a member of the channel', () => {
-        const alexAuthId = authRegisterV1('alex@gmail.com', 'bigBrainPassword', 'Alex', 'Alex').authUserId;
-        expect(channelInviteV1(alexAuthId, testChannel, getUId(rufusAuthId))).toStrictEqual({ error : 'error' });
+    test('trying to invite existing channel member', () => {
+        channelJoin(alex.token, rufusChannel)
+        expect(channelInvite(alex.token, publicChannel, rufusuId)).toEqual({ error : 'error' })
     });
-
-    test('tests the case that the user invites themself', () => {
-        expect(channelInviteV1(rufusAuthId, testChannel, getUId(rufusAuthId))).toStrictEqual({ error : 'error' });
+    test('user inviting is not a member of the channel', () => {
+        expect(channelInvite(alex.token, publicChannel, rufusuId)).toEqual({ error : 'error' })
     });
-
-    test('tests the successful case', () => {
-        expect(channelInviteV1(jamesAuthId, testChannel, getUId(rufusAuthId))).toStrictEqual({});
+    test('successful case', () => {
+        expect(channelInvite(james.token, publicChannel, rufusuId)).toEqual({})
     });
 });
 
@@ -243,52 +213,41 @@ describe('Testing channelInviteV1', () => {
 ////////////////////////////////////////////////
 
 describe('Testing addChannelOwnerV1', () => {
-    let jamesAuthId, rufusAuthId, testChannel;
+    let james, rufus, alex, publicChannel, rufusChannel, alexUId;
 
     beforeEach(() => {
-        jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown').authUserId;
-        rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green').authUserId;
-        testChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true).channelId;
-        const res = request(
-            'POST',
-            'http:/localhost:${PORT}/channel/addowner/v1',
-//TODO Confused as to how to test what changes on the server if there is only a change to the backend?
-        )
+
+        const res = request('DELETE', url + "/clear/v1");
+
+        james = createUser('james@gmail.com','testPassword123', 'James', 'Brown');
+        rufus = createUser('rufus@gmail.com','testPassword123', 'Rufus', 'Hayes');
+        alex = createUser('alex@gmail.com','testPassword123', 'Alex', 'King');
+        alexUId = getUId(alex.authUserId);
+
+        publicChannel = createChannel(james.authUserId, 'testChannel1', true);
+        rufusChannel = createChannel(rufus.authUserId, 'testChannel2', true);
+
+        channelJoin(alex.token, publicChannel);
+        channelJoin(rufus.token, publicChannel);
     });
 
-    afterEach(() => {
-        clearV1();
+    test('channelId does not refer to a valid channel', () => {
+        expect(addOwner(rufus.token, -100, alexUId)).toEqual({ error : 'error' })
     });
-
-    test('tests the case that user becoming owner refers to an invalid user', () => {
-        expect(addChannelOwnerV1(jamesAuthId, testChannel, -100)).toStrictEqual({ error : 'error' });
+    test('user becoming owner is an invalid user', () => {
+        expect(addOwner(rufus.token, rufusChannel, -100)).toEqual({ error : 'error' })
     });
-
-    test('tests the case channel does not exist', () => {
-        expect(addChannelOwnerV1(jamesAuthId, -100, getUId(rufusAuthId))).toStrictEqual({ error : 'error' });
+    test('user becoming owner is not a member of the channel', () => {
+        expect(addOwner(james.token, publicChannel, alexUId)).toEqual({ error : 'error' })
     });
-
-    test('tests the user adding the new owner does not exist', () => {
-        expect(addChannelOwnerV1(-100, testChannel, getUId(rufusAuthId))).toStrictEqual({ error : 'error' });
+    test('user becoming owner is not a member of the channel', () => {
+        expect(addOwner(rufus.token, rufusChannel, alexUId)).toEqual({ error : 'error' })
     });
-
-    test('tests the case channel user becoming owner is not a member of the channel', () => {
-        addChannelOwnerV1(jamesAuthId, testChannel, getUId(rufusAuthId));
-        expect(addChannelOwnerV1(jamesAuthId, testChannel, getUId(rufusAuthId))).toStrictEqual({ error : 'error' });
-    });
-
-    test('tests the case that the user becoming owner is already an owner', () => {
-        expect(addChannelOwnerV1(jamesAuthId, testChannel, getUId(rufusAuthId))).toStrictEqual({ error : 'error' });
-    });
-
     test('the user adding the new owner is not a global owner or channel owner, but is in the channel', () => {
-        const alexAuthId = authRegisterV1('alex@gmail.com', 'bigBrainPassword', 'Alex', 'Alex').authUserId;
-        channelJoinV1(alexAuthId, testChannel);
-        expect(addChannelOwnerV1(alexAuthId, testChannel, getUId(rufusAuthId))).toStrictEqual({ error : 'error' });
+        expect(addOwner(rufus.token, publicChannel, alexUId)).toEqual({ error : 'error' })
     });
-
-    test('tests the successful case', () => {
-        expect(addChannelOwnerV1(jamesAuthId, testChannel, getUId(rufusAuthId))).toStrictEqual({});
+    test('successful case', () => {
+        expect(addOwner(james.token, publicChannel, alexUId)).toEqual({})
     });
 });
 
@@ -297,55 +256,126 @@ describe('Testing addChannelOwnerV1', () => {
 ////////////////////////////////////////////////
 
 describe('Testing removeChannelOwnerV1', () => {
-    let jamesAuthId, rufusAuthId, alexAuthId, testChannel;
+    let james, rufus, alex, publicChannel, rufusChannel, alexUId, jamesUId, rufusUId;
 
     beforeEach(() => {
-        jamesAuthId = authRegisterV1('james@gmail.com', 'testPassword123', 'James', 'Brown').authUserId;
-        rufusAuthId = authRegisterV1('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green').authUserId;
-        alexAuthId = authRegisterV1('alex@gmail.com', 'bigBrainPassword', 'Alex', 'Alex').authUserId;
-        testChannel = channelsCreateV1(jamesAuthId, 'testChannel1', true).channelId;
-        channelJoinV1(alexAuthId, testChannel);
-        addChannelOwnerV1(jamesAuthId, testChannel, alexAuthId);
-        const res = request(
-            'POST',
-            'http:/localhost:${PORT}/channel/addowner/v1',
-//TODO Confused as to how to test what changes on the server if there is only a change to the backend?
-        )
+
+        const res = request('DELETE', url + "/clear/v1");
+
+        james = createUser('james@gmail.com','testPassword123', 'James', 'Brown');
+        rufus = createUser('rufus@gmail.com','testPassword123', 'Rufus', 'Hayes');
+        alex = createUser('alex@gmail.com','testPassword123', 'Alex', 'King');
+
+        alexUId = getUId(alex.authUserId);
+        jamesUId = getUId(james.authUserId);
+        rufusUId = getUId(rufus.authUserId);
+
+        publicChannel = createChannel(james.authUserId, 'testChannel1', true);
+        rufusChannel = createChannel(rufus.authUserId, 'testChannel2', true);
+
+        channelJoin(alex.token, rufusChannel);
+        channelJoin(james.token, rufusChannel);
     });
 
-    afterEach(() => {
-        clearV1();
+    test('channelId does not refer to a valid channel', () => {
+        expect(removeOwner(james.token, -100, rufusUId)).toEqual({ error : 'error' })
     });
-
-    test('tests the case that user being removed as owner refers to an invalid user', () => {
-        expect(removeChannelOwnerV1(jamesAuthId, testChannel, -100)).toStrictEqual({ error : 'error' });
+    test('user being rmeoved as owner does not exist', () => {
+        expect(removeOwner(james.token, rufusChannel, -100)).toEqual({ error : 'error' })
     });
-
-    test('tests the case channel does not exist', () => {
-        expect(removeChannelOwnerV1(jamesAuthId, -100, getUId(alexAuthId))).toStrictEqual({ error : 'error' });
+    test('user being removed as owner is not currently owner', () => {
+        expect(removeOwner(rufus.token, rufusChannel, alexUId)).toEqual({ error : 'error' })
     });
-
-    test('tests the user removing the existing owner does not exist', () => {
-        expect(removeChannelOwnerV1(-100, testChannel, getUId(alexAuthId))).toStrictEqual({ error : 'error' });
+    test('user being removed as owner is not currently owner', () => {
+        expect(removeOwner(rufus.token, rufusChannel, alexUId)).toEqual({ error : 'error' })
     });
-
-    test('tests the case trying to remove user who is not an owner of the channel as owner', () => {
-        channelJoinV1(rufusAuthId, testChannel);
-        expect(removeChannelOwnerV1(jamesAuthId, testChannel, getUId(rufusAuthId))).toStrictEqual({ error : 'error' });
+    test('trying to remove an owner who is the only channel owner', () => {
+        expect(removeOwner(james.token, rufusChannel, rufusUId)).toEqual({ error : 'error' })
     });
-
-    test('tests the case attempting to remove user who is the only channel owner', () => {
-        removeChannelOwnerV1(jamesAuthId, testChannel, getUId(jamesAuthId));
-        expect(removeChannelOwnerV1(jamesAuthId, testChannel, getUId(alexAuthId))).toStrictEqual({ error : 'error' });
+    test('user being removed as owner is not currently owner', () => {
+        expect(removeOwner(rufus.token, rufusChannel, alexUId)).toEqual({ error : 'error' })
     });
-
-    test('the user attempting to remove the user as a channel owner lacks permissions (is not global owner)', () => {
-        expect(removeChannelOwnerV1(alexAuthId, testChannel, getUId(jamesAuthId))).toStrictEqual({ error : 'error' });
+    test('user attempting to remove owner lacks permissions', () => {
+        expect(removeOwner(alex.token, rufusChannel, rufusUId)).toEqual({ error : 'error' })
     });
-
-    test('tests the successful case', () => {
-        expect(removeChannelOwnerV1(jamesAuthId, testChannel, getUId(alexAuthId))).toStrictEqual({});
+    test('successful case', () => {
+        addOwner(rufus.token, rufusChannel, alexUId);
+        expect(removeOwner(rufus.token, rufusChannel, alexUId)).toEqual({})
     });
 });
 
-// assumption - global owners can add and remove themselves as channel owners
+
+
+// assumption - both global and channel owners can add and remove themselves as channel owners
+
+
+// helper function - calls auth register through the server
+let createUser = (emails: string, passwords: string, name: string, surname: string ) => {
+    const res = request(
+        'POST', url + '/auth/register/v2',
+        {
+          body: JSON.stringify({email: emails, password: passwords, nameFirst: name, nameLast: surname,
+          }),
+          headers: {
+            'Content-type': 'application/json',
+          },
+        }
+      );
+      return JSON.parse(String(res.getBody()));
+} 
+
+// helper function - calls channelsCreate through the server
+let createChannel = (tokens: string, names: string, publicity: boolean) => {
+    const res = request(
+        'POST', url + '/channels/create/v2',
+        {
+          body: JSON.stringify({token: tokens, name: names, isPublic: publicity,
+          }),
+          headers: {
+            'Content-type': 'application/json',
+          },
+        }
+      );
+      return JSON.parse(String(res.getBody()));
+}
+
+// goes through server to call channelJoinV2
+let channelJoin = (tokens: string, channelIds: number) => {
+    const res = request(
+        'POST', url + '/channel/join/v2',
+        {body: JSON.stringify({token: tokens, channelId: channelIds}),
+          headers: {'Content-type': 'application/json'},
+        }
+    );
+    return JSON.parse(String(res.getBody()));
+}
+
+// goes through server to call channelInviteV2
+let channelInvite = (tokens: string, channelIds: number, uIds: number) => {
+    const res = request(
+        'POST', url + '/channel/invite/v2',
+        {body: JSON.stringify({token: tokens, channelId: channelIds, uId: uIds}),
+          headers: {'Content-type': 'application/json'}}
+    );
+    return JSON.parse(String(res.getBody()));
+}
+
+// goes through server to call addOwnerV1
+let addOwner = (tokens: string, channelIds: number, uIds: number) => {
+    const res = request(
+        'POST', url + '/channel/addowner/v1',
+        {body: JSON.stringify({token: tokens, channelId: channelIds, uId: uIds}),
+          headers: {'Content-type': 'application/json'}}
+    );
+    return JSON.parse(String(res.getBody()));
+}
+
+// goes through server to call removeOwnerV1
+let removeOwner = (tokens: string, channelIds: number, uIds: number) => {
+    const res = request(
+        'POST', url + '/channel/removeowner/v1',
+        {body: JSON.stringify({token: tokens, channelId: channelIds, uId: uIds}),
+          headers: {'Content-type': 'application/json'}}
+    );
+    return JSON.parse(String(res.getBody()));
+}
