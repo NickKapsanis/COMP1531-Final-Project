@@ -5,6 +5,7 @@ import config from './config.json';
 import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
 import { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1 } from './channel';
 import { clearV1 } from './other';
+import { usersAllV1 } from './users';
 
 // Set up web app, use JSON
 const app = express();
@@ -62,6 +63,15 @@ app.post('/channel/removeowner/v1', (req, res) => {
 // clear
 app.delete('/clear/v1', (req, res) => {
   res.json(clearV1());
+});
+// usersAll
+app.get('/users/all/v1', (req, res) => {
+  const token = req.query.token;
+  if ( typeof token !== "string" ) {
+    res.status(500).json({ error: 'Invalid dataset' });
+    return;
+  }
+  res.send(JSON.stringify(usersAllV1(token)));
 });
 
 // for logging errors
