@@ -28,7 +28,7 @@ describe('Testing authRegisterV1 for input Error', () => {
       nameFirst: 'James',
       nameLast: 'Bond012345678901234567890123456789012345678901234567890'
     },
-    // {email: 'email123@gmail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond'},
+
   ])('authRegisterV1($email , $password, $nameFirst, $nameLast)', (
     {
       email,
@@ -80,6 +80,7 @@ describe('testing registration for sucess', () => {
       }
     );
     const bodyObj = JSON.parse(String(res.getBody()));
+    console.log(bodyObj);
     expect(bodyObj).toEqual(
       expect.objectContaining({
         token: expect.any(String),

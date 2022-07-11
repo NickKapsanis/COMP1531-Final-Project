@@ -1,6 +1,7 @@
-import { getData, setData } from './dataStore'; 
+import { dataStoreType, getData, setData, user, channel } from './dataStore'; 
 import { userProfileV1 } from './users'; 
 import { channelsListV1 } from './channels'; 
+
 import express from 'express';
 import request from 'sync-request';
   
@@ -21,8 +22,8 @@ import request from 'sync-request';
  *      } 
  */  
 
-function channelDetailsV1(authUserId, channelId) {
-    const store = getData(); 
+function channelDetailsV1(authUserId: number, channelId: number) {
+    const store : dataStoreType = getData(); 
 
     if (store.users.find(user => user.authUserId === authUserId) === undefined) {
         return { error: 'error' }; 
@@ -112,7 +113,7 @@ function channelMessagesV1(authUserId, channelId, start) {
     }
     
     // Creating object to contain messages and the specified range 
-    const messageDetails = {};     
+    const messageDetails : any = {};     
     messageDetails.messages = channelGiven.messages.slice(start, start + 50); 
     messageDetails.start = start; 
     if (maxRecentIndex === true) {
@@ -126,7 +127,7 @@ function channelMessagesV1(authUserId, channelId, start) {
 
 
 /**
-* channelJoinV1
+* channelJoinV2
 * this function allows a user to join public channels 
 * (or private channels if they are a global owner)
 *
@@ -138,22 +139,11 @@ function channelMessagesV1(authUserId, channelId, start) {
 *   {error: 'error'}     object         Error message when given invalid input
 *   {}                   empty object   Successful run
 */
-function channelJoinV1(token: string, channelId: number) {
-    let data = getData();
-    const authUserId = data.users.find(user => user.tokens.find(tok => tok === token));
-    // setup to find the correct user and channel object
-    let usersArray = data.users;
-    let channelsArray = data.channels;
-    let user: any, userIndex: number, channel: any, channelIndex: number;
-    for (let i = 0; i < usersArray.length; i++) {
-        //console.log("USER AUTHID in arr:\n", usersArray[i].authUserId)
-        if (authUserId === usersArray[i].authUserId) {
-            user = usersArray[i];
-            userIndex = i;
-        }
-    }
-    channel = getChannel(channelId, channelsArray)[0];
-    channelIndex = getChannel(channelId, channelsArray)[1];
+function channelJoinV2(token: string, channelId: number) {
+    let data: dataStoreType = getData();
+    const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
+    let user: user = getUsers(0, authUserId, data.users)[0];
+    let channel: channel = getChannel(channelId, data.channels);
 
     // error when we can't find a valid user or channel
     if (user === undefined || channel === undefined) {
@@ -173,14 +163,14 @@ function channelJoinV1(token: string, channelId: number) {
     }
 
     // update dataStore.js
-    data.users[userIndex].channels.push(channelId);
-    data.channels[channelIndex].allMembers.push(user.uId);
+    data.users[data.users.indexOf(user)].channels.push(channelId);
+    data.channels[data.channels.indexOf(channel)].allMembers.push(user.uId);
     setData(data);
     return {};
 }
 
 /**
-* channelInviteV1
+* channelInviteV2
 * this function allows a user to join a channel 
 * (public or private) by being invited by an existing member
 * 
@@ -193,14 +183,12 @@ function channelJoinV1(token: string, channelId: number) {
 *   {error: 'error'}     object         Error message when given invalid input
 *   {}                   empty object   Successful run
 */
-function channelInviteV1(token: string, channelId: number, uId: number) {
-    let data = getData();
-    const authUserId = data.users.find(user => user.tokens.find(tok => tok === token));
-    let userInviting = getUsers(uId, authUserId, data.users)[0];
-    let userJoining = getUsers(uId, authUserId, data.users)[1];
-    let userJoiningIndex = getUsers(uId, authUserId, data.users)[3];
-    let channel = getChannel(channelId, data.channels)[0];
-    let channelIndex = getChannel(channelId, data.channels)[1];
+function channelInviteV2(token: string, channelId: number, uId: number) {
+    let data: dataStoreType = getData();
+    const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
+    const userInviting: user = getUsers(uId, authUserId, data.users)[0];
+    const userJoining: user = getUsers(uId, authUserId, data.users)[1];
+    const channel = getChannel(channelId, data.channels);
 
     // error when we can't find a valid user or channel ID
     if (userJoining === undefined || channel === undefined || userInviting === undefined) {
@@ -218,8 +206,8 @@ function channelInviteV1(token: string, channelId: number, uId: number) {
     }
     
     // updating dataStore.js
-    data.users[userJoiningIndex].channels.push(channelId);
-    data.channels[channelIndex].allMembers.push(userJoining.uId);
+    data.users[data.users.indexOf(userJoining)].channels.push(channelId);
+    data.channels[data.channels.indexOf(channel)].allMembers.push(userJoining.uId);
     setData(data);
     return {};
 }
@@ -238,11 +226,11 @@ function channelInviteV1(token: string, channelId: number, uId: number) {
 *   {}                   empty object   Successful run
 */
 function addChannelOwnerV1(token: string, channelId: number, uId: number) {
-    let data = getData();
-    let channel = getChannel(channelId, data.channels)[0];
-    const authUserId = data.users.find(user => user.tokens.find(tok => tok === token));
-    let userBecomingOwner = getUsers(uId, authUserId, data.users)[1];
-    let userGivingOwner = getUsers(uId, authUserId, data.users)[0];
+    const data: dataStoreType = getData();
+    const channel: channel = getChannel(channelId, data.channels);
+    const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
+    const userBecomingOwner: user = getUsers(uId, authUserId, data.users)[1];
+    const userGivingOwner: user = getUsers(uId, authUserId, data.users)[0];
 
     // error when channelId fails to find a valid channel
     if (channel === undefined) {
@@ -292,11 +280,11 @@ function addChannelOwnerV1(token: string, channelId: number, uId: number) {
 *   {}                   empty object   Successful run
 */
 function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
-    const data = getData();
-    const authUserId = data.users.find(user => user.tokens.find(tok => tok === token));
-    let channel = getChannel(channelId, data.channels)[0];
-    let userBeingRemoved = getUsers(uId, authUserId, data.users)[1];
-    let userRemovingOwner = getUsers(uId, authUserId, data.users)[0];
+    const data: dataStoreType = getData();
+    const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
+    const channel: channel = getChannel(channelId, data.channels)[0];
+    const userBeingRemoved: user = getUsers(uId, authUserId, data.users)[1];
+    const userRemovingOwner: user = getUsers(uId, authUserId, data.users)[0];
 
     // error when channelId fails to find a valid channel
     if (channel === undefined) {
@@ -323,42 +311,39 @@ function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
         return { error : 'error' };
     }
 
-    // error when the user removing the channel owner is not a global owner
-    if (! (userRemovingOwner.isGlobalOwner === 1)) {
+    // error when the user removing the channel owner is not a global owner or channel owner
+    if (! (userRemovingOwner.isGlobalOwner === 1) || !channel.ownerMembers.includes(userRemovingOwner.uId)) {
         return { error : 'error' };
     }
 
-    channel.ownerMembers.remove(uId);
+    channel.ownerMembers.splice(channel.ownerMembers.indexOf(uId, 1));
     return {};
 }
 
 
 // helper function to reduce reptition
-function getChannel(channelId: number, channelsArray: any) {
-    let channel, channelIndex;
+function getChannel(channelId: number, channelsArray: channel[]) {
+    let channel: channel;
     for (let i = 0; i < channelsArray.length; i++) {
         if (channelId === channelsArray[i].channelId) {
             channel = channelsArray[i];
-            channelIndex = i;
         }
     }
-    return [channel, channelIndex];
+    return channel;
 }
 
 // helper function to reduce reptition
 function getUsers(uId: number, authUserId: number, usersArray: any) {
-    let authUserIdIndex, uIdIndex, newuId, newauthUserId;
+    let newUserFromAuth: user, newUserFromUId: user;
     for (let i = 0; i < usersArray.length; i++) {
         if (uId === usersArray[i].uId) {
-            newuId = usersArray[i];
-            uIdIndex = i;
+            newUserFromUId = usersArray[i];
         }
         if (authUserId === usersArray[i].authUserID) {
-            newauthUserId = usersArray[i];
-            authUserIdIndex = i;
+            newUserFromAuth = usersArray[i];
         }
     }
-    return [newauthUserId, newuId, authUserIdIndex, uIdIndex];
+    return [newUserFromAuth, newUserFromUId];
 }
 
-export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1, addChannelOwnerV1, removeChannelOwnerV1 };
+export { channelDetailsV1, channelJoinV2, channelInviteV2, channelMessagesV1, addChannelOwnerV1, removeChannelOwnerV1 };

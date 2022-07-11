@@ -29,3 +29,6 @@ or equal to zero.
 When testing all files, we assume tests will fail at the intended point, however
 as all errors have the same error message (as per the specs), there is a possibilty
 tests match the intended output (error : error), but at incorrect points 
+
+(7)
+Both global and channel owners can add and remove themselves as channel owners
