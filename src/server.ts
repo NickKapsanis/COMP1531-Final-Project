@@ -2,6 +2,7 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
+import { channelsLeaveV1 } from './channel';
 
 // Set up web app, use JSON
 const app = express();
@@ -18,6 +19,12 @@ app.get('/echo', (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+//channelsLeaveV1
+app.post('/channel/leave/v1', (req, res) => {
+  const data = req.body;
+  res.json(channelsLeaveV1(data.token, data.channelId));
 });
 
 // for logging errors
