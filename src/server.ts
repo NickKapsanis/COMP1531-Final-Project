@@ -20,6 +20,27 @@ app.get('/echo', (req, res, next) => {
   }
 });
 
+
+//userSetnameV1
+app.put('/user/profile/setname/v1', (req: Request, res: Response) => {
+  const { token, nameFirst, nameLast } = req.body;
+  res.json(userSetnameV1(token, nameFirst, nameLast));
+});
+
+//userSetemailV1
+app.put('/user/profile/setemail/v1', (req: Request, res: Response) => {
+  const { token, email } = req.body;
+  res.json(userSetemailV1(token, email));
+});
+
+//userSethandlelV1
+app.put('/user/profile/sethandle/v1', (req: Request, res: Response) => {
+  const { token, handleStr } = req.body;
+  res.json(userSethandlelV1(token, handleStr));
+});
+
+
+
 // for logging errors
 app.use(morgan('dev'));
 
