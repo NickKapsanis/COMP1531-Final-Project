@@ -1,65 +1,65 @@
-import { getData, setData } from './dataStore'; 
+import { getData, setData } from './dataStore';
 import { channelsListV1 } from './channels';
 
 type messageId = {
-    messageId: number; 
+    messageId: number;
 }
 
 type errorMessage = {
     error: 'error'
 }
 
-function messageSendV1(token: string, channelId: number, message: string): messageId | errorMessage {
-    const data = getData(); 
+export function messageSendV1(token: string, channelId: number, message: string): messageId | errorMessage {
+  const data = getData();
 
-    // Token validation
-    if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
-        return { error: 'error' }; 
-    }
-        
-    const userId = data.users.find(user => user.token === token).uId;
-    const channelsMemberOf = channelsListV1(token).channels; 
+  // Token validation
+  if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
+    return { error: 'error' };
+  }
 
-    // Checking if valid channelIds were given 
-    // Validating if authorised user is a member of the channel
-    if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
-        return { error: 'error' }; 
-    } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
-        return { error: 'error' }; 
-    } 
+  const userId = data.users.find(user => user.token === token).uId;
+  const channelsMemberOf = channelsListV1(token).channels;
 
-    const channelGiven = data.channels.find(channel => channel.channelId === channelId);
-    const channelGivenIndex = data.channels.findIndex(channel => channel.channelId === channelId);
+  // Checking if valid channelIds were given
+  // Validating if authorised user is a member of the channel
+  if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
+    return { error: 'error' };
+  } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
+    return { error: 'error' };
+  }
 
-    // Message validation 
-    if (message.length < 1 || message.length > 1000) {
-        return { error: 'error' };
-    }
+  const channelGiven = data.channels.find(channel => channel.channelId === channelId);
+  const channelGivenIndex = data.channels.findIndex(channel => channel.channelId === channelId);
 
-    // Finding number of messages in channel 
-    const numMessages = channelGiven.messages.length
-    let newMessageId; 
+  // Message validation
+  if (message.length < 1 || message.length > 1000) {
+    return { error: 'error' };
+  }
 
-    // PROBLEM: eg. You have messages 10001, 10002, 10003, 10004. numMessages = 4 
-    // When you delete 10002, the array is 10001, 10003, 10004 numMessages = 3. 
-    // Then when new message is created the id will be 10004. Thus duplicate arises. 
+  // Finding number of messages in channel
+  const numMessages = channelGiven.messages.length;
+  let newMessageId;
 
-    // Creating a unique messageId:  
-    if (numMessages < 10000) {
-        newMessageId = channelId * 10000 + numMessages + 1; 
-    } else {
-        newMessageId = channelId * 1000000 + numMessages + 1; 
-    }
+  // PROBLEM: eg. You have messages 10001, 10002, 10003, 10004. numMessages = 4
+  // When you delete 10002, the array is 10001, 10003, 10004 numMessages = 3.
+  // Then when new message is created the id will be 10004. Thus duplicate arises.
 
-    const newMessage = {
-        messageId: newMessageId, 
-        uId: userId, 
-        message: message, 
-        timeSent: Math.floor(Date.now() / 1000), 
-    }
+  // Creating a unique messageId:
+  if (numMessages < 10000) {
+    newMessageId = channelId * 10000 + numMessages + 1;
+  } else {
+    newMessageId = channelId * 1000000 + numMessages + 1;
+  }
 
-    data.channels[channelGivenIndex].messages.unshift(newMessage); 
-    setData(data); 
+  const newMessage = {
+    messageId: newMessageId,
+    uId: userId,
+    message: message,
+    timeSent: Math.floor(Date.now() / 1000),
+  };
 
-    return { messageId: newMessageId }
+  data.channels[channelGivenIndex].messages.unshift(newMessage);
+  setData(data);
+
+  return { messageId: newMessageId };
 }

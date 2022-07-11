@@ -90,11 +90,11 @@ function testRequestMessageSendV1(token: string, channelId: number, message: str
     'POST',
     `${url}:${port}/message/send/v1`,
     {
-        json: {
+      json: {
         token: token,
         channelId: channelId,
         message: message,
-        }
+      }
     }
   );
 }
@@ -109,12 +109,12 @@ function requestAuthUserRegisterV2(email: string, password: string, nameFirst: s
     'POST',
     `${url}:${port}/auth/register/v2`,
     {
-        json: {
+      json: {
         email: email,
         password: password,
         nameFirst: nameFirst,
         nameLast: nameLast
-        }
+      }
     }
   );
 
@@ -126,11 +126,11 @@ function requestChannelsCreateV2(token: string, name: string, isPublic: boolean)
     'POST',
     `${url}:${port}/channels/create/v2`,
     {
-        json: {
+      json: {
         token: token,
         name: name,
         isPublic: isPublic,
-        }
+      }
     }
   );
 
@@ -142,9 +142,9 @@ function requestChannelsListallV2(token: string) {
     'GET',
     `${url}:${port}/channels/listall/v2`,
     {
-        qs: {
+      qs: {
         token: token,
-        }
+      }
     }
   );
 
