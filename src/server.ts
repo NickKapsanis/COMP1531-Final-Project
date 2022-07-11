@@ -23,7 +23,7 @@ app.get('/echo', (req, res, next) => {
 });
 
 // messageEditV1
-app.post('/message/edit/v1', (req: Request, res: Response) => {
+app.put('/message/edit/v1', (req: Request, res: Response) => {
   const { token, messageId, message } = req.body;
   res.json(messageEditV1(token, messageId, message));
 });
