@@ -3,6 +3,8 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 
+import { messageEditV1 } from './message'; 
+
 // Set up web app, use JSON
 const app = express();
 app.use(express.json());
@@ -19,6 +21,13 @@ app.get('/echo', (req, res, next) => {
     next(err);
   }
 });
+
+// messageEditV1
+app.post('/message/edit/v1', (req: Request, res: Response) => {
+  const { token, messageId, message } = req.body;
+  res.json(messageEditV1(token, messageId, message));
+});
+
 
 // for logging errors
 app.use(morgan('dev'));
