@@ -9,9 +9,10 @@ export function messageRemoveV1(token: string, messageId: number): errorMessage 
   const data = getData();
 
   // Token validation
-  if (data.users.find(user => user.token === token) === undefined) {
+  if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
     return { error: 'error' };
   }
+  
   const userId = data.users.find(user => user.token === token).uId;
   const channelsMemberOf = channelsListV1(token).channels;
 
