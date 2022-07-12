@@ -2,7 +2,7 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
-import { clearV1 } from '';
+import { clearV1 } from './other';
 
 // Set up web app, use JSON
 const app = express();
