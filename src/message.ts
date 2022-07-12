@@ -36,20 +36,7 @@ export function messageSendV1(token: string, channelId: number, message: string)
     return { error: 'error' };
   }
 
-  // Finding number of messages in channel
-  const numMessages = channelGiven.messages.length;
-  let newMessageId;
-
-  // PROBLEM: eg. You have messages 10001, 10002, 10003, 10004. numMessages = 4
-  // When you delete 10002, the array is 10001, 10003, 10004 numMessages = 3.
-  // Then when new message is created the id will be 10004. Thus duplicate arises.
-
-  // Creating a unique messageId:
-  if (numMessages < 10000) {
-    newMessageId = channelId * 10000 + numMessages + 1;
-  } else {
-    newMessageId = channelId * 1000000 + numMessages + 1;
-  }
+  const newMessageId = generateId('c'); 
 
   const newMessage = {
     messageId: newMessageId,
@@ -62,4 +49,15 @@ export function messageSendV1(token: string, channelId: number, message: string)
   setData(data);
 
   return { messageId: newMessageId };
+}
+
+function generateId(mode: string) {
+  let newId;  
+  if (mode === 'c') {
+    newId = '1' + String(Date.now()) + String(Math.floor(Math.random() * 100)); 
+  } else if (mode === 'd') {
+    newId = '2' + String(Date.now()) + String(Math.floor(Math.random() * 100)); 
+  }
+
+  return Number(newId); 
 }
