@@ -8,7 +8,7 @@ import { PORT, HOST } from './server';
 
 const OK = 200;
 const port = PORT;
-const url = HOST;
+const url = 'http://' + HOST;
 
 ////////////////////////////////////////////////
 /////      Tests for channelsListV1() 	   /////
