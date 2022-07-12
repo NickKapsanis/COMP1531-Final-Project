@@ -8,8 +8,8 @@ import { clearV1 } from './other';
 const app = express();
 app.use(express.json());
 
-const PORT: number = parseInt(process.env.PORT || config.port);
-const HOST: string = process.env.IP || 'localhost';
+export const PORT: number = parseInt(process.env.PORT || config.port);
+export const HOST: string = process.env.IP || 'localhost';
 
 // Example get request
 app.get('/echo', (req, res, next) => {
@@ -23,7 +23,7 @@ app.get('/echo', (req, res, next) => {
 
 // clearV1()
 app.delete('/clear/v1', (req, res) => {
-  return res.json(clearV1());
+  res.json(clearV1());
 });
 
 // for logging errors
