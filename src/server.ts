@@ -3,7 +3,7 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
-
+import { clearV1 } from './other'
 // Set up web app, use JSON
 const app = express();
 app.use(express.json());
@@ -36,6 +36,10 @@ app.post('/auth/login/v2', (req, res) => {
 app.post('/auth/logout/v1', (req, res) => {
   const data = req.body;
   res.json(authLogoutV1(data.token));
+});
+// clearV1()
+app.delete('/clear/v1', (req, res) => {
+  res.json(clearV1());
 });
 
 // for logging errors
