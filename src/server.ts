@@ -6,6 +6,7 @@ import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
 import { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1 } from './channel';
 import { clearV1 } from './other';
 import { usersAllV1 } from './users';
+import { channelsCreateV2 } from './channels';
 
 // Set up web app, use JSON
 const app = express();
@@ -73,6 +74,10 @@ app.get('/users/all/v1', (req, res) => {
   }
   res.send(JSON.stringify(usersAllV1(token)));
 });
+app.post('/channels/create/v2', (req, res) => {
+  const data = req.body;
+  res.json(channelsCreateV2(data.token, data.name, data.isPublic));
+})
 
 // for logging errors
 app.use(morgan('dev'));
