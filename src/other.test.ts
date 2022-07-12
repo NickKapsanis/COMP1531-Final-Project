@@ -1,5 +1,5 @@
 import request from 'sync-request';
-import {PORT, HOST} from './server'
+import { PORT, HOST } from './server';
 
 const OK = 200;
 const port = PORT;
@@ -23,7 +23,7 @@ describe('Testing clearV1()', () => {
           nameFirst: 'testFirstName',
           nameLast: 'testLastName'
         }),
-        headers : {
+        headers: {
           'Content-type': 'application/json',
         }
       }
@@ -46,7 +46,7 @@ describe('Testing clearV1()', () => {
           email: 'testemail@email.com',
           password: 'testPassword123',
         }),
-        headers : {
+        headers: {
           'Content-type': 'application/json',
         }
       }
