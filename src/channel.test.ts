@@ -1,6 +1,9 @@
 import { getUId } from './other';
+import { getData } from './dataStore';
+import { getChannel } from './channel';
 import request from 'sync-request';
 import { PORT, HOST } from './server';
+import { dataStoreType } from './dataStore';
 
 const url = 'http://' + HOST + ':' + PORT;
 
@@ -212,15 +215,9 @@ describe('Testing channelMessagesV1', () => {
 /// /////////////////////////////////////////////
 /// //     Tests for channelJoinV2()        /////
 /// /////////////////////////////////////////////
-let james, rufus, publicChannel, privateChannel, rufusPrivateChannel, rufusChannel;
-let tom, ralph, alex, general, ralphChannel;
 
 describe('Testing channelJoinV2', () => {
-    james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
-    rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Hayes');
-    publicChannel = createChannel(james.token, 'testChannel1', true);
-    privateChannel = createChannel(james.token, 'testChannel2', false);
-    rufusPrivateChannel = createChannel(rufus.token, 'testChannel3', false);
+    let james, rufus, publicChannel, privateChannel, rufusPrivateChannel;
 
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
@@ -254,7 +251,7 @@ describe('Testing channelJoinV2', () => {
 /// /////////////////////////////////////////////
 
 describe('Testing channelInviteV2', () => {
-    let ralphuId;
+    let tom, ralph, alex, general, ralphChannel, ralphuId;
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
 
@@ -264,8 +261,6 @@ describe('Testing channelInviteV2', () => {
     alex = createUser('alex@gmail.com', 'testPassword123', 'Alex', 'King');
     general = createChannel(tom.token, 'testChannel1', true);
     ralphChannel = createChannel(ralph.token, 'testChannel2', true);
-
-    console.log(ralphuId);
   });
 
   test('channelId does not refer to a valid channel', () => {
@@ -285,44 +280,44 @@ describe('Testing channelInviteV2', () => {
     expect(channelInvite(tom.token, general.channelId, ralphuId)).toEqual({});
   });
 });
-/*
+
 /// /////////////////////////////////////////////
 /// //     Tests for addChannelOwnerV1()    /////
 /// /////////////////////////////////////////////
 
 describe('Testing addChannelOwnerV1', () => {
+    let steven, richard, lily, richarduId, lilyuId, richardChannel, publicChannel;
 
-  afterEach(() => {
+   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
 
-    james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
-    rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Hayes');
-    alex = createUser('alex@gmail.com', 'testPassword123', 'Alex', 'King');
+    steven = createUser('steven@gmail.com', 'testPassword123', 'steven', 'Brown');
+    richard = createUser('richard@gmail.com', 'testPassword123', 'richard', 'Hayes');
+    lily = createUser('lily@gmail.com', 'testPassword123', 'lily', 'King');
+    richarduId = getUId(richard.authUserId);
+    lilyuId = getUId(lily.authUserId);
 
-    publicChannel = createChannel(james.token, 'testChannel1', true);
-    rufusChannel = createChannel(rufus.token, 'testChannel2', true);
+    publicChannel = createChannel(steven.token, 'testChannel1', true);
+    richardChannel = createChannel(richard.token, 'testChannel2', true);
 
-    channelJoin(alex.token, publicChannel.channelId);
-    channelJoin(rufus.token, publicChannel.channelId);
+    channelJoin(lily.token, publicChannel.channelId);
+    channelJoin(richard.token, publicChannel.channelId);
   });
 
   test('channelId does not refer to a valid channel', () => {
-    expect(addOwner(rufus.token, -100, alex.uId)).toEqual({ error: 'error' });
+    expect(addOwner(richard.token, -100, lilyuId)).toEqual({ error: 'error' });
   });
   test('user becoming owner is an invalid user', () => {
-    expect(addOwner(rufus.token, rufusChannel.channelId, -100)).toEqual({ error: 'error' });
+    expect(addOwner(richard.token, richardChannel.channelId, -100)).toEqual({ error: 'error' });
   });
   test('user becoming owner is not a member of the channel', () => {
-    expect(addOwner(james.token, publicChannel.channelId, alex.uId)).toEqual({ error: 'error' });
-  });
-  test('user becoming owner is not a member of the channel', () => {
-    expect(addOwner(rufus.token, rufusChannel.channelId, alex.uId)).toEqual({ error: 'error' });
+    expect(addOwner(richard.token, richardChannel.channelId, lilyuId)).toEqual({ error: 'error' });
   });
   test('the user adding the new owner is not a global owner or channel owner, but is in the channel', () => {
-    expect(addOwner(rufus.token, publicChannel.channelId, alex.uId)).toEqual({ error: 'error' });
+    expect(addOwner(richard.token, publicChannel.channelId, lilyuId)).toEqual({ error: 'error' });
   });
   test('successful case', () => {
-    expect(addOwner(james.token, publicChannel.channelId, alex.uId)).toEqual({});
+    expect(addOwner(steven.token, publicChannel.channelId, lilyuId)).toEqual({});
   });
 });
 
@@ -331,51 +326,47 @@ describe('Testing addChannelOwnerV1', () => {
 /// /////////////////////////////////////////////
 
 describe('Testing removeChannelOwnerV1', () => {
+    let homer, bart, marge, bartuId, margeuId, bartChannel;
 
-  afterEach(() => {
+  beforeEach(() => {
     request('DELETE', url + '/clear/v1');
 
-    james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
-    rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Hayes');
-    alex = createUser('alex@gmail.com', 'testPassword123', 'Alex', 'King');
+    homer = createUser('homer@gmail.com', 'testPassword123', 'homer', 'Brown');
+    bart = createUser('bart@gmail.com', 'testPassword123', 'bart', 'Hayes');
+    marge = createUser('marge@gmail.com', 'testPassword123', 'marge', 'King');
+    bartuId = getUId(bart.authUserId);
+    margeuId = getUId(marge.authUserId);
 
-    alex.uId = getUId(alex.authUserId);
-    rufus.uId = getUId(rufus.authUserId);
-
-    rufusChannel = createChannel(rufus.token, 'testChannel2', true);
-
-    channelJoin(alex.token, rufusChannel.channelId);
-    channelJoin(james.token, rufusChannel.channelId);
+    bartChannel = createChannel(bart.token, 'testChannel2', true);
+    channelJoin(marge.token, bartChannel.channelId);
+    channelJoin(homer.token, bartChannel.channelId);
   });
 
   test('channelId does not refer to a valid channel', () => {
-    expect(removeOwner(james.token, -100, rufus.uId)).toEqual({ error: 'error' });
+    expect(removeOwner(homer.token, -100, bartuId)).toEqual({ error: 'error' });
   });
-  test('user being rmeoved as owner does not exist', () => {
-    expect(removeOwner(james.token, rufusChannel.channelId, -100)).toEqual({ error: 'error' });
-  });
-  test('user being removed as owner is not currently owner', () => {
-    expect(removeOwner(rufus.token, rufusChannel.channelId, alex.uId)).toEqual({ error: 'error' });
-  });
-  test('user being removed as owner is not currently owner', () => {
-    expect(removeOwner(rufus.token, rufusChannel.channelId, alex.uId)).toEqual({ error: 'error' });
+  test('user being removed as owner does not exist', () => {
+    expect(removeOwner(homer.token, bartChannel.channelId, -100)).toEqual({ error: 'error' });
   });
   test('trying to remove an owner who is the only channel owner', () => {
-    expect(removeOwner(james.token, rufusChannel.channelId, rufus.uId)).toEqual({ error: 'error' });
+    expect(removeOwner(homer.token, bartChannel.channelId, bartuId)).toEqual({ error: 'error' });
   });
   test('user being removed as owner is not currently owner', () => {
-    expect(removeOwner(rufus.token, rufusChannel.channelId, alex.uId)).toEqual({ error: 'error' });
+    expect(removeOwner(bart.token, bartChannel.channelId, margeuId)).toEqual({ error: 'error' });
   });
   test('user attempting to remove owner lacks permissions', () => {
-    expect(removeOwner(alex.token, rufusChannel.channelId, rufus.uId)).toEqual({ error: 'error' });
+    expect(removeOwner(marge.token, bartChannel.channelId, bartuId)).toEqual({ error: 'error' });
   });
   test('successful case', () => {
-    addOwner(rufus.token, rufusChannel.channelId, alex.uId);
-    expect(removeOwner(rufus.token, rufusChannel.channelId, alex.uId)).toEqual({});
+    addOwner(bart.token, bartChannel.channelId, margeuId);
+    let data: dataStoreType = getData();
+    const channel = getChannel(bartChannel.channelId, data.channels);
+    console.log(channel.ownerMembers)
+    expect(removeOwner(bart.token, bartChannel.channelId, margeuId)).toEqual({});
   });
 });
 
 // assumption - both global and channel owners can add and remove themselves as channel owners
 
-*/
+
 export { createChannel, createUser, channelJoin };
