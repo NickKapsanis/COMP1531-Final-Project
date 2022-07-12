@@ -7,6 +7,7 @@ import { channelDetailsV1 } from './channel.js'
 /////      Tests for channelsListV1() 	   /////
 ////////////////////////////////////////////////
 
+/*
 test('testing when authUserId doesn\'t exist', () => {
 
   clearV1();
@@ -177,10 +178,13 @@ test('tests if correct channel properties are listed in channel list', () => {
   expect(everyChannelArray.length).toEqual(4);
 
 });
+*/
 
+/*
 ////////////////////////////////////////////////
 /////    Tests for channelsCreateV1() 	   /////
 ////////////////////////////////////////////////
+*/
 
 describe('Testing channelsCreateV1()', () => {
 
@@ -248,3 +252,20 @@ describe('Testing channelsCreateV1()', () => {
   });
 
 });
+
+/*
+////////////////////////////////////////////////
+/////           Helper Functions      	   /////
+////////////////////////////////////////////////
+*/
+
+function requestClear() {
+  const res = request(
+    'DELETE',
+    `${url}:${port}/clear/v1`
+  );
+
+  return JSON.parse(String(res.getBody()));
+}
+
+
