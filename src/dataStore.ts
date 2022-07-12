@@ -30,8 +30,8 @@ type dataStoreType = {
 }
 
 let data: dataStoreType = {
-users: [],
-channels: []
+  users: [],
+  channels: []
 };
 
 /*

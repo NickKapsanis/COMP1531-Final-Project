@@ -1,13 +1,12 @@
-import {getData, setData, user, message, channel, dataStoreType} from './dataStore';
+import { getData, setData, dataStoreType } from './dataStore';
 
 type errorMessage = {
   error: 'error'
 }
 
-type uId = integer
+type uId = number
 
-type empty = {}
-
+// type empty = Record<string, never>
 
 /* Given an authUId returns the uId of the corresponding user
 Parameters:
@@ -20,14 +19,13 @@ Return Value:
     (2) In case of no error
     uId - (integer)
 */
-function getUId(authUserId : integer) : errorMessage | uId { // Does this need a token?
-  let data = getData();
-  let user = data.users.find(i => i.authUserId === authUserId);
+function getUId(authUserId : number) : errorMessage | uId { // Does this need a token?
+  const data = getData();
+  const user = data.users.find(i => i.authUserId === authUserId);
   if (user === undefined) {
-    return { error : 'error'};
+    return { error: 'error' };
   }
   return user.uId;
-  
 }
 
 /*
@@ -39,14 +37,13 @@ Arguments:
 Return Value:
     VOID
 */
-function clearV1() : empty {
-  let data = getData();  
-  data : dataStoreType = {
-    users : [],
-    channels : [],
+function clearV1() {
+  const newData : dataStoreType = {
+    users: [],
+    channels: [],
   };
 
-  setData(data);
+  setData(newData);
   return {};
 }
 
