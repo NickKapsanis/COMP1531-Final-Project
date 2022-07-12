@@ -8,6 +8,7 @@ const url = config.url;
 describe('Tests for message/remove/V1', () => {
   let token1;
   let token2;
+  let token3;
   let channelId1;
   let channelId2;
   let messageId1;
@@ -15,12 +16,14 @@ describe('Tests for message/remove/V1', () => {
   let messageId3;
 
   beforeEach(() => {
-    //  channelMembers1: [1,2], channelOwners1: [1], channelMembers2: [2], channelOwners2: [2]
+    //  channelMembers1: [1,2], channelOwners1: [1], channelMembers2: [2, 3], channelOwners2: [1, 2] //because 1 is a global owner
     token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
     channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
     // Invite token2 into Channel 1
-    requestChannelInviteV2(token1, channelId1, 2); // TODO: change uID
+    requestChannelInviteV2(token1, channelId1, 2);
+    requestChannelInviteV2(token2, channelId2, 3); // TODO: change uID
     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
     messageId1 = requestMessageSendV1(token1, channelId1, 'Message 1.1');
     messageId2 = requestMessageSendV1(token2, channelId1, 'Message 1.2');
@@ -48,7 +51,7 @@ describe('Tests for message/remove/V1', () => {
   });
 
   test('Case 3: messageId refers to message in a channel user not member of ', () => {
-    const res = requestMessageRemoveV1(token1, messageId3);
+    const res = requestMessageRemoveV1(token3, messageId3);
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
@@ -96,11 +99,11 @@ function requestMessageRemoveV1(token: string, messageId: number) {
   );
 }
 
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////        Helper Functions       /////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////        Helper Functions       /////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
 function requestAuthUserRegisterV2(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
