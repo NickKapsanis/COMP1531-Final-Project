@@ -3,6 +3,8 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 
+import { channelMessagesV2 } from './channel';
+
 // Set up web app, use JSON
 const app = express();
 app.use(express.json());
@@ -18,6 +20,15 @@ app.get('/echo', (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+// channelMessagesV2
+app.get('/channel/messages/v2', (req, res) => {
+  const token = String(req.query.token);
+  const channelId = Number(req.query.channelId);
+  const start = Number(req.query.start);
+
+  res.json(channelMessagesV2(token, channelId, start));
 });
 
 // for logging errors
