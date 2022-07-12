@@ -47,16 +47,23 @@ dms: [],
 };
 
 // Use get() to access the data
+// if the data.json file does not exist, create it by setting it with the data definition above and read from the created file.
 function getData() {
-const data = JSON.parse(String(fs.readFileSync('data.json', { flag: 'r' })));
-return data;
+  try {
+    const dataFromFile = JSON.parse(String(fs.readFileSync('data.json', { flag: 'r' })));
+    return dataFromFile;
+  }
+  catch(err) {
+    setData(data);
+    return getData();
+  }
 }
 
 // Use set(newData) to pass in the entire data object, with modifications made
 function setData(newData: dataStoreType) {
-data = newData;
-fs.writeFileSync('data.json', JSON.stringify(data), { flag: 'w'});
+// data = newData;
+fs.writeFileSync('data.json', JSON.stringify(newData), { flag: 'w'});
 }
 
 export { getData, setData };
-export { user, message, channel, dataStoreType };
+export { user, message, channel, dm, dataStoreType };
