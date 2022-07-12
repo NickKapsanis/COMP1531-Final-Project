@@ -10,13 +10,13 @@ Arguments:
 Return Value:
     channelsArray: array    - an array of all channels user is in.
 */
-function channelsListV2(authUserId: number) {
+function channelsListV2(token: string) {
   const data = getData();
 
-  const user: number = data.users.find(i => i.authUserId === authUserId);
+  const user: number = data.users.find(i => i.token === token);
   if (user === undefined) { return { error: 'error' }; }
 
-  const uId: number = getUId(authUserId);
+  const uId: number = getUId(token);
   let numChannels = 0;
   const channelsArray = [];
 
@@ -37,9 +37,11 @@ function channelsListV2(authUserId: number) {
 
   // case with no channels
   if (numChannels === 0) {
+    setData();
     return { channels: [] };
   }
 
+  setData();
   return { channels: channelsArray };
 }
 
@@ -53,11 +55,11 @@ Arguments:
 Return Value:
     allChannelsArray: array    - an array of all channels.
 */
-function channelsListallV2(authUserId: number) {
+function channelsListallV2(token: string) {
   const data = getData();
   const allChannelsArray = [];
 
-  const user: number = data.users.find(i => i.authUserId === authUserId);
+  const user: number = data.users.find(i => i.token === token);
   if (user === undefined) { return { error: 'error' }; }
 
   // case with no channels
@@ -74,6 +76,7 @@ function channelsListallV2(authUserId: number) {
     allChannelsArray.push(channel);
   }
 
+  setData();
   return { channels: allChannelsArray };
 }
 

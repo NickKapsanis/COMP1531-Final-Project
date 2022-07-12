@@ -20,6 +20,16 @@ app.get('/echo', (req, res, next) => {
   }
 });
 
+app.post('/channels/list/v2', (req, res) => {
+  const data = req.body;
+  res.json(channelsListV2(data.token));
+});
+
+app.post('channels/listall/v2', (req, res) => {
+  const data = req.body;
+  res.json(channelsListallV2(data.token));
+});
+
 // for logging errors
 app.use(morgan('dev'));
 

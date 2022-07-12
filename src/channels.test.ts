@@ -8,48 +8,45 @@ import express from 'express';
 /// //      Tests for channelsListV1()      /////
 /// /////////////////////////////////////////////
 
+///////I HAVE NO CLUE HOW THESE HTPP TESTS WORK, NEED HELP///////
+
 test('testing when authUserId doesn\'t exist', () => {
-  // creates an instance of a server on port 6060.
-  const app = express();
-  const port = 6060;
-  app.use(express.text());
   clearV1();
+
+  const somebodyChannelArray = channelsListV1(9999);
 
   // when visiting this URL, do this...
   app.get('/channels/list/v2', (req, res) => {
     const res = request(
       'GET',
-      'http:/localhost:${PORT}/channels/list/v2'
+            `${url}:${port}/channels/create/v2`,
+            {
+              qs: {
+                token: token,
+              }
+            }
     );
-    const somebodyChannelArray = channelsListV1(9690);
   });
 
-  app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
-  });
+  
+  const res = channelsListV2(token);
+  const bodyObj = JSON.parse(String(res.getBody()));
 
+  expect(res.statusCode).toBe(OK);
   expect(somebodyChannelArray).toEqual({ error: 'error' });
 });
 
 test('testing when user is not in any channel', () => {
-  const app = express();
-  const port = 6060;
-  app.use(express.text());
   clearV1();
   const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
   const JamesChannelArray = channelsListV1(jamesAuthId).channels;
 
-  app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
-  });
 
+  expect(res.statusCode).toBe(OK);
   expect(JamesChannelArray).toEqual([]);
 });
 
 test('tests if all correct channels are listed in channel list', () => {
-  const app = express();
-  const port = 6060;
-  app.use(express.text());
   clearV1();
 
   app.get('/channels/list/v2', (req, res) => {
@@ -74,10 +71,8 @@ test('tests if all correct channels are listed in channel list', () => {
   const findC3 = jamesChannelArray.find(i => i.channelId === thirdCreatedChannel);
   const findC4 = jamesChannelArray.find(i => i.channelId === fourthCreatedChannel);
 
-  app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
-  });
 
+  expect(res.statusCode).toBe(OK);
   expect(findC1.name).toEqual('James C1');
   expect(findC2.name).toEqual('James C2');
   expect(findC4.name).toEqual('James C3');
@@ -89,9 +84,6 @@ test('tests if all correct channels are listed in channel list', () => {
 });
 
 test('tests if correct channel properties are listed in channel list', () => {
-  const app = express();
-  const port = 6060;
-  app.use(express.text());
   clearV1();
 
   app.get('/channels/list/v2', (req, res) => {
@@ -118,10 +110,7 @@ test('tests if correct channel properties are listed in channel list', () => {
   const findC4 = aliceChannelArray.find(i => i.channelId === fourthCreatedChannel);
   const findC5 = aliceChannelArray.find(i => i.channelId === fifthCreatedChannel);
 
-  app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
-  });
-
+  expect(res.statusCode).toBe(OK);
   expect(findC1.name).toEqual('Alice C1');
   expect(findC2.name).toEqual('Alice C2');
   expect(findC4.name).toEqual('Alice C3');
@@ -142,9 +131,6 @@ test('tests if correct channel properties are listed in channel list', () => {
 // similar to previous function test, but no matter if private or not.
 
 test('tests when no channel exists', () => {
-  const app = express();
-  const port = 6060;
-  app.use(express.text());
   clearV1();
 
   app.get('/channels/list/v2', (req, res) => {
@@ -157,17 +143,14 @@ test('tests when no channel exists', () => {
     const everyChannelArray = channelsListallV1(jamesAuthId).channels;
   });
 
-  app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
-  });
-
+  expect(res.statusCode).toBe(OK);
   expect(everyChannelArray).toEqual([]);
 });
 
+
+
+
 test('tests when authUserId does\'nt exist', () => {
-  const app = express();
-  const port = 6060;
-  app.use(express.text());
   clearV1();
 
   app.get('/channels/list/v2', (req, res) => {
@@ -179,17 +162,15 @@ test('tests when authUserId does\'nt exist', () => {
     const everyChannelArray = channelsListallV1(11);
   });
 
-  app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
-  });
 
+  expect(res.statusCode).toBe(OK);
   expect(everyChannelArray).toEqual({ error: 'error' });
 });
 
+
+
+
 test('tests if all correct channels are listed in channel list', () => {
-  const app = express();
-  const port = 6060;
-  app.use(express.text());
   clearV1();
 
   app.get('/channels/list/v2', (req, res) => {
@@ -214,10 +195,9 @@ test('tests if all correct channels are listed in channel list', () => {
   const findC3 = everyChannelArray.find(i => i.channelId === thirdCreatedChannel);
   const findC4 = everyChannelArray.find(i => i.channelId === fourthCreatedChannel);
 
-  app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
-  });
 
+
+  expect(res.statusCode).toBe(OK);
   expect(findC1.name).toEqual('James C1');
   expect(findC2.name).toEqual('James C2');
   expect(findC3.name).toEqual('Rufus C1');
@@ -230,9 +210,6 @@ test('tests if all correct channels are listed in channel list', () => {
 });
 
 test('tests if correct channel properties are listed in channel list', () => {
-  const app = express();
-  const port = 6060;
-  app.use(express.text());
   clearV1();
 
   app.get('/channels/list/v2', (req, res) => {
@@ -257,10 +234,8 @@ test('tests if correct channel properties are listed in channel list', () => {
   const findC3 = everyChannelArray.find(i => i.channelId === thirdCreatedChannel);
   const findC4 = everyChannelArray.find(i => i.channelId === fourthCreatedChannel);
 
-  app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
-  });
 
+  expect(res.statusCode).toBe(OK);
   expect(findC1.name).toEqual('Alice C1');
   expect(findC2.name).toEqual('Alice C2');
   expect(findC3.name).toEqual('Rufus C1');
@@ -273,6 +248,17 @@ test('tests if correct channel properties are listed in channel list', () => {
 
   expect(everyChannelArray.length).toEqual(4);
 });
+
+
+
+
+
+
+
+
+
+
+
 
 /// /////////////////////////////////////////////
 /// //    Tests for channelsCreateV1() 	   /////
