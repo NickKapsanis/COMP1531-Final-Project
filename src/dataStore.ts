@@ -66,4 +66,3 @@ function setData(newData: dataStoreType) {
 
 export { getData, setData };
 export { user, message, channel, dm, dataStoreType };
-

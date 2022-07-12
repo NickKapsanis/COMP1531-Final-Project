@@ -119,6 +119,7 @@ export function authRegisterV1(email: string, password: string, nameFirst: strin
     password: password,
     handleStr: handle,
     channels: [],
+    dms: [],
     isGlobalOwner: isGlobalOwner,
   };
   // put the new user into data and set the data.
