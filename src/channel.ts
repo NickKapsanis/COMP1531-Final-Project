@@ -212,11 +212,11 @@ function channelInviteV2(token: string, channelId: number, uId: number) {
 
   // error when we can't find a valid user or channel ID
   if (userJoining === undefined) {
-    return { error: 'error1' };
+    return { error: 'error' };
   }
 
   if (channel === undefined) {
-    return { error: 'error2' };
+    return { error: 'error' };
   }
 
   // error when uId refers to user already in channel
@@ -283,7 +283,7 @@ function addChannelOwnerV1(token: string, channelId: number, uId: number) {
   }
 
   // error when the user adding is not an existing channel owner or global owner
-  if (!channel.ownerMembers.includes(userGivingOwner.uId) || (userGivingOwner.isGlobalOwner !== 1)) {
+  if (!(channel.ownerMembers.includes(userGivingOwner.uId)) && (userGivingOwner.isGlobalOwner !== 1)) {
     return { error: 'error' };
   }
 
@@ -308,7 +308,7 @@ function addChannelOwnerV1(token: string, channelId: number, uId: number) {
 function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
   const data: dataStoreType = getData();
   const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
-  const channel: channel = getChannel(channelId, data.channels)[0];
+  const channel: channel = getChannel(channelId, data.channels);
   const userRemovingOwner: user = data.users[data.users.findIndex(user => user.authUserId === authUserId)];
   const userBeingRemovedIndex: number = data.users.findIndex(user => user.uId === uId);
   const userBeingRemoved: user = data.users[userBeingRemovedIndex];
@@ -338,8 +338,8 @@ function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
     return { error: 'error' };
   }
 
-  // error when the user removing the channel owner is not a global owner or channel owner
-  if (!(userRemovingOwner.isGlobalOwner === 1) || !channel.ownerMembers.includes(userRemovingOwner.uId)) {
+  // error when the user removing the channel owner is not a global owner and channel owner
+  if (!(userRemovingOwner.isGlobalOwner === 1) && !channel.ownerMembers.includes(userRemovingOwner.uId)) {
     return { error: 'error' };
   }
 
@@ -350,4 +350,4 @@ function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
 }
 
 
-export { channelDetailsV1, channelJoinV2, channelInviteV2, channelMessagesV1, addChannelOwnerV1, removeChannelOwnerV1 };
+export { channelDetailsV1, channelJoinV2, channelInviteV2, channelMessagesV1, addChannelOwnerV1, removeChannelOwnerV1, getChannel };
