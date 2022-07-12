@@ -1,11 +1,19 @@
 import { getData, setData } from './dataStore';
-import { channelsListV1 } from './channels';
 
-type errorMessage = {
-    error: 'error'
-}
-
-export function messageEditV1(token: string, messageId: number, message: string): errorMessage | Record<string, never> {
+/**
+ * Given a valid messageId and message, the message with messageId is found
+ * and replaced with new message.
+ *
+ * Arguments:
+ *      token:      string     The user's unique identifier
+ *      messageId:  number     The messages's unique identifier
+ *      message:    string     The edited message
+ *
+ * Returns:
+ *      { error: 'error' }     object     Error message when given invalid input
+ *      { }                    object     Successful messageEdit
+ */
+export function messageEditV1(token: string, messageId: number, message: string) {
   const data = getData();
 
   // Token validation
@@ -13,8 +21,15 @@ export function messageEditV1(token: string, messageId: number, message: string)
     return { error: 'error' };
   }
 
-  const userId = data.users.find(user => user.token === token).uId;
-  const channelsMemberOf = channelsListV1(token).channels;
+  // Get user information
+  const user = data.users.find(user => user.tokens.find(tok => tok === token));
+  const userId = user.uId;
+  let isGlobalUser;
+  if (user.isGlobalUser === 1) {
+    isGlobalUser = true;
+  } else {
+    isGlobalUser = false;
+  }
 
   // Message validation
   if (message.length > 1000) {
@@ -23,9 +38,36 @@ export function messageEditV1(token: string, messageId: number, message: string)
     return messageRemoveV1(token, messageId);
   }
 
-  // MessageId validation and finding the channel it belongs to
+  const firstDigit = String(messageId)[0];
+  if (firstDigit === '1') {
+    return editInChannel(userId, isGlobalUser, messageId, message);
+  } else if (firstDigit === '2') {
+    return editInDm(userId, messageId, message);
+  } else {
+    return { error: 'error' };
+  }
+}
+
+/**
+ * Helper function for messageEditV1 to edit messages in channels.
+ *
+ * Arguments:
+ *      token:          string     The user's unique identifier
+ *      userId:         number     The user's identifier
+ *      isGlobalUser:   boolean    The user's global permissions
+ *      messageId:      number     The message's unique identifier
+ *      message:        string     The edited message
+ *
+ * Returns:
+ *      { error: 'error' }     object     Error message when given invalid input
+ *      { }                    object     Successful messageEdit
+ */
+function editInChannel(userId: number, isGlobalUser: boolean, messageId: number, message: string) {
+  const data = getData();
+
   let channelGiven;
-  const isMessageIdValid = data.channels.every((channel) => {
+  const isMessageValid = data.channels.every((channel) => {
+    // If messageId exists in channel returns false, else returns true
     if (channel.messages.find(message => message.messageId === messageId) !== undefined) {
       channelGiven = channel;
       return false;
@@ -34,26 +76,74 @@ export function messageEditV1(token: string, messageId: number, message: string)
     return true;
   });
 
-  if (isMessageIdValid === true) {
+  if (isMessageValid === true) {
     return { error: 'error' };
   }
 
-  const channelGivenIndex = data.channels.findIndex(channel => channel.channelId === channelGiven.channelId);
-  const messageGivenIndex = channelGiven.messages.findIndex(message => message.messageId === messageId);
   const messageGiven = channelGiven.messages.find(message => message.messageId === messageId);
 
-  // Finding channel (which message is in) and validating if user is a part of that channel
-  // Validating if authorised user has owner permissions in the channel/DM. NOTE: can a global owner count as an owner?
-  // Validating if authorised user sent the message
-  if (channelsMemberOf.find(channel => channel.channelId === channelGiven.channelId) === undefined) {
-    return { error: 'error' };
-  } else if (channelGiven.ownerMembers.find(owner => owner === userId) === undefined) {
-    return { error: 'error' };
-  } else if (messageGiven.uId !== userId) {
+  // If user is not global owner: If user is not owner of channel: If user is not the person who wrote it then return error
+  if (isGlobalUser === false) {
+    if (channelGiven.ownerMembers.find(owner => owner === userId) === undefined) {
+      if (messageGiven.uId !== userId) {
+        return { error: 'error' };
+      }
+    }
+  }
+
+  const messageGivenIndex = channelGiven.messages.findIndex(message => message.messageId === messageId);
+  const channelGivenIndex = data.channels.findIndex(channel => channel.channelId === channelGiven.channelId);
+
+  data.channels[channelGivenIndex].messages[messageGivenIndex].message = message;
+  setData(data);
+
+  return {};
+}
+
+/**
+ * Helper function for messageEditV1 to edit messages in dms.
+ *
+ * Arguments:
+ *      token:          string     The user's unique identifier
+ *      userId:         number     The user's identifier
+ *      messageId:      number     The message's unique identifier
+ *      message:        string     The edited message
+ *
+ * Returns:
+ *      { error: 'error' }     object     Error message when given invalid input
+ *      { }                    object     Successful messageEdit
+ */
+function editInDm(userId: number, messageId: number, message: string) {
+  const data = getData();
+
+  let dmGiven;
+  const isMessageValid = data.dms.every((dm) => {
+    // If messageId exists in channel returns false, else returns true
+    if (dm.messages.find(message => message.messageId === messageId) !== undefined) {
+      dmGiven = dm;
+      return false;
+    }
+
+    return true;
+  });
+
+  if (isMessageValid === true) {
     return { error: 'error' };
   }
 
-  data.channels[channelGivenIndex].messages[messageGivenIndex].message = message;
+  const messageGiven = dmGiven.messages.find(message => message.messageId === messageId);
+
+  // If user is not global owner: If user is not owner of channel: If user is not the person who wrote it then return error
+  if (dmGiven.owner !== userId) {
+    if (messageGiven.uId !== userId) {
+      return { error: 'error' };
+    }
+  }
+
+  const messageGivenIndex = dmGiven.messages.findIndex(message => message.messageId === messageId);
+  const dmGivenIndex = data.dms.findIndex(dm => dm.dmId === dmGiven.dmId);
+
+  data.dms[dmGivenIndex].messages[messageGivenIndex].message = message;
   setData(data);
 
   return {};
