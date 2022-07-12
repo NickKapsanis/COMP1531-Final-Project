@@ -1,4 +1,4 @@
-import { getData, setData } from './dataStore';
+import { dataStoreType, getData, setData, user, channel } from './dataStore';
 import { getUId } from './other';
 
 /*
@@ -93,18 +93,18 @@ Returns the unique channelId for the created channel.
     (2)
     channelId - (integer)
 */
-function channelsCreateV1(authUserId, name, isPublic) {
-  const data = getData();
-  const creator = data.users.find(i => i.authUserId === authUserId);
+function channelsCreateV2(token: string, name: string, isPublic: boolean) {
+  const data: dataStoreType = getData();
+  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
+  const creator: user = data.users.find(i => i.authUserId === authUserId);
 
   // Error cases
+  if (authUserId === undefined) { return { error: 'error' }; }
   if (creator === undefined) { return { error: 'error' }; }
   if (name.length > 20 || name.length < 1) { return { error: 'error' }; }
 
-  const newChannelId = data.channels.length + 1;
-
-  const newChannel = {
-
+  const newChannelId: number = data.channels.length + 1;
+  const newChannel: channel = {
     channelId: newChannelId,
     name: name,
     isPublic: isPublic,
@@ -114,13 +114,10 @@ function channelsCreateV1(authUserId, name, isPublic) {
   };
 
   data.channels.push(newChannel);
-  data.users = data.users.filter(i => i.authUserId !== authUserId);
-  creator.channels.push(newChannelId);
-  data.users.push(creator);
-
+  data.users[data.users.indexOf(creator)].channels.push(newChannelId);
   setData(data);
 
   return { channelId: newChannelId };
 }
 
-export { channelsListV1, channelsListallV1, channelsCreateV1 };
+export { channelsListV1, channelsListallV1, channelsCreateV2 };

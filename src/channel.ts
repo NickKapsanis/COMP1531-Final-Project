@@ -122,6 +122,19 @@ function channelMessagesV1(authUserId, channelId, start) {
   return messageDetails;
 }
 
+
+
+// helper function to reduce reptition
+function getChannel(channelId: number, channelsArray: channel[]) {
+    let channel: channel;
+    for (let i = 0; i < channelsArray.length; i++) {
+      if (channelId === channelsArray[i].channelId) {
+        channel = channelsArray[i];
+      }
+    }
+    return channel;
+  }
+  
 /**
 * channelJoinV2
 * this function allows a user to join public channels
@@ -138,29 +151,33 @@ function channelMessagesV1(authUserId, channelId, start) {
 function channelJoinV2(token: string, channelId: number) {
   const data: dataStoreType = getData();
   const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
-  const user: user = getUsers(0, authUserId, data.users)[0];
+  const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
   const channel: channel = getChannel(channelId, data.channels);
 
   // error when we can't find a valid user or channel
-  if (user === undefined || channel === undefined) {
+  if (channel === undefined) {
+    return { error: 'error' };
+  }
+
+  if (userIndex === undefined) {
     return { error: 'error' };
   }
 
   // error when the authorized user is already a member of the channel
-  if (user.channels.includes(channelId)) {
+  if (data.users[userIndex].channels.includes(channelId)) {
     return { error: 'error' };
   }
 
   // error when the channel is private, and the user is not already a member or a global owner
   if (!channel.isPublic) {
-    if (user.isGlobalOwner !== 1) {
+    if (data.users[userIndex].isGlobalOwner !== 1) {
       return { error: 'error' };
     }
   }
 
   // update dataStore.js
-  data.users[data.users.indexOf(user)].channels.push(channelId);
-  data.channels[data.channels.indexOf(channel)].allMembers.push(user.uId);
+  data.users[data.users.indexOf(data.users[userIndex])].channels.push(channelId);
+  data.channels[data.channels.indexOf(channel)].allMembers.push(data.users[userIndex].uId);
   setData(data);
   return {};
 }
@@ -181,14 +198,25 @@ function channelJoinV2(token: string, channelId: number) {
 */
 function channelInviteV2(token: string, channelId: number, uId: number) {
   const data: dataStoreType = getData();
+  const channel: channel = getChannel(channelId, data.channels);
+
   const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
-  const userInviting: user = getUsers(uId, authUserId, data.users)[0];
-  const userJoining: user = getUsers(uId, authUserId, data.users)[1];
-  const channel = getChannel(channelId, data.channels);
+  const userInviting: user = data.users[data.users.findIndex(user => user.authUserId === authUserId)];
+  const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
+  let userJoining: user;
+  for (let user of data.users) {
+    if (uId === user.uId) {
+        userJoining = user;
+    }
+  }
 
   // error when we can't find a valid user or channel ID
-  if (userJoining === undefined || channel === undefined || userInviting === undefined) {
-    return { error: 'error' };
+  if (userJoining === undefined) {
+    return { error: 'error1' };
+  }
+
+  if (channel === undefined) {
+    return { error: 'error2' };
   }
 
   // error when uId refers to user already in channel
@@ -225,8 +253,9 @@ function addChannelOwnerV1(token: string, channelId: number, uId: number) {
   const data: dataStoreType = getData();
   const channel: channel = getChannel(channelId, data.channels);
   const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
-  const userBecomingOwner: user = getUsers(uId, authUserId, data.users)[1];
-  const userGivingOwner: user = getUsers(uId, authUserId, data.users)[0];
+  const userGivingOwner: user = data.users[data.users.findIndex(user => user.authUserId === authUserId)];
+  const userBecomingOwnerIndex: number = data.users.findIndex(user => user.uId === uId);
+  const userBecomingOwner: user = data.users[userBecomingOwnerIndex];
 
   // error when channelId fails to find a valid channel
   if (channel === undefined) {
@@ -254,11 +283,12 @@ function addChannelOwnerV1(token: string, channelId: number, uId: number) {
   }
 
   // error when the user adding is not an existing channel owner or global owner
-  if (!channel.ownerMembers.includes(userGivingOwner.uId) || !(userGivingOwner.isGlobalOwner === 1)) {
+  if (!channel.ownerMembers.includes(userGivingOwner.uId) || (userGivingOwner.isGlobalOwner !== 1)) {
     return { error: 'error' };
   }
 
-  channel.ownerMembers.push(uId);
+  data.channels[data.channels.indexOf(channel)].ownerMembers.push(uId);
+  setData(data);
   return {};
 }
 
@@ -279,8 +309,9 @@ function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
   const data: dataStoreType = getData();
   const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
   const channel: channel = getChannel(channelId, data.channels)[0];
-  const userBeingRemoved: user = getUsers(uId, authUserId, data.users)[1];
-  const userRemovingOwner: user = getUsers(uId, authUserId, data.users)[0];
+  const userRemovingOwner: user = data.users[data.users.findIndex(user => user.authUserId === authUserId)];
+  const userBeingRemovedIndex: number = data.users.findIndex(user => user.uId === uId);
+  const userBeingRemoved: user = data.users[userBeingRemovedIndex];
 
   // error when channelId fails to find a valid channel
   if (channel === undefined) {
@@ -312,33 +343,11 @@ function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
     return { error: 'error' };
   }
 
-  channel.ownerMembers.splice(channel.ownerMembers.indexOf(uId, 1));
+  let index: number = data.channels.indexOf(channel);
+  data.channels[index].ownerMembers.splice(data.channels[index].ownerMembers.indexOf(uId, 1));
+  setData(data);
   return {};
 }
 
-// helper function to reduce reptition
-function getChannel(channelId: number, channelsArray: channel[]) {
-  let channel: channel;
-  for (let i = 0; i < channelsArray.length; i++) {
-    if (channelId === channelsArray[i].channelId) {
-      channel = channelsArray[i];
-    }
-  }
-  return channel;
-}
-
-// helper function to reduce reptition
-function getUsers(uId: number, authUserId: number, usersArray: any) {
-  let newUserFromAuth: user, newUserFromUId: user;
-  for (let i = 0; i < usersArray.length; i++) {
-    if (uId === usersArray[i].uId) {
-      newUserFromUId = usersArray[i];
-    }
-    if (authUserId === usersArray[i].authUserID) {
-      newUserFromAuth = usersArray[i];
-    }
-  }
-  return [newUserFromAuth, newUserFromUId];
-}
 
 export { channelDetailsV1, channelJoinV2, channelInviteV2, channelMessagesV1, addChannelOwnerV1, removeChannelOwnerV1 };
