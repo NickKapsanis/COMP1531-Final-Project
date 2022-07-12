@@ -8,6 +8,7 @@ const url = config.url;
 describe('Tests for message/edit/V1', () => {
   let token1;
   let token2;
+  let token3;
   let channelId1;
   let channelId2;
   let messageId1;
@@ -15,12 +16,15 @@ describe('Tests for message/edit/V1', () => {
   let messageId3;
 
   beforeEach(() => {
-    //  channelMembers1: [1,2], channelOwners1: [1], channelMembers2: [2], channelOwners2: [2]
+    //  channelMembers1: [1,2], channelOwners1: [1], channelMembers2: [2, 3], channelOwners2: [1, 2] (because token1 is a global owner)
     token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
     channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
     // Invite token2 into Channel 1
     requestChannelInviteV2(token1, channelId1, 2); // TODO: change uID... getUId helper function?
+    // Invite token3 into Channel 2
+    requestChannelInviteV2(token2, channelId2, 3);
     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
     messageId1 = requestMessageSendV1(token1, channelId1, 'Message 1.1');
     messageId2 = requestMessageSendV1(token2, channelId1, 'Message 1.2');
@@ -48,7 +52,7 @@ describe('Tests for message/edit/V1', () => {
   });
 
   test('Case 3: messageId refers to message in a channel the user not member of ', () => {
-    const res = requestMessageEditV1(token1, messageId3, 'Edited Message 2.1');
+    const res = requestMessageEditV1(token3, messageId1, 'Edited Message 1.1');
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
@@ -71,7 +75,7 @@ describe('Tests for message/edit/V1', () => {
     expect(bodyObj).toStrictEqual({ error: 'error' });
   });
 
-  test('Case 6: successful message edit', () => {
+  test('Case 6: successful message edit (in channels)', () => {
     const res = requestMessageEditV1(token1, messageId1, 'Edited Message 1.1');
     const messages = requestChannelMessageV2(token1, channelId1, 0);
     const editedMessage = messages.find(message => message.messageId === messageId1);
@@ -92,6 +96,31 @@ describe('Tests for message/edit/V1', () => {
     expect(bodyObj).toStrictEqual({});
     expect(editedMessage).toStrictEqual(undefined);
   });
+
+  test('Case 8: successful message edit (with global permissions)', () => {
+    const res = requestMessageEditV1(token1, messageId3, 'Edited Message 2.1');
+    const messages = requestChannelMessageV2(token1, channelId2, 0);
+    const editedMessage = messages.find(message => message.messageId === messageId3);
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(res.statusCode).toBe(OK);
+    expect(bodyObj).toStrictEqual({});
+    expect(editedMessage.message).toStrictEqual('Edited Message 2.1');
+  });
+
+  test('Case 9: successful message edit (with dms)', () => {
+    const dmId1 = requestDmCreateV1(token1, [1, 3]);
+    const messageId5 = requestMessageSendDmV1(token1, dmId1, 'Message Dm 1.1');
+
+    const res = requestMessageEditV1(token1, messageId5, 'Edited Message Dm 1.1');
+    const messages = requestDmMessageV1(token1, dmId1, 0);
+    const editedMessage = messages.find(message => message.messageId === messageId5);
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(res.statusCode).toBe(OK);
+    expect(bodyObj).toStrictEqual({});
+    expect(editedMessage.message).toStrictEqual('Edited Message Dm 1.1');
+  });
 });
 
 function requestMessageEditV1(token: string, messageId: number, message: string) {
@@ -108,11 +137,11 @@ function requestMessageEditV1(token: string, messageId: number, message: string)
   );
 }
 
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////        Helper Functions       /////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////        Helper Functions       /////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
 function requestAuthUserRegisterV2(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
@@ -164,10 +193,10 @@ function requestChannelInviteV2(token: string, channelId: number, uId: number) {
 
 function requestChannelMessageV2(token: string, channelId: number, start: number) {
   const res = request(
-    'POST',
+    'GET',
         `${url}:${port}/channel/messages/v2`,
         {
-          json: {
+          qs: {
             token: token,
             channelId: channelId,
             start: start,
@@ -186,6 +215,53 @@ function requestMessageSendV1(token: string, channelId: number, message: string)
           json: {
             token: token,
             channelId: channelId,
+            message: message,
+          }
+        }
+  );
+
+  return JSON.parse(String(res.getBody())).messageId;
+}
+
+function requestDmCreateV1(token: string, uIds: Array<number>) {
+  const res = request(
+    'POST',
+    `${url}:${port}/dm/create/v1`,
+    {
+      json: {
+        token: token,
+        uIds: uIds,
+      }
+    }
+  );
+
+  return JSON.parse(String(res.getBody())).dmId;
+}
+
+function requestDmMessageV1(token: string, dmId: number, start: number) {
+  const res = request(
+    'GET',
+        `${url}:${port}/dm/messages/v1`,
+        {
+          qs: {
+            token: token,
+            dmId: dmId,
+            start: start,
+          }
+        }
+  );
+
+  return JSON.parse(String(res.getBody())).messages;
+}
+
+function requestMessageSendDmV1(token: string, dmId: number, message: string) {
+  const res = request(
+    'POST',
+        `${url}:${port}/message/senddm/v1`,
+        {
+          json: {
+            token: token,
+            dmId: dmId,
             message: message,
           }
         }
