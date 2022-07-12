@@ -1,15 +1,15 @@
-// import request from 'sync-request';
-// import config from './config.json';
+import request from 'sync-request';
+import config from './config.json';
 
-// const OK = 200;
-// const port = config.port;
-// const url = config.url;
+const OK = 200;
+const port = config.port;
+const url = config.url;
 
-/// /////////////////////////////////////////////
-/// //          Tests for clearV1()         /////
-/// /////////////////////////////////////////////
+//////////////////////////////////////////////
+///          Tests for clearV1()         /////
+//////////////////////////////////////////////
 
-/*
+
 describe('Testing clearV1()', () => {
 
   test('', () => {
@@ -55,4 +55,4 @@ describe('Testing clearV1()', () => {
 
   });
 });
-*/
+

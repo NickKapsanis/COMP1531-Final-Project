@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 type user = {
   uId: number;
   authUserId : number;
@@ -8,6 +10,7 @@ type user = {
   password : string;
   handleStr: string;
   channels: number[];
+  dms: number[];
   isGlobalOwner: 1 | 2; // 1 for global owner 2 for not global
 }
 type message = {
@@ -15,6 +18,13 @@ type message = {
   uId : number;
   timeSent : number; // unix timestamp
   message : string;
+}
+type dm = {
+    dmId: number;
+    name: string;
+    allMembers : number[]; // array of all memebrs user Id's
+    owner : number; // array of all owners user Id's
+    messages?: message[];
 }
 type channel = {
   channelId: number;
@@ -27,36 +37,32 @@ type channel = {
 type dataStoreType = {
   users? : user[];
   channels? : channel[];
+  dms? : dm[];
 }
 
-let data: dataStoreType = {
+const data: dataStoreType = {
   users: [],
-  channels: []
+  channels: [],
+  dms: [],
 };
 
-/*
-Example usage
-    let store = getData()
-    console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Rando'] }
-
-    names = store.names
-
-    names.pop()
-    names.push('Jake')
-
-    console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Jake'] }
-    setData(store)
-*/
-
 // Use get() to access the data
+// if the data.json file does not exist, create it by setting it with the data definition above and read from the created file.
 function getData() : dataStoreType {
-  return data;
+  try {
+    const dataFromFile = JSON.parse(String(fs.readFileSync('data.json', { flag: 'r' })));
+    return dataFromFile;
+  } catch (err) {
+    setData(data);
+    return getData();
+  }
 }
 
 // Use set(newData) to pass in the entire data object, with modifications made
 function setData(newData: dataStoreType) {
-  data = newData;
+// data = newData;
+  fs.writeFileSync('data.json', JSON.stringify(newData), { flag: 'w' });
 }
 
 export { getData, setData };
-export { user, message, channel, dataStoreType };
+export { user, message, channel, dm, dataStoreType };

@@ -41,6 +41,7 @@ function clearV1() {
   const newData : dataStoreType = {
     users: [],
     channels: [],
+    dms: [],
   };
 
   setData(newData);
