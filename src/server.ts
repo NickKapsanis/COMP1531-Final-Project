@@ -3,7 +3,7 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 
-import { messageEditV1 } from './message'; 
+import { messageEditV1 } from './message';
 
 // Set up web app, use JSON
 const app = express();
@@ -23,11 +23,10 @@ app.get('/echo', (req, res, next) => {
 });
 
 // messageEditV1
-app.put('/message/edit/v1', (req: Request, res: Response) => {
+app.put('/message/edit/v1', (req, res) => {
   const { token, messageId, message } = req.body;
   res.json(messageEditV1(token, messageId, message));
 });
-
 
 // for logging errors
 app.use(morgan('dev'));
