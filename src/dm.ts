@@ -20,7 +20,7 @@ type dmsInfo = {
 
 type dms = dmsInfo[]
 
-function dmCreateV1(token : string, uIds : uIds) : dmIdObj | error  {
+export function dmCreateV1(token : string, uIds : uIds) : dmIdObj | error  {
     let data = getData();
     let creator = data.users.find(user => user.tokens.find(t => t === token));
     let duplicateUIds = uIds => uIds.filter((item, index) => uIds.indexOf(item) != index);
@@ -63,7 +63,7 @@ function dmCreateV1(token : string, uIds : uIds) : dmIdObj | error  {
     return { dmId: newDmId };
 }
 
-function dmListV1(token: string) : error | dms {
+export function dmListV1(token: string) : error | dms {
     let data = getData();
     let user = data.users.find(user => user.tokens.find(t => t === token));
 
@@ -84,7 +84,7 @@ function dmListV1(token: string) : error | dms {
 
 }
 
-function dmRemoveV1(token: string, dmId: number) {
+export function dmRemoveV1(token: string, dmId: number) {
     let data = getData();
     let user = data.users.find(user => user.tokens.find(t => t === token));
     let dm = data.dms.find(dm => dm.dmId === dmId);
