@@ -2,6 +2,7 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
+import { channelsCreateV1 } from './channels';
 
 // Set up web app, use JSON
 const app = express();
@@ -18,6 +19,12 @@ app.get('/echo', (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+// channels/create/v2
+app.get('/channels/create/v2', (req, res) => {
+  const {token, name, isPublic} = req.query
+  res.json(channelsCreateV1(token, name, isPublic));
 });
 
 // for logging errors
