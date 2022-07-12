@@ -15,6 +15,7 @@ import { getData, setData } from './dataStore';
  */
 export function messageEditV1(token: string, messageId: number, message: string) {
   const data = getData();
+  const mode = 'e'; 
 
   // Token validation
   if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
@@ -62,7 +63,7 @@ export function messageEditV1(token: string, messageId: number, message: string)
  *      { error: 'error' }     object     Error message when given invalid input
  *      { }                    object     Successful messageEdit
  */
-function editInChannel(userId: number, isGlobalUser: boolean, messageId: number, message: string) {
+function editInChannel(mode: string, userId: number, isGlobalUser: boolean, messageId: number, message?: string) {
   const data = getData();
 
   let channelGiven;
@@ -93,10 +94,12 @@ function editInChannel(userId: number, isGlobalUser: boolean, messageId: number,
 
   const messageGivenIndex = channelGiven.messages.findIndex(message => message.messageId === messageId);
   const channelGivenIndex = data.channels.findIndex(channel => channel.channelId === channelGiven.channelId);
-
-  data.channels[channelGivenIndex].messages[messageGivenIndex].message = message;
+  
+  if (mode === 'e') {
+    data.channels[channelGivenIndex].messages[messageGivenIndex].message = message;
+  }
+  
   setData(data);
-
   return {};
 }
 
@@ -113,7 +116,7 @@ function editInChannel(userId: number, isGlobalUser: boolean, messageId: number,
  *      { error: 'error' }     object     Error message when given invalid input
  *      { }                    object     Successful messageEdit
  */
-function editInDm(userId: number, messageId: number, message: string) {
+function editInDm(mode: string, userId: number, messageId: number, message?: string) {
   const data = getData();
 
   let dmGiven;
@@ -143,8 +146,10 @@ function editInDm(userId: number, messageId: number, message: string) {
   const messageGivenIndex = dmGiven.messages.findIndex(message => message.messageId === messageId);
   const dmGivenIndex = data.dms.findIndex(dm => dm.dmId === dmGiven.dmId);
 
-  data.dms[dmGivenIndex].messages[messageGivenIndex].message = message;
-  setData(data);
+  if (mode === 'e') {
+    data.dms[dmGivenIndex].messages[messageGivenIndex].message = message;
+  }
 
+  setData(data);
   return {};
 }
