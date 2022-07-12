@@ -61,7 +61,7 @@ describe('Testing dm/create/v1', () => {
 
 /*
 ////////////////////////////////////////////////
-/////       Tests for dm/list/v1         /////
+/////         Tests for dm/list/v1         /////
 ////////////////////////////////////////////////
 */
 describe('Testing dm/list/v1', () => {
@@ -183,7 +183,7 @@ function requestClear() {
       'DELETE',
       `${url}:${port}/clear/v1`
     );
-  }
+}
   
 function requestAuthRegister(email: string, password: string, nameFirst: string, nameLast: string) {
     const res = request(
