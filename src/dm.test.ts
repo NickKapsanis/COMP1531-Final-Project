@@ -125,7 +125,167 @@ describe('Testing dm/details/v1', () => {
     );
   });
 });
+// ///////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////
+describe('Testing dm/leave/v1', () => {
+    beforeEach(() => {
+      request('DELETE', url + '/clear/v1');
+    });
+    // dmID is not valid
+    test('dmId is not valid', () => {
+      /// ////////////////////////////set up the datastore/////////////////////////////////////////
+      const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
+      const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+      const user3 = registerUser('testingUser3@gmail.com', '1234567', 'FirstName3', 'LastName3');
+      const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
+      const badDmId = -100; // will work regardless as dm has not been created
+      const badtoken = 'thisisalmostcertainlynotatoken';
+      /// /////////////////////////////////////////////////////////////////////////////////////////
+      const res = request(
+        'POST',
+        url + '/dm/leave/v1',
+        {
+          body: JSON.stringify({
+            token: user1.token,
+            dmId: badDmId,
+          }),
+          headers: {
+            'Content-type': 'application/json',
+          },
+        }
+      );
+      const bodyObj = JSON.parse(String(res.getBody()));
+      expect(bodyObj).toStrictEqual({ error: 'error' });
+      expect(res.statusCode).toStrictEqual(200);
+    });  
+    // dmID is valid but authUserId is not a member of the DM
+    test('dmId is valid but authUserId is not a member', () => {
+        test('dmId is not valid', () => {
+            /// ////////////////////////////set up the datastore/////////////////////////////////////////
+            const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
+            const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+            const user3 = registerUser('testingUser3@gmail.com', '1234567', 'FirstName3', 'LastName3');
+            const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
+            const badDmId = -100; // will work regardless as dm has not been created
+            const badtoken = 'thisisalmostcertainlynotatoken';
+            /// /////////////////////////////////////////////////////////////////////////////////////////
+            const res = request(
+              'POST',
+              url + '/dm/leave/v1',
+              {
+                body: JSON.stringify({
+                  token: user3.token,
+                  dmId: dm12.dmId,
+                }),
+                headers: {
+                  'Content-type': 'application/json',
+                },
+              }
+            );
+            const bodyObj = JSON.parse(String(res.getBody()));
+            expect(bodyObj).toStrictEqual({ error: 'error' });
+            expect(res.statusCode).toStrictEqual(200);
+          });  
+    });
+    // token is not valid
+    test('token is not valid', () => {
+        test('dmId is not valid', () => {
+            /// ////////////////////////////set up the datastore/////////////////////////////////////////
+            const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
+            const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+            const user3 = registerUser('testingUser3@gmail.com', '1234567', 'FirstName3', 'LastName3');
+            const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
+            const badDmId = -100; // will work regardless as dm has not been created
+            const badtoken = 'thisisalmostcertainlynotatoken';
+            /// /////////////////////////////////////////////////////////////////////////////////////////
+            const res = request(
+              'POST',
+              url + '/dm/leave/v1',
+              {
+                body: JSON.stringify({
+                  token: badtoken,
+                  dmId: dm12.dmId,
+                }),
+                headers: {
+                  'Content-type': 'application/json',
+                },
+              }
+            );
+            const bodyObj = JSON.parse(String(res.getBody()));
+            expect(bodyObj).toStrictEqual({ error: 'error' });
+            expect(res.statusCode).toStrictEqual(200);
+          });  
+    });
+    // all is correct
+    test('testing sucessful call of non owner', () => {
+        test('dmId is not valid', () => {
+            /// ////////////////////////////set up the datastore/////////////////////////////////////////
+            const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
+            const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+            const user3 = registerUser('testingUser3@gmail.com', '1234567', 'FirstName3', 'LastName3');
+            const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
+            const badDmId = -100; // will work regardless as dm has not been created
+            const badtoken = 'thisisalmostcertainlynotatoken';
+            /// /////////////////////////////////////////////////////////////////////////////////////////
+            const res = request(
+              'POST',
+              url + '/dm/leave/v1',
+              {
+                body: JSON.stringify({
+                  token: user2.token,
+                  dmId: dm12.dmId,
+                }),
+                headers: {
+                  'Content-type': 'application/json',
+                },
+              }
+            );
+            const bodyObj = JSON.parse(String(res.getBody()));
+            expect(res.statusCode).toStrictEqual(200);
+            expect(bodyObj).toEqual({});
+        });  
+    })
+    // all is correct
+    test('testing sucessful call of owner', () => {
+        test('dmId is not valid', () => {
+            /// ////////////////////////////set up the datastore/////////////////////////////////////////
+            const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
+            const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+            const user3 = registerUser('testingUser3@gmail.com', '1234567', 'FirstName3', 'LastName3');
+            const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
+            const badDmId = -100; // will work regardless as dm has not been created
+            const badtoken = 'thisisalmostcertainlynotatoken';
+            /// /////////////////////////////////////////////////////////////////////////////////////////
+            const res = request(
+              'POST',
+              url + '/dm/leave/v1',
+              {
+                body: JSON.stringify({
+                  token: user1.token,
+                  dmId: dm12.dmId,
+                }),
+                headers: {
+                  'Content-type': 'application/json',
+                },
+              }
+            );
+            const bodyObj = JSON.parse(String(res.getBody()));
+            expect(res.statusCode).toStrictEqual(200);
+            expect(bodyObj).toEqual({});
+        });  
+    })
+});
 
+// ///////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////
 // testing helper function, registers a user by making an http call. returns the body object of the response
 function registerUser(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
