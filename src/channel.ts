@@ -2,6 +2,7 @@ import { dataStoreType, getData, setData, user, channel } from './dataStore';
 import { userProfileV1 } from './users';
 import { channelsListV2 } from './channels';
 import { getUId } from './other'
+import { arrayBuffer } from 'stream/consumers';
 
 /*
 /*
@@ -379,30 +380,33 @@ function channelsLeaveV1(token: string, channelId: number) {
     if (user === undefined) { return { error : 'error' } };
 
     //the channelsListV1, which uses getUId function already does error checking within.
-    let channelsArray = channelsListV2(token);
+    let channelsArray = channelsListV2(token).channels;
     let uId = getUId(authUserId);
 
-    if (channelsArray === undefined) {
+    if (channelsArray.length === 0) {
         return {error: 'error'};
     }
 
     //loops through all channels given member is a part of, removes member.
-    for (let i = 0; i < channelsArray[i].length; i++) {
+    for (let i = 0; i < channelsArray.length; i++) {
         if (channelsArray[i].channelId === channelId) {
-            for (let n = 0; n < channelsArray[i].allMembers.length; n++) {
-                if (channelsArray[i].allMembers[n] === uId) {
-                    channelsArray[i] = channelsArray[i].filter(item => item !== uId);
+
+            let foundChannel = data.channels.find(channel=>channel.channelId === channelId);
+            const foundChannelIndex = data.channels.findIndex(channel=>channel.channelId === channelId);
+
+            for (let n = 0; n < foundChannel.allMembers.length; n++) {
+                if (foundChannel.allMembers[n] === uId) {
+                    const newMembersArray = foundChannel.allMembers.filter(item => item !== uId);
+                    foundChannel.allMembers = newMembersArray;
+                    data.channels[foundChannelIndex] = foundChannel;
                     
                     setData(data);
-
                     return {};                  
                 }
             }
         }
-
     }
-
-    //case given user wawsn't a part of channel. 
+    //case given user wasn't a part of channel. 
     return {error: 'error'};
 }
 

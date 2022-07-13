@@ -430,7 +430,7 @@ test('tests the case that user isn\'t valid', () => {
 
   expect(JamesChannels[0]).toEqual( testCreatedChannel );
   expect(res.statusCode).toBe(200);
-  expect(bodyObj).toEqual( [] );
+  expect(bodyObj).toEqual( {} );
 });
 
 
@@ -458,7 +458,7 @@ test('tests the case with only given user in channel', () => {
 
   expect(JamesChannels).toEqual( [] );
   expect(res.statusCode).toBe(200);
-  expect(bodyObj).toEqual( [] );
+  expect(bodyObj).toEqual( {} );
 });
 
 
@@ -491,7 +491,7 @@ test('tests the general case, channel with multiple people.', () => {
 
   expect(rufusChannels).toEqual( [] );
   expect(res.statusCode).toBe(200);
-  expect(bodyObj).toEqual( [] );
+  expect(bodyObj).toEqual( {} );
 });
 
 
@@ -528,5 +528,5 @@ test('tests the multiple channels and multiple people.', () => {
   
   expect(jamesChannels[0]).toEqual( secondTestCreatedChannel );
   expect(res.statusCode).toBe(200);
-  expect(bodyObj[0]).toEqual({ secondTestCreatedChannel });
+  expect(bodyObj).toEqual( {} );
 });
