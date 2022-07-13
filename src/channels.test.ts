@@ -5,11 +5,6 @@ import express from 'express';
 import request from 'sync-request';
 import { PORT, HOST} from './server';
 
-
-/// /////////////////////////////////////////////
-/// //      Tests for channelsListV2()      /////
-/// /////////////////////////////////////////////
-
 // helper function - calls auth register through the server
 
 const url = 'http://' + HOST + ':' + PORT;
@@ -45,7 +40,9 @@ const createChannel = (tokens: string, names: string, publicity: boolean) => {
 
 
 
-
+/// /////////////////////////////////////////////
+/// //      Tests for channelsListV2()      /////
+/// /////////////////////////////////////////////
 
 test('testing when authUserId doesn\'t exist', () => {
   clearV1();
@@ -62,7 +59,7 @@ test('testing when authUserId doesn\'t exist', () => {
             }
           }
   );
-  const bodyObj = JSON.parse(String(res.body));
+  const bodyObj = JSON.parse(String(res.getBody()));
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toEqual({ error: 'error' });
@@ -80,11 +77,11 @@ test('testing when user is not in any channel', () => {
     `http://${HOST}:${PORT}/channels/list/v2`,
           {
             qs: {
-              channelsListV2: jamesAuthId,
+              token: jamesAuthId,
             }
           }
   );
-  const bodyObj = JSON.parse(String(res.body));
+  const bodyObj = JSON.parse(String(res.getBody));
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toEqual([]);
@@ -92,7 +89,7 @@ test('testing when user is not in any channel', () => {
 
 
 
-/*
+
 
 test('tests if all correct channels are listed in channel list', () => {
   clearV1();
@@ -108,26 +105,25 @@ test('tests if all correct channels are listed in channel list', () => {
 
     const res = request(
       'GET',
-      'http:/localhost:${PORT}/channels/list/v2',
+      `http://${HOST}:${PORT}/channels/list/v2`,
             {
               qs: {
-                channelsCreateV2: jamesAuthId,
+                token: jamesAuthId,
               }
             }
     );
-    const bodyObj = JSON.parse(String(res.body));
+    const bodyObj = JSON.parse(String(res.getBody));
 
 
-  // it used to be:       jamesChannelArray = channelsListV2(jamesAuthId).channels
+  //it used to be:       jamesChannelArray = channelsListV2(jamesAuthId).channels
   //it now is:            res = channelsListV2(jamesAuthId)
 
   //so replace:           jamesChannelArray = res.channels ???????? or is it something to do with bodyObj???????
 
-  const findC1 = jamesChannelArray.find(i => i.channelId === firstCreatedChannel);
-  const findC2 = jamesChannelArray.find(i => i.channelId === secondCreatedChannel);
-  const findC3 = jamesChannelArray.find(i => i.channelId === thirdCreatedChannel);
-  const findC4 = jamesChannelArray.find(i => i.channelId === fourthCreatedChannel);
-
+  const findC1 = bodyObj.find(i => i.channelId === firstCreatedChannel);
+  const findC2 = bodyObj.find(i => i.channelId === secondCreatedChannel);
+  const findC3 = bodyObj.find(i => i.channelId === thirdCreatedChannel);
+  const findC4 = bodyObj.find(i => i.channelId === fourthCreatedChannel);
 
   expect(res.statusCode).toBe(200);
   expect(findC1.name).toEqual('James C1');
@@ -139,8 +135,6 @@ test('tests if all correct channels are listed in channel list', () => {
   expect(findC4.channelId).toEqual(fourthCreatedChannel);
   expect(findC3).toEqual(undefined);
 });
-
-*/
 
 
 
@@ -165,7 +159,7 @@ test('tests when no channel exists', () => {
             }
           }
   );
-  const bodyObj = JSON.parse(String(res.body));
+  const bodyObj = JSON.parse(String(res.getBody));
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toEqual([]);
@@ -191,7 +185,7 @@ test('tests when authUserId does\'nt exist', () => {
             }
           }
   );
-  const bodyObj = JSON.parse(String(res.body));
+  const bodyObj = JSON.parse(String(res.getBody));
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toEqual({ error: 'error' });
@@ -199,20 +193,10 @@ test('tests when authUserId does\'nt exist', () => {
 
 
 
-/*
 
 test('tests if all correct channels are listed in channel list', () => {
   clearV1();
-
-  app.get('/channels/list/v2', (req, res) => {
-    const res = request(
-      'GET',
-      'http:/localhost:${PORT}/channels/list/v2'
-    );
-
-
     
-
     const jamesAuthId = createUser('james@email.com', 'testPassword123', 'James', 'James').authUserId;
     const rufusAuthId = createUser('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').authUserId;
 
@@ -221,15 +205,22 @@ test('tests if all correct channels are listed in channel list', () => {
     const thirdCreatedChannel = channelsCreateV2(rufusAuthId, 'Rufus C1', false).channelId;
     const fourthCreatedChannel = channelsCreateV2(jamesAuthId, 'James C3', true).channelId;
 
-    const everyChannelArray = channelsListallV2(rufusAuthId).channels;
-  });
+    const res = request(
+      'GET',
+      `http://${HOST}:${PORT}/channels/list/v2`,
+            {
+              qs: {
+                token: rufusAuthId,
+              }
+            }
+    );
+    const bodyObj = JSON.parse(String(res.getBody));
 
-  const findC1 = everyChannelArray.find(i => i.channelId === firstCreatedChannel);
-  const findC2 = everyChannelArray.find(i => i.channelId === secondCreatedChannel);
-  const findC3 = everyChannelArray.find(i => i.channelId === thirdCreatedChannel);
-  const findC4 = everyChannelArray.find(i => i.channelId === fourthCreatedChannel);
 
-
+  const findC1 = bodyObj.find(i => i.channelId === firstCreatedChannel);
+  const findC2 = bodyObj.find(i => i.channelId === secondCreatedChannel);
+  const findC3 = bodyObj.find(i => i.channelId === thirdCreatedChannel);
+  const findC4 = bodyObj.find(i => i.channelId === fourthCreatedChannel);
 
   expect(res.statusCode).toBe(200);
   expect(findC1.name).toEqual('James C1');
@@ -243,8 +234,6 @@ test('tests if all correct channels are listed in channel list', () => {
   expect(findC4.channelId).toEqual(fourthCreatedChannel);
 });
 
-
-*/
 
 
 

@@ -79,15 +79,16 @@ app.post('/channels/create/v2', (req, res) => {
   res.json(channelsCreateV2(data.token, data.name, data.isPublic));
 })
 
-app.post('/channels/list/v2', (req, res) => {
-  const data = req.body;
-  res.json(channelsListV2(data.token));
+app.get('/channels/list/v2', (req, res) => {
+  const data = req.query.token as string;
+  res.json(channelsListV2(data));
 });
 
-app.post('channels/listall/v2', (req, res) => {
-  const data = req.body;
-  res.json(channelsListallV2(data.token));
+app.get('channels/listall/v2', (req, res) => {
+  const data = req.query.token as string;
+  res.json(channelsListallV2(data));
 });
+
 
 
 // for logging errors
