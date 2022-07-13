@@ -47,34 +47,27 @@ const createChannel = (tokens: string, names: string, publicity: boolean) => {
 
 
 
-
-
-
-
-
-///////I HAVE NO CLUE HOW THESE HTPP TESTS WORK, NEED HELP///////
-
 test('testing when authUserId doesn\'t exist', () => {
   clearV1();
 
-  const jamesAuthId = createUser('james@email.com', 'testPassword123', 'James', 'James').authUserId;
-  const CreatedChannel = channelsCreateV2(jamesAuthId, 'James C1', true).channelId;
+  const james = createUser('james@email.com', 'testPassword123', 'James', 'James');
+  const CreatedChannel = channelsCreateV2(james.authUserId, 'James C1', true).channelId;
 
   const res = request(
     'GET',
-    'http:/localhost:${PORT}/channels/list/v2',
+    `http://${HOST}:${PORT}/channels/list/v2`,
           {
             qs: {
-              channelsListV2: 6969,
+              token: 'hello',
             }
           }
   );
-  const bodyObj = JSON.parse(res.body as string);
+  const bodyObj = JSON.parse(String(res.body));
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toEqual({ error: 'error' });
 });
-
+ 
 
 
 
@@ -84,14 +77,14 @@ test('testing when user is not in any channel', () => {
 
   const res = request(
     'GET',
-    'http:/localhost:${PORT}/channels/list/v2',
+    `http://${HOST}:${PORT}/channels/list/v2`,
           {
             qs: {
               channelsListV2: jamesAuthId,
             }
           }
   );
-  const bodyObj = JSON.parse(res.body as string);
+  const bodyObj = JSON.parse(String(res.body));
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toEqual([]);
@@ -122,7 +115,7 @@ test('tests if all correct channels are listed in channel list', () => {
               }
             }
     );
-    const bodyObj = JSON.parse(res.body as string);
+    const bodyObj = JSON.parse(String(res.body));
 
 
   // it used to be:       jamesChannelArray = channelsListV2(jamesAuthId).channels
@@ -165,14 +158,14 @@ test('tests when no channel exists', () => {
 
   const res = request(
     'GET',
-    'http:/localhost:${PORT}/channels/listall/v2',
+    `http://${HOST}:${PORT}/channels/listall/v2`,
           {
             qs: {
               channelsListallV2: jamesAuthId,
             }
           }
   );
-  const bodyObj = JSON.parse(res.body as string);
+  const bodyObj = JSON.parse(String(res.body));
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toEqual([]);
@@ -191,14 +184,14 @@ test('tests when authUserId does\'nt exist', () => {
 
   const res = request(
     'GET',
-    'http:/localhost:${PORT}/channels/listall/v2',
+    `http://${HOST}:${PORT}/channels/listall/v2`,
           {
             qs: {
               channelsListallV2: 6969,
             }
           }
   );
-  const bodyObj = JSON.parse(res.body as string);
+  const bodyObj = JSON.parse(String(res.body));
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toEqual({ error: 'error' });
