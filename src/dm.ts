@@ -78,7 +78,7 @@ Return Value:
      token us not valid
      start is greater than the total number of messages in the channel
 */
-function dmMessagesV1(token: string, dmId: number, start: number) {
+export function dmMessagesV1(token: string, dmId: number, start: number) {
     // input check the 3 possible error returns
     if (!checkValidToken(token)) return { error: 'error' };
     if (!checkValidDmId(dmId)) return { error: 'error' };
