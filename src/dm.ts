@@ -79,30 +79,30 @@ Return Value:
      start is greater than the total number of messages in the channel
 */
 export function dmMessagesV1(token: string, dmId: number, start: number) {
-    // input check the 3 possible error returns
-    if (!checkValidToken(token)) return { error: 'error' };
-    if (!checkValidDmId(dmId)) return { error: 'error' };
-    if (!isMemberOf(dmId, token)) return { error: 'error' };
-    const data = getData();
-    const dmObjMessages = data.dms?.find(dm => dm.dmId === dmId)?.messages;
-    if (dmObjMessages === undefined || dmObjMessages.length < start) return { error: 'error'}
-    // if all if statements were passed over, paginate the messages.
-    // start by setting the end of the current block to send
-    let pageEnd = start + 50;
-    let end : number;
-    if (pageEnd >= dmObjMessages.length) {
-        const numToPrint = pageEnd - 50;
-        pageEnd = start + numToPrint;
-        end = -1;
-    } else {
-        end = pageEnd;
-    }
-    return {
-        messages: dmObjMessages.slice(start, pageEnd + 1),
-        start: start,
-        end: end,
-    }
-};
+  // input check the 3 possible error returns
+  if (!checkValidToken(token)) return { error: 'error' };
+  if (!checkValidDmId(dmId)) return { error: 'error' };
+  if (!isMemberOf(dmId, token)) return { error: 'error' };
+  const data = getData();
+  const dmObjMessages = data.dms?.find(dm => dm.dmId === dmId)?.messages;
+  if (dmObjMessages === undefined || dmObjMessages.length < start) return { error: 'error' };
+  // if all if statements were passed over, paginate the messages.
+  // start by setting the end of the current block to send
+  let pageEnd = start + 50;
+  let end : number;
+  if (pageEnd >= dmObjMessages.length) {
+    const numToPrint = pageEnd - 50;
+    pageEnd = start + numToPrint;
+    end = -1;
+  } else {
+    end = pageEnd;
+  }
+  return {
+    messages: dmObjMessages.slice(start, pageEnd + 1),
+    start: start,
+    end: end,
+  };
+}
 
 // helper function returns true or false if the input dmId is or is not a valid dmId in the datastore repectivly.
 function checkValidDmId(dmId: number) {

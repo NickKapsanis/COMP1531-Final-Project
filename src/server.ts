@@ -37,7 +37,7 @@ app.post('/dm/leave/v1', (req, res) => {
 app.get('/dm/messages/v1', (req, res) => {
   const token = req.query.token as string;
   const dmId = parseInt(req.query.dmId as string);
-  const start = parseInt(req.query.start as string)
+  const start = parseInt(req.query.start as string);
   res.json(dmMessagesV1(token, dmId, start));
 });
 
