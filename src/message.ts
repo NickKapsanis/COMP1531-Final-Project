@@ -1,9 +1,9 @@
 import { getData, setData } from './dataStore';
-import { channelListV2 } from './channels'; 
-import { dmListV1 } from './dm'; 
+import { channelsListV2 } from './channels';
+import { dmListV1 } from './dm';
 
 /**
- * Given a valid messageId, the message is removed from the channel or dm 
+ * Given a valid messageId, the message is removed from the channel or dm
  *
  * Arguments:
  *      token:      string     The user's unique identifier
@@ -11,7 +11,7 @@ import { dmListV1 } from './dm';
  *
  * Returns:
  *      { error: 'error' }      object     Error message (given invalid input)
- *      { }                     object     Successful message remove 
+ *      { }                     object     Successful message remove
  */
 export function messageRemoveV1(token: string, messageId: number) {
   const data = getData();
@@ -34,9 +34,9 @@ export function messageRemoveV1(token: string, messageId: number) {
 
   const firstDigit = String(messageId)[0];
   if (firstDigit === '1') {
-    return editInChannel(mode, userId, isGlobalUser, messageId);
+    return editInChannel(mode, token, userId, isGlobalUser, messageId);
   } else if (firstDigit === '2') {
-    return editInDm(mode, userId, messageId);
+    return editInDm(mode, token, userId, messageId);
   } else {
     return { error: 'error' };
   }
@@ -56,7 +56,7 @@ export function messageRemoveV1(token: string, messageId: number) {
  *      { error: 'error' }     object     Error message when given invalid input
  *      { }                    object     Successful messageEdit
  */
-function editInChannel(mode: string, userId: number, isGlobalUser: boolean, messageId: number, message?: string) {
+function editInChannel(mode: string, token: string, userId: number, isGlobalUser: boolean, messageId: number, message?: string) {
   const data = getData();
 
   let channelGiven;
@@ -74,11 +74,11 @@ function editInChannel(mode: string, userId: number, isGlobalUser: boolean, mess
     return { error: 'error' };
   }
 
-  let isMember; 
+  let isMember;
   if (channelsListV2(token).channels.find(channel => channel.channelId === channelGiven.channelId) === undefined) {
-    isMember = false; 
+    isMember = false;
   } else {
-    isMember = true; 
+    isMember = true;
   }
 
   const messageGiven = channelGiven.messages.find(message => message.messageId === messageId);
@@ -121,7 +121,7 @@ function editInChannel(mode: string, userId: number, isGlobalUser: boolean, mess
  *      { error: 'error' }     object     Error message when given invalid input
  *      { }                    object     Successful messageEdit
  */
-function editInDm(mode: string, userId: number, messageId: number, message?: string) {
+function editInDm(mode: string, token: string, userId: number, messageId: number, message?: string) {
   const data = getData();
 
   let dmGiven;
@@ -139,11 +139,11 @@ function editInDm(mode: string, userId: number, messageId: number, message?: str
     return { error: 'error' };
   }
 
-  let isMember; 
-  if (channelsListV2(token).dms.find(dm => dm.dmId === dmGiven.dmId) === undefined) {
-    isMember = false; 
+  let isMember;
+  if (dmListV1(token).dms.find(dm => dm.dmId === dmGiven.dmId) === undefined) {
+    isMember = false;
   } else {
-    isMember = true; 
+    isMember = true;
   }
 
   const messageGiven = dmGiven.messages.find(message => message.messageId === messageId);
