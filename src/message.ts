@@ -1,4 +1,6 @@
 import { getData, setData } from './dataStore';
+import { channelsListV2 } from './channels';
+import { dmListV1 } from './dm';
 
 /**
  * Given a valid messageId and message, the message with messageId is found
@@ -15,7 +17,7 @@ import { getData, setData } from './dataStore';
  */
 export function messageEditV1(token: string, messageId: number, message: string) {
   const data = getData();
-  const mode = 'e'; 
+  const mode = 'e';
 
   // Token validation
   if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
@@ -41,9 +43,9 @@ export function messageEditV1(token: string, messageId: number, message: string)
 
   const firstDigit = String(messageId)[0];
   if (firstDigit === '1') {
-    return editInChannel(mode, userId, isGlobalUser, messageId, message);
+    return editInChannel(mode, token, userId, isGlobalUser, messageId, message);
   } else if (firstDigit === '2') {
-    return editInDm(mode, userId, messageId, message);
+    return editInDm(mode, token, userId, messageId, message);
   } else {
     return { error: 'error' };
   }
@@ -63,7 +65,7 @@ export function messageEditV1(token: string, messageId: number, message: string)
  *      { error: 'error' }     object     Error message when given invalid input
  *      { }                    object     Successful messageEdit
  */
-function editInChannel(mode: string, userId: number, isGlobalUser: boolean, messageId: number, message?: string) {
+function editInChannel(mode: string, token: string, userId: number, isGlobalUser: boolean, messageId: number, message?: string) {
   const data = getData();
 
   let channelGiven;
@@ -81,6 +83,13 @@ function editInChannel(mode: string, userId: number, isGlobalUser: boolean, mess
     return { error: 'error' };
   }
 
+  let isMember;
+  if (channelsListV2(token).channels.find(channel => channel.channelId === channelGiven.channelId) === undefined) {
+    isMember = false;
+  } else {
+    isMember = true;
+  }
+
   const messageGiven = channelGiven.messages.find(message => message.messageId === messageId);
 
   // If user is not global owner: If user is not owner of channel: If user is not the person who wrote it then return error
@@ -88,17 +97,19 @@ function editInChannel(mode: string, userId: number, isGlobalUser: boolean, mess
     if (channelGiven.ownerMembers.find(owner => owner === userId) === undefined) {
       if (messageGiven.uId !== userId) {
         return { error: 'error' };
+      } else if (messageGiven.uId === userId && isMember === false) {
+        return { error: 'error' };
       }
     }
   }
 
   const messageGivenIndex = channelGiven.messages.findIndex(message => message.messageId === messageId);
   const channelGivenIndex = data.channels.findIndex(channel => channel.channelId === channelGiven.channelId);
-  
+
   if (mode === 'e') {
     data.channels[channelGivenIndex].messages[messageGivenIndex].message = message;
   }
-  
+
   setData(data);
   return {};
 }
@@ -116,7 +127,7 @@ function editInChannel(mode: string, userId: number, isGlobalUser: boolean, mess
  *      { error: 'error' }     object     Error message when given invalid input
  *      { }                    object     Successful messageEdit
  */
-function editInDm(mode: string, userId: number, messageId: number, message?: string) {
+function editInDm(mode: string, token: string, userId: number, messageId: number, message?: string) {
   const data = getData();
 
   let dmGiven;
@@ -134,11 +145,20 @@ function editInDm(mode: string, userId: number, messageId: number, message?: str
     return { error: 'error' };
   }
 
+  let isMember;
+  if (dmListV1(token).dms.find(dm => dm.dmId === dmGiven.dmId) === undefined) {
+    isMember = false;
+  } else {
+    isMember = true;
+  }
+
   const messageGiven = dmGiven.messages.find(message => message.messageId === messageId);
 
   // If user is not global owner: If user is not owner of channel: If user is not the person who wrote it then return error
   if (dmGiven.owner !== userId) {
     if (messageGiven.uId !== userId) {
+      return { error: 'error' };
+    } else if (messageGiven.uId === userId && isMember === false) {
       return { error: 'error' };
     }
   }
