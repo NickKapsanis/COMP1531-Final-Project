@@ -2,6 +2,7 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
+import { channelsListV2, channelsListallV2 } from './channels.ts';
 
 // Set up web app, use JSON
 const app = express();

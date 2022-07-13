@@ -13,7 +13,7 @@ Return Value:
 function channelsListV2(token: string) {
   const data = getData();
 
-  const user: number = data.users.find(i => i.token === token);
+  const user = data.users.find(i => i.token === token);
   if (user === undefined) { return { error: 'error' }; }
 
   const uId: number = getUId(token);
