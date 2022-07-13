@@ -11,7 +11,7 @@ app.use(express.json());
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
 
-export { PORT, HOST};
+export { PORT, HOST };
 
 // Example get request
 app.get('/echo', (req, res, next) => {
@@ -24,9 +24,9 @@ app.get('/echo', (req, res, next) => {
 });
 // request dm details V1
 app.get('/dm/details/v1', (req, res) => {
-    const token = req.query.token as string
-    const dmId = parseInt(req.query.dmId as string)
-    res.json(dmDetailsV1(token, dmId));
+  const token = req.query.token as string;
+  const dmId = parseInt(req.query.dmId as string);
+  res.json(dmDetailsV1(token, dmId));
 });
 
 // for logging errors
