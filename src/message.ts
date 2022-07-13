@@ -1,5 +1,16 @@
 import { getData, setData } from './dataStore';
 
+/**
+ * Given a valid messageId, the message is removed from the channel or dm 
+ *
+ * Arguments:
+ *      token:      string     The user's unique identifier
+ *      messageId:  number     The message's unique identifier
+ *
+ * Returns:
+ *      { error: 'error' }      object     Error message (given invalid input)
+ *      { }                     object     Successful message remove 
+ */
 export function messageRemoveV1(token: string, messageId: number) {
   const data = getData();
   const mode = 'r';
