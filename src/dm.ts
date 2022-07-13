@@ -62,8 +62,27 @@ export function dmLeaveV1(token: string, dmId: number) {
   setData(data);
   return {};
 }
+/*
+dmmessagesV1 takes a dmId an active token and a start index and paginates 50 messages from the DM
 
-// returns true or false if the input dmId is or is not a valid dmId in the datastore repectivly.
+Arguments:
+    dmId    - the Id of the DM channel
+    token    - the session token of the user calling the request
+    start   - the start index to paginate on
+
+Return Value:
+    Returns an object with {messages, start, end} if no error
+    Returns {error: 'error'} if any of,
+     dmID is not valid
+     dmID is valid but authUserId is not a member of the DM
+     token us not valid
+     start is greater than the total number of messages in the channel
+*/
+function dmMessagesV1(token: string, dmId: number, start: number) {
+    return {token}
+}
+
+// helper function returns true or false if the input dmId is or is not a valid dmId in the datastore repectivly.
 function checkValidDmId(dmId: number) {
   const data = getData();
   if (data.dms?.find(dm => dm.dmId === dmId) !== undefined) {
@@ -72,7 +91,7 @@ function checkValidDmId(dmId: number) {
     return false;
   }
 }
-// returns true or false if the input authUserId is or is not a member of the dmId
+// helper function returns true or false if the input authUserId is or is not a member of the dmId
 function isMemberOf(dmId: number, token: string) {
   const data = getData();
   const authUserId = data.users?.find(user => user.tokens.find(tok => tok === token))?.authUserId;
