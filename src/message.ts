@@ -1,4 +1,6 @@
 import { getData, setData } from './dataStore';
+import { channelListV2 } from './channels'; 
+import { dmListV1 } from './dm'; 
 
 /**
  * Given a valid messageId, the message is removed from the channel or dm 
@@ -72,12 +74,21 @@ function editInChannel(mode: string, userId: number, isGlobalUser: boolean, mess
     return { error: 'error' };
   }
 
+  let isMember; 
+  if (channelsListV2(token).channels.find(channel => channel.channelId === channelGiven.channelId) === undefined) {
+    isMember = false; 
+  } else {
+    isMember = true; 
+  }
+
   const messageGiven = channelGiven.messages.find(message => message.messageId === messageId);
 
   // If user is not global owner: If user is not owner of channel: If user is not the person who wrote it then return error
   if (isGlobalUser === false) {
     if (channelGiven.ownerMembers.find(owner => owner === userId) === undefined) {
       if (messageGiven.uId !== userId) {
+        return { error: 'error' };
+      } else if (messageGiven.uId === userId && isMember === false) {
         return { error: 'error' };
       }
     }
@@ -128,11 +139,20 @@ function editInDm(mode: string, userId: number, messageId: number, message?: str
     return { error: 'error' };
   }
 
+  let isMember; 
+  if (channelsListV2(token).dms.find(dm => dm.dmId === dmGiven.dmId) === undefined) {
+    isMember = false; 
+  } else {
+    isMember = true; 
+  }
+
   const messageGiven = dmGiven.messages.find(message => message.messageId === messageId);
 
   // If user is not owner of channel: If user is not the person who wrote it then return error
   if (dmGiven.owner !== userId) {
     if (messageGiven.uId !== userId) {
+      return { error: 'error' };
+    } else if (messageGiven.uId === userId && isMember === false) {
       return { error: 'error' };
     }
   }
