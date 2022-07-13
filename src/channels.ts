@@ -1,5 +1,9 @@
-import {getData, setData} from './dataStore';
+import {getData, setData, channel} from './dataStore';
 import {getUId} from './other';
+
+type channelId = {
+    channelId : number
+}
 
 /*
 this function gives an array of all channels the user is in
@@ -10,6 +14,7 @@ Arguments:
 Return Value:
     channelsArray: array    - an array of all channels user is in.
 */
+/*
 function channelsListV1(authUserId) {
     const data = getData();
 
@@ -43,7 +48,7 @@ function channelsListV1(authUserId) {
 
     return { channels: channelsArray };
 }
-
+*/
 
 
 /*
@@ -55,6 +60,7 @@ Arguments:
 Return Value:
     allChannelsArray: array    - an array of all channels.
 */
+/*
 function channelsListallV1(authUserId) {
     const data = getData();
     let allChannelsArray = [];
@@ -79,6 +85,7 @@ function channelsListallV1(authUserId) {
 
     return { channels: allChannelsArray };
 }
+*/
 
 /*
 The function channelsCreateV1() creates a channel and adds it to 
@@ -86,7 +93,7 @@ the dataStore. the user is added as the owner and member of the channel.
 Returns the unique channelId for the created channel.
 
 * Parameters -
-    authUserId - (integer) 
+    token      - (string) 
     name       - (string)
     isPublic   - (boolean)
 
@@ -97,9 +104,9 @@ Returns the unique channelId for the created channel.
     (2)
     channelId - (integer)
 */
-function channelsCreateV1(authUserId, name, isPublic) {
+function channelsCreateV1(token: string, name: string, isPublic: boolean) {
     let data = getData();
-    let creator = data.users.find(i => i.authUserId === authUserId);
+    let creator = data.users.find(user => user.tokens.find(t => t === token));
     
     // Error cases
     if (creator === undefined) { return { error : 'error' } };
@@ -107,7 +114,7 @@ function channelsCreateV1(authUserId, name, isPublic) {
 
     const newChannelId = data.channels.length + 1;
 
-    let newChannel = {
+    let newChannel : channel = {
         
         'channelId': newChannelId,
         'name': name,
@@ -118,7 +125,7 @@ function channelsCreateV1(authUserId, name, isPublic) {
     }
 
     data.channels.push(newChannel);
-    data.users = data.users.filter(i => i.authUserId !== authUserId);
+    data.users = data.users.filter(i => i.authUserId !== creator.authUserId);
     creator.channels.push(newChannelId);
     data.users.push(creator);
 
