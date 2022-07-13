@@ -237,23 +237,23 @@ describe('Testing channelsCreateV1()', () => {
 
   });
 
-  test('Testing correct input - Checking if user is in created channel (ii)', () => {
+  // test('Testing correct input - Checking if user is in created channel (ii)', () => {
     
-    const testChannelId = requestChannelsCreate(testAuthId, "testChannelName", true).channelId; 
+  //   const testChannelId = requestChannelsCreate(testAuthId, "testChannelName", true).channelId; 
 
-    // // Checking if channel is reflected in user's channels
-    // const testUserChannels = channelsListV1(testAuthId).channels;
-    // const testChannel1 = testUserChannels.find(i => i.channelId === testChannelId);
-    // expect(testChannel1['name']).toStrictEqual('testChannelName');
+  //   // // Checking if channel is reflected in user's channels
+  //   // const testUserChannels = channelsListV1(testAuthId).channels;
+  //   // const testChannel1 = testUserChannels.find(i => i.channelId === testChannelId);
+  //   // expect(testChannel1['name']).toStrictEqual('testChannelName');
 
-    // // Checking if user is reflected in channel's all members and user array
-    // const testUId = getUId(testAuthId);
-    // const testChannel2 = channelDetailsV1(testAuthId, testChannelId);
-    // const testAllMembers = testChannel2.allMembers.find(i => i.uId === testUId);
-    // const testOwnerMembers = testChannel2.ownerMembers.find(i => i.uId === testUId);
-    // expect(testAllMembers.uId).toStrictEqual(testUId);
-    // expect(testOwnerMembers.uId).toStrictEqual(testUId);
-  });
+  //   // // Checking if user is reflected in channel's all members and user array
+  //   // const testUId = getUId(testAuthId);
+  //   // const testChannel2 = channelDetailsV1(testAuthId, testChannelId);
+  //   // const testAllMembers = testChannel2.allMembers.find(i => i.uId === testUId);
+  //   // const testOwnerMembers = testChannel2.ownerMembers.find(i => i.uId === testUId);
+  //   // expect(testAllMembers.uId).toStrictEqual(testUId);
+  //   // expect(testOwnerMembers.uId).toStrictEqual(testUId);
+  // });
 
 });
 
