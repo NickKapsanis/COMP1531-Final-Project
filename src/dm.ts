@@ -1,5 +1,5 @@
 import { checkValidToken } from './auth';
-import { getData } from './dataStore';
+import { getData, setData } from './dataStore';
 /*
 dmDetailsV1 takes a dmId and an active token and returns basic details about the DM
 
@@ -41,7 +41,26 @@ Return Value:
      token us not valid
 */
 export function dmLeaveV1(token: string, dmId: number) {
-    return token;
+  // input check the 3 possible error returns
+  if (!checkValidToken(token)) return { error: 'error' };
+  if (!checkValidDmId(dmId)) return { error: 'error' };
+  if (!isMemberOf(dmId, token)) return { error: 'error' };
+  // if all if statements were passed over, remove the user from the dm
+  const data = getData();
+  const userId = tokenToUserId(token);
+  // need to remove user from dm all members in data
+  const dmUserIndex = data.dms?.find(dm => dm.dmId === dmId)?.allMembers.findIndex(member => member === userId);
+  if (dmUserIndex !== undefined) {
+    data.dms?.find(dm => dm.dmId === dmId)?.allMembers.splice(dmUserIndex, 1);
+  }
+  // need to remove dmId from user.dms
+  const dmIndex = data.users?.find(user => user.uId === userId)?.dms.findIndex(dm => dm === dmId);
+  if (dmIndex !== undefined) {
+    data.users?.find(user => user.uId === userId)?.dms.splice(dmIndex, 1);
+  }
+  // now set the modified data
+  setData(data);
+  return {};
 }
 
 // returns true or false if the input dmId is or is not a valid dmId in the datastore repectivly.
@@ -67,6 +86,14 @@ function isMemberOf(dmId: number, token: string) {
 // helper function returns userId of authUserId returns -1 if the authUserId is not in the datastore.
 export function giveUid(authUserId: number) {
   const userId = getData().users?.find(user => user.authUserId === authUserId)?.uId;
+  if (userId === undefined) return -1;
+  else return userId;
+}
+
+// helper function retunrs userId of given active token returns -1 if the userId does not exist.
+function tokenToUserId(token: string) {
+  const data = getData();
+  const userId = data.users?.find(user => user.tokens.find(tok => tok === token))?.uId;
   if (userId === undefined) return -1;
   else return userId;
 }
