@@ -3,7 +3,7 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 import cors from 'cors';
-
+import { userProfileV1 } from './users'
 // Set up web app, use JSON
 const app = express();
 app.use(express.json());
@@ -21,6 +21,12 @@ app.get('/echo', (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+app.get('/users/profile/v2', (req, res) => {
+  const {token, uId} = req.query;
+  res.json(userProfileV1(token, uId));
+
 });
 
 // for logging errors
