@@ -38,7 +38,7 @@ export function messageEditV1(token: string, messageId: number, message: string)
   if (message.length > 1000) {
     return { error: 'error' };
   } else if (message.length === 0) {
-    // return messageRemoveV1(token, messageId);
+    return messageRemoveV1(token, messageId);
   }
 
   const firstDigit = String(messageId)[0];
