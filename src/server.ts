@@ -31,17 +31,19 @@ app.post('dm/create/v1', (req, res) => {
 
 app.get('dm/list/v1', (req, res) => {
 
-  const token = req.query;
+  const token = String(req.query);
   res.json(dmListV1(token));
 
 });
 
 app.delete('dm/remove/v1', (req, res) => {
 
-  const {token, dmId} = req.query;
+  const token = String(req.query.token);
+  const dmId = Number(req.query.dmId);
   res.json(dmRemoveV1(token, dmId));
 
 });
+
 
 // for logging errors
 app.use(morgan('dev'));
