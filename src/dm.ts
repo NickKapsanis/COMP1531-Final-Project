@@ -46,11 +46,11 @@ export function dmCreateV1(token : string, uIds : uIds) : dmIdObj | error  {
 
     let newDm : dm = {
         
-        'dmId': newDmId,
-        'name': name,
-        'allMembers' : uIds,
-        'ownerMembers' : [creator.uId], 
-        'messages': []
+        dmId: newDmId,
+        name: newDmName,
+        allMembers : uIds,
+        owner : creator.uId, 
+        messages: []
     }
 
     data.dms.push(newDm);
@@ -67,11 +67,11 @@ export function dmListV1(token: string) : error | dms {
     let data = getData();
     let user = data.users.find(user => user.tokens.find(t => t === token));
 
-    if (creator === undefined) { return { error : 'error' } };
+    if (user === undefined) { return { error : 'error' } };
 
     let dms = [];
 
-    for (x of user.dms) {
+    for (let x of user.dms) {
         let dm = data.dms.find(dm => dm.dmId === x); 
         let obj = {
             dmId: dm.dmId,

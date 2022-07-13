@@ -34,7 +34,7 @@ returns the user information of the corresponding uId
     }
 */
 
-function userProfileV1(token: string, uId: number) : error | user {
+function userProfileV2(token: string, uId: number) : error | user {
   let data = getData();
   let user1 = data.users.find(user => user.tokens.find(t => t === token));
   let user2 = data.users.find(i => i.uId === uId);
@@ -50,4 +50,4 @@ function userProfileV1(token: string, uId: number) : error | user {
   }
 }
 
-export { userProfileV1 }
+export { userProfileV2 }

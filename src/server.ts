@@ -4,9 +4,11 @@ import morgan from 'morgan';
 import config from './config.json';
 import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
 import { dmCreateV1, dmListV1, dmRemoveV1 } from './dm'
-import { userProfileV1 } from './users'
-import { channelDetailsV2 } from './channel';
+import { userProfileV2 } from './users'
 import { clearV1 } from './other';
+import { channelsCreateV1 } from './channels';
+
+
 
 // Set up web app, use JSON
 const app = express();
@@ -53,35 +55,37 @@ app.post('dm/create/v1', (req, res) => {
 
 app.get('dm/list/v1', (req, res) => {
 
-  const token = req.query;
+  const token = String(req.query);
   res.json(dmListV1(token));
 
 });
 
 app.delete('dm/remove/v1', (req, res) => {
 
-  const {token, dmId} = req.query;
+  const token = String(req.query.token);
+  const dmId = Number(req.query.dmId);
   res.json(dmRemoveV1(token, dmId));
 
 });
 
 app.get('/users/profile/v2', (req, res) => {
-  const {token, uId} = req.query;
-  res.json(userProfileV1(token, uId));
-
-});
-
-// channelDetailsV2
-app.get('/channel/details/v2', (req, res) => {
   const token = String(req.query.token);
-  const channelId = Number(req.query.channelId);
+  const uId = Number(req.query.uId);
+  res.json(userProfileV2(token, uId));
 
-  res.json(channelDetailsV2(token, channelId));
 });
+
 
 // clearV1()
 app.delete('/clear/v1', (req, res) => {
   res.json(clearV1());
+});
+
+app.get('/channels/create/v2', (req, res) => {
+  const token = String(req.query.token);
+  const name = String(req.query.name);
+  const isPublic = Boolean(req.query.isPublic);
+  res.json(channelsCreateV1(token, name, isPublic));
 });
 
 

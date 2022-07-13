@@ -1,10 +1,11 @@
 import request from 'sync-request';
-import { PORT, HOST } from './server';
 import { getUId } from './other'
 
+import config from './config.json';
+
 const OK = 200;
-const port = PORT;
-const url = 'http://' + HOST;
+const port = config.port;
+const url = config.url;
 
 
 /*
@@ -18,6 +19,31 @@ describe('Testing dm/create/v1', () => {
     beforeEach(() => {
   
       requestClear();
+
+    });
+
+    test('Testing if error is returned when token is invalid', () => {
+
+      const creator = requestAuthRegister("creator@email.com", "CreatOr1", "creator", "ofdm");
+      const member1 = requestAuthRegister("member1@email.com", "meMber1", "member", "one");
+      const member2 = requestAuthRegister("member2@email.com", "MemBer2", "member", "two");
+      const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
+
+      console.log(">>>>>>>>\n");
+      console.log(creator);
+      const creatorUId = getUId(creator.authUserId);
+      const member1UId = getUId(member1.authUserId);
+      const member2UId = getUId(member2.authUserId);
+      const member3UId = getUId(member3.authUserId);
+      const uIds = [member1UId, member2UId, member3UId];
+
+      const output = requestDmCreate('invalid-token', uIds);
+      expect(output).toStrictEqual({ error : 'error' });
+    });
+
+    
+    test('Testing if error is returned when uIds are invalid', () => {
+
       const creator = requestAuthRegister("creator@email.com", "CreatOr1", "creator", "ofdm");
       const member1 = requestAuthRegister("member1@email.com", "meMber1", "member", "one");
       const member2 = requestAuthRegister("member2@email.com", "MemBer2", "member", "two");
@@ -29,31 +55,42 @@ describe('Testing dm/create/v1', () => {
       const member3UId = getUId(member3.authUserId);
       const uIds = [member1UId, member2UId, member3UId];
 
-    });
-
-    test('Testing if error is returned when token is invalid', () => {
-
-        const output = requestDmCreate('invalid-token', uIds);
-        expect(output).toStrictEqual({ error : 'error' });
-    });
-
-    
-    test('Testing if error is returned when uIds are invalid', () => {
-
-        const output = requestDmCreate(creator.token, [-1, -2]);
-        expect(output).toStrictEqual({ error : 'error' });
+      const output = requestDmCreate(creator.token, [-1, -2]);
+      expect(output).toStrictEqual({ error : 'error' });
     });
 
     test('Testing if error is returned when uIds are not unique', () => {
 
-        const output = requestDmCreate(creator.token, [member1UId, member2UId, member3UId, member2UId]);
-        expect(output).toStrictEqual({ error : 'error' });
+      const creator = requestAuthRegister("creator@email.com", "CreatOr1", "creator", "ofdm");
+      const member1 = requestAuthRegister("member1@email.com", "meMber1", "member", "one");
+      const member2 = requestAuthRegister("member2@email.com", "MemBer2", "member", "two");
+      const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
+
+      const creatorUId = getUId(creator.authUserId);
+      const member1UId = getUId(member1.authUserId);
+      const member2UId = getUId(member2.authUserId);
+      const member3UId = getUId(member3.authUserId);
+      const uIds = [member1UId, member2UId, member3UId];
+
+      const output = requestDmCreate(creator.token, [member1UId, member2UId, member3UId, member2UId]);
+      expect(output).toStrictEqual({ error : 'error' });
     });
 
     test('Testing successful run', () => {
 
-        const output = requestDmCreate(creator.token, uIds);
-        expect(output.dmId).toStrictEqual(expect.any(Number));
+      const creator = requestAuthRegister("creator@email.com", "CreatOr1", "creator", "ofdm");
+      const member1 = requestAuthRegister("member1@email.com", "meMber1", "member", "one");
+      const member2 = requestAuthRegister("member2@email.com", "MemBer2", "member", "two");
+      const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
+
+      const creatorUId = getUId(creator.authUserId);
+      const member1UId = getUId(member1.authUserId);
+      const member2UId = getUId(member2.authUserId);
+      const member3UId = getUId(member3.authUserId);
+      const uIds = [member1UId, member2UId, member3UId];
+
+      const output = requestDmCreate(creator.token, uIds);
+      expect(output.dmId).toStrictEqual(expect.any(Number));
     });
 
 })
@@ -69,6 +106,11 @@ describe('Testing dm/list/v1', () => {
     beforeEach(() => {
   
       requestClear();
+
+    });
+
+    test('Testing if error is returned when token is invalid', () => {
+
       const creator = requestAuthRegister("creator@email.com", "CreatOr1", "creator", "ofdm");
       const member1 = requestAuthRegister("member1@email.com", "meMber1", "member", "one");
       const member2 = requestAuthRegister("member2@email.com", "MemBer2", "member", "two");
@@ -84,10 +126,6 @@ describe('Testing dm/list/v1', () => {
       const firstDm = requestDmCreate(creator.token, uIds);
       const SecondDm = requestDmCreate(creator.token, uIds);
 
-    });
-
-    test('Testing if error is returned when token is invalid', () => {
-
         const output = requestDmList('invalid-token');
         expect(output).toStrictEqual({ error : 'error' });
     });
@@ -95,11 +133,41 @@ describe('Testing dm/list/v1', () => {
     
     test('Testing successful case (i)', () => {
 
+      const creator = requestAuthRegister("creator@email.com", "CreatOr1", "creator", "ofdm");
+      const member1 = requestAuthRegister("member1@email.com", "meMber1", "member", "one");
+      const member2 = requestAuthRegister("member2@email.com", "MemBer2", "member", "two");
+      const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
+
+      const creatorUId = getUId(creator.authUserId);
+      const member1UId = getUId(member1.authUserId);
+      const member2UId = getUId(member2.authUserId);
+      const member3UId = getUId(member3.authUserId);
+      const uIds = [member1UId, member2UId];
+      const uIds1 = [member1UId];
+
+      const firstDm = requestDmCreate(creator.token, uIds);
+      const SecondDm = requestDmCreate(creator.token, uIds);      
+
         const output = requestDmList(member3.token);
         expect(output).toStrictEqual([]);
     });
 
     test('Testing successful case (ii)', () => {
+
+      const creator = requestAuthRegister("creator@email.com", "CreatOr1", "creator", "ofdm");
+      const member1 = requestAuthRegister("member1@email.com", "meMber1", "member", "one");
+      const member2 = requestAuthRegister("member2@email.com", "MemBer2", "member", "two");
+      const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
+
+      const creatorUId = getUId(creator.authUserId);
+      const member1UId = getUId(member1.authUserId);
+      const member2UId = getUId(member2.authUserId);
+      const member3UId = getUId(member3.authUserId);
+      const uIds = [member1UId, member2UId];
+      const uIds1 = [member1UId];
+
+      const firstDm = requestDmCreate(creator.token, uIds);
+      const secondDm = requestDmCreate(creator.token, uIds);
 
         const output = requestDmList(member1.token);
         expect(output.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
@@ -126,6 +194,11 @@ describe('Testing dm/remove/v1', () => {
     beforeEach(() => {
   
       requestClear();
+
+    });
+
+    test('Testing if error is returned when token is invalid', () => {
+
       const creator = requestAuthRegister("creator@email.com", "CreatOr1", "creator", "ofdm");
       const member1 = requestAuthRegister("member1@email.com", "meMber1", "member", "one");
       const member2 = requestAuthRegister("member2@email.com", "MemBer2", "member", "two");
@@ -139,11 +212,6 @@ describe('Testing dm/remove/v1', () => {
 
       const dm = requestDmCreate(creator.token, uIds);
 
-
-    });
-
-    test('Testing if error is returned when token is invalid', () => {
-
         const output = requestDmCreate('invalid-token', dm.dmId);
         expect(output).toStrictEqual({ error : 'error' });
     });
@@ -151,17 +219,56 @@ describe('Testing dm/remove/v1', () => {
     
     test('Testing if error is returned when dmId is invalid', () => {
 
-        const output = requestDmCreate(creator.token, -1);
+      const creator = requestAuthRegister("creator@email.com", "CreatOr1", "creator", "ofdm");
+      const member1 = requestAuthRegister("member1@email.com", "meMber1", "member", "one");
+      const member2 = requestAuthRegister("member2@email.com", "MemBer2", "member", "two");
+      const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
+
+      const creatorUId = getUId(creator.authUserId);
+      const member1UId = getUId(member1.authUserId);
+      const member2UId = getUId(member2.authUserId);
+      const member3UId = getUId(member3.authUserId);
+      const uIds = [member1UId, member2UId, member3UId];
+
+      const dm = requestDmCreate(creator.token, uIds);
+
+        const output = requestDmCreate(creator.token, [-1]);
         expect(output).toStrictEqual({ error : 'error' });
     });
 
     test('Testing if error if token belongs to non-owner', () => {
+
+      const creator = requestAuthRegister("creator@email.com", "CreatOr1", "creator", "ofdm");
+      const member1 = requestAuthRegister("member1@email.com", "meMber1", "member", "one");
+      const member2 = requestAuthRegister("member2@email.com", "MemBer2", "member", "two");
+      const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
+
+      const creatorUId = getUId(creator.authUserId);
+      const member1UId = getUId(member1.authUserId);
+      const member2UId = getUId(member2.authUserId);
+      const member3UId = getUId(member3.authUserId);
+      const uIds = [member1UId, member2UId, member3UId];
+
+      const dm = requestDmCreate(creator.token, uIds);
 
         const output = requestDmCreate(member1.token, dm.dmId);
         expect(output).toStrictEqual({ error : 'error' });
     });
 
     test('Testing successful run', () => {
+
+      const creator = requestAuthRegister("creator@email.com", "CreatOr1", "creator", "ofdm");
+      const member1 = requestAuthRegister("member1@email.com", "meMber1", "member", "one");
+      const member2 = requestAuthRegister("member2@email.com", "MemBer2", "member", "two");
+      const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
+
+      const creatorUId = getUId(creator.authUserId);
+      const member1UId = getUId(member1.authUserId);
+      const member2UId = getUId(member2.authUserId);
+      const member3UId = getUId(member3.authUserId);
+      const uIds = [member1UId, member2UId, member3UId];
+
+      const dm = requestDmCreate(creator.token, uIds);
 
         const output = requestDmCreate(creator.token, dm.dmId);
         const output2 = requestDmList(member1.token)
@@ -207,7 +314,7 @@ function requestAuthRegister(email: string, password: string, nameFirst: string,
 }
   
 
-function requestDmCreate(token: string, uIds: numbers[]) {
+function requestDmCreate(token: string, uIds: Array<number>) {
     const res = request(
       'POST',
       `${url}:${port}/dm/create/v1`, 

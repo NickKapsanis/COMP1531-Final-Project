@@ -1,9 +1,9 @@
 import request from 'sync-request';
-import { PORT, HOST } from './server';
+import config from './config.json';
 
 const OK = 200;
-const port = PORT;
-const url = HOST;
+const port = config.port;
+const url = config.url;
 
 /*
 /////////////////////////////////////////////
