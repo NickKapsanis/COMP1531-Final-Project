@@ -23,9 +23,12 @@ app.get('/echo', (req, res, next) => {
 
 // channels/create/v2
 app.get('/channels/create/v2', (req, res) => {
-  const {token, name, isPublic} = req.query
+  const token = String(req.query.token);
+  const name = String(req.query.name);
+  const isPublic = Boolean(req.query.isPublic);
   res.json(channelsCreateV1(token, name, isPublic));
 });
+
 
 // for logging errors
 app.use(morgan('dev'));

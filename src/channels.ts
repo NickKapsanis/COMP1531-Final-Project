@@ -134,4 +134,4 @@ function channelsCreateV1(token: string, name: string, isPublic: boolean) {
     return { channelId: newChannelId };
 }
 
-export {channelsListV1, channelsListallV1, channelsCreateV1}
+export {channelsCreateV1}

@@ -1,14 +1,13 @@
-import { channelsListV1, channelsListallV1, channelsCreateV1 } from './channels.js';
+import { channelsCreateV1 } from './channels.js';
 import { authRegisterV1 } from './auth.js'
 import { clearV1, getUId } from './other.js'
-import { channelDetailsV1 } from './channel.js'
 
 import request from 'sync-request';
-import { PORT, HOST } from './server';
+import config from './config.json';
 
 const OK = 200;
-const port = PORT;
-const url = 'http://' + HOST;
+const port = config.port;
+const url = config.url;
 
 ////////////////////////////////////////////////
 /////      Tests for channelsListV1() 	   /////
@@ -198,20 +197,25 @@ describe('Testing channelsCreateV1()', () => {
   beforeEach(() => {
 
     requestClear();
-    const token = requestAuthRegister();
 
   });
 
   test('Testing if error is returned when name length < 1', () => {
 
-    const output = requestChannelsCreate(testAuthId, "", true);
+    const user = requestAuthRegister()
+    const token = user.token;
+    const testAuthId = user.authUserId;
+    const output = requestChannelsCreate(token, "", true);
     expect(output).toStrictEqual({ error : 'error' });
   
   });
 
   test('Testing if error is returned when name length > 20', () => {
 
-    const output = requestChannelsCreate(testAuthId, "thisIsAVeryLongChannelNameWhichIsInvalid", true);
+    const user = requestAuthRegister()
+    const token = user.token;
+    const testAuthId = user.authUserId;
+    const output = requestChannelsCreate(token, "thisIsAVeryLongChannelNameWhichIsInvalid", true);
     expect(output).toStrictEqual({ error : 'error' });
   
   });
@@ -224,8 +228,11 @@ describe('Testing channelsCreateV1()', () => {
   });
 
   test('Testing correct input - Checking if channel is created (i)', () => {
-    
-    const testChannelId = requestChannelsCreate(testAuthId, "testChannelName", false).channelId; 
+
+    const user = requestAuthRegister()
+    const token = user.token;
+    const testAuthId = user.authUserId;
+    const testChannelId = requestChannelsCreate(token, "testChannelName", false).channelId; 
 
     // Checking if channel id is created
     expect(testChannelId).toStrictEqual(expect.any(Number));
@@ -237,23 +244,23 @@ describe('Testing channelsCreateV1()', () => {
 
   });
 
-  test('Testing correct input - Checking if user is in created channel (ii)', () => {
+  // test('Testing correct input - Checking if user is in created channel (ii)', () => {
     
-    const testChannelId = requestChannelsCreate(testAuthId, "testChannelName", true).channelId; 
+  //   const testChannelId = requestChannelsCreate(testAuthId, "testChannelName", true).channelId; 
 
-    // // Checking if channel is reflected in user's channels
-    // const testUserChannels = channelsListV1(testAuthId).channels;
-    // const testChannel1 = testUserChannels.find(i => i.channelId === testChannelId);
-    // expect(testChannel1['name']).toStrictEqual('testChannelName');
+  //   // // Checking if channel is reflected in user's channels
+  //   // const testUserChannels = channelsListV1(testAuthId).channels;
+  //   // const testChannel1 = testUserChannels.find(i => i.channelId === testChannelId);
+  //   // expect(testChannel1['name']).toStrictEqual('testChannelName');
 
-    // // Checking if user is reflected in channel's all members and user array
-    // const testUId = getUId(testAuthId);
-    // const testChannel2 = channelDetailsV1(testAuthId, testChannelId);
-    // const testAllMembers = testChannel2.allMembers.find(i => i.uId === testUId);
-    // const testOwnerMembers = testChannel2.ownerMembers.find(i => i.uId === testUId);
-    // expect(testAllMembers.uId).toStrictEqual(testUId);
-    // expect(testOwnerMembers.uId).toStrictEqual(testUId);
-  });
+  //   // // Checking if user is reflected in channel's all members and user array
+  //   // const testUId = getUId(testAuthId);
+  //   // const testChannel2 = channelDetailsV1(testAuthId, testChannelId);
+  //   // const testAllMembers = testChannel2.allMembers.find(i => i.uId === testUId);
+  //   // const testOwnerMembers = testChannel2.ownerMembers.find(i => i.uId === testUId);
+  //   // expect(testAllMembers.uId).toStrictEqual(testUId);
+  //   // expect(testOwnerMembers.uId).toStrictEqual(testUId);
+  // });
 
 });
 
@@ -270,7 +277,7 @@ function requestClear() {
   );
 }
 
-function requestAuthRegister() : string {
+function requestAuthRegister() {
   const res = request(
     'POST',
     `${url}:${port}/auth/register/v2`,
@@ -287,11 +294,11 @@ function requestAuthRegister() : string {
     }
   );
 
-  return JSON.parse(String(res.getBody())).token;
+  return JSON.parse(String(res.getBody()));
 
 }
 
-function requestChannelsCreate(token: string, name: string, isPublic: boolean) : string {
+function requestChannelsCreate(token: string, name: string, isPublic: boolean) {
   const res = request(
     'GET',
     `${url}:${port}/channels/create/v2`, 
