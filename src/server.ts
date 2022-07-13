@@ -10,6 +10,8 @@ app.use(express.json());
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
 
+export { PORT, HOST};
+
 // Example get request
 app.get('/echo', (req, res, next) => {
   try {
