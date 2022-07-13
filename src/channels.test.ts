@@ -1,23 +1,64 @@
-import { channelsListV2, channelsListallV2, channelsCreateV1 } from './channels.ts';
-import { authRegisterV1 } from './auth.js';
-import { clearV1, getUId } from './other.js';
-import { channelDetailsV1 } from './channel.js';
+import { channelsListV2, channelsListallV2, channelsCreateV2 } from './channels';
+import { authRegisterV1 } from './auth';
+import { clearV1, getUId } from './other';
 import express from 'express';
 import request from 'sync-request';
-
+import { PORT, HOST} from './server';
 
 
 /// /////////////////////////////////////////////
 /// //      Tests for channelsListV2()      /////
 /// /////////////////////////////////////////////
 
+// helper function - calls auth register through the server
+
+const url = 'http://' + HOST + ':' + PORT;
+
+const createUser = (emails: string, passwords: string, name: string, surname: string) => {
+  const res = request(
+    'POST', url + '/auth/register/v2',
+    {
+      body: JSON.stringify({ email: emails, password: passwords, nameFirst: name, nameLast: surname }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  return JSON.parse(String(res.getBody()));
+};
+
+// helper function - calls channelsCreate through the server
+const createChannel = (tokens: string, names: string, publicity: boolean) => {
+  const res = request(
+    'POST', 
+    url + '/channels/create/v2',
+    {
+      body: JSON.stringify({ token: tokens, name: names, isPublic: publicity }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  return JSON.parse(String(res.getBody()));
+};
+
+
+
+
+
+
+
+
+
+
+
 ///////I HAVE NO CLUE HOW THESE HTPP TESTS WORK, NEED HELP///////
 
 test('testing when authUserId doesn\'t exist', () => {
   clearV1();
 
-  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
-  const CreatedChannel = channelsCreateV1(jamesAuthId, 'James C1', true).channelId;
+  const jamesAuthId = createUser('james@email.com', 'testPassword123', 'James', 'James').authUserId;
+  const CreatedChannel = channelsCreateV2(jamesAuthId, 'James C1', true).channelId;
 
   const res = request(
     'GET',
@@ -39,7 +80,7 @@ test('testing when authUserId doesn\'t exist', () => {
 
 test('testing when user is not in any channel', () => {
   clearV1();
-  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
+  const jamesAuthId = createUser('james@email.com', 'testPassword123', 'James', 'James').authUserId;
 
   const res = request(
     'GET',
@@ -63,13 +104,13 @@ test('testing when user is not in any channel', () => {
 test('tests if all correct channels are listed in channel list', () => {
   clearV1();
 
-  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
-  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').authUserId;
+  const jamesAuthId = createUser('james@email.com', 'testPassword123', 'James', 'James').authUserId;
+  const rufusAuthId = createUser('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').authUserId;
 
-  const firstCreatedChannel = channelsCreateV1(jamesAuthId, 'James C1', true).channelId;
-  const secondCreatedChannel = channelsCreateV1(jamesAuthId, 'James C2', false).channelId;
-  const thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', true).channelId;
-  const fourthCreatedChannel = channelsCreateV1(jamesAuthId, 'James C3', true).channelId;
+  const firstCreatedChannel = channelsCreateV2(jamesAuthId, 'James C1', true).channelId;
+  const secondCreatedChannel = channelsCreateV2(jamesAuthId, 'James C2', false).channelId;
+  const thirdCreatedChannel = channelsCreateV2(rufusAuthId, 'Rufus C1', true).channelId;
+  const fourthCreatedChannel = channelsCreateV2(jamesAuthId, 'James C3', true).channelId;
 
 
     const res = request(
@@ -77,7 +118,7 @@ test('tests if all correct channels are listed in channel list', () => {
       'http:/localhost:${PORT}/channels/list/v2',
             {
               qs: {
-                channelsCreateV1: jamesAuthId,
+                channelsCreateV2: jamesAuthId,
               }
             }
     );
@@ -120,7 +161,7 @@ test('tests if all correct channels are listed in channel list', () => {
 test('tests when no channel exists', () => {
   clearV1();
 
-  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
+  const jamesAuthId = createUser('james@email.com', 'testPassword123', 'James', 'James').authUserId;
 
   const res = request(
     'GET',
@@ -145,8 +186,8 @@ test('tests when no channel exists', () => {
 test('tests when authUserId does\'nt exist', () => {
   clearV1();
 
-  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
-  const CreatedChannel = channelsCreateV1(jamesAuthId, 'James C1', true).channelId;
+  const jamesAuthId = createUser('james@email.com', 'testPassword123', 'James', 'James').authUserId;
+  const CreatedChannel = channelsCreateV2(jamesAuthId, 'James C1', true).channelId;
 
   const res = request(
     'GET',
@@ -179,13 +220,13 @@ test('tests if all correct channels are listed in channel list', () => {
 
     
 
-    const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
-    const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').authUserId;
+    const jamesAuthId = createUser('james@email.com', 'testPassword123', 'James', 'James').authUserId;
+    const rufusAuthId = createUser('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').authUserId;
 
-    const firstCreatedChannel = channelsCreateV1(jamesAuthId, 'James C1', false).channelId;
-    const secondCreatedChannel = channelsCreateV1(jamesAuthId, 'James C2', false).channelId;
-    const thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', false).channelId;
-    const fourthCreatedChannel = channelsCreateV1(jamesAuthId, 'James C3', true).channelId;
+    const firstCreatedChannel = channelsCreateV2(jamesAuthId, 'James C1', false).channelId;
+    const secondCreatedChannel = channelsCreateV2(jamesAuthId, 'James C2', false).channelId;
+    const thirdCreatedChannel = channelsCreateV2(rufusAuthId, 'Rufus C1', false).channelId;
+    const fourthCreatedChannel = channelsCreateV2(jamesAuthId, 'James C3', true).channelId;
 
     const everyChannelArray = channelsListallV2(rufusAuthId).channels;
   });
@@ -216,40 +257,40 @@ test('tests if all correct channels are listed in channel list', () => {
 
 
 
-
+/*
 
 
 
 /// /////////////////////////////////////////////
-/// //    Tests for channelsCreateV1() 	   /////
+/// //    Tests for channelsCreateV2() 	   /////
 /// /////////////////////////////////////////////
 
-describe('Testing channelsCreateV1()', () => {
+describe('Testing channelsCreateV2()', () => {
   test('Testing if error is returned when name length < 1', () => {
     clearV1();
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    const output = channelsCreateV1(testAuthId, '', true);
+    const output = channelsCreateV2(testAuthId, '', true);
     expect(output).toStrictEqual({ error: 'error' });
   });
 
   test('Testing if error is returned when name length > 20', () => {
     clearV1();
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    const output = channelsCreateV1(testAuthId, 'thisIsAVeryLongChannelNameWhichIsInvalid', true);
+    const output = channelsCreateV2(testAuthId, 'thisIsAVeryLongChannelNameWhichIsInvalid', true);
     expect(output).toStrictEqual({ error: 'error' });
   });
 
   test('Testing if error is returned when authUserId does not exist', () => {
     clearV1();
     const testAuthId = -111;
-    const output = channelsCreateV1(testAuthId, 'testChannelName', true);
+    const output = channelsCreateV2(testAuthId, 'testChannelName', true);
     expect(output).toStrictEqual({ error: 'error' });
   });
 
   test('Testing correct input - Checking if channel is created (i)', () => {
     clearV1();
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    const testChannelId = channelsCreateV1(testAuthId, 'testChannelName', false).channelId;
+    const testChannelId = channelsCreateV2(testAuthId, 'testChannelName', false).channelId;
 
     // Checking if channel id is created
     expect(testChannelId).toStrictEqual(expect.any(Number));
@@ -263,7 +304,7 @@ describe('Testing channelsCreateV1()', () => {
   test('Testing correct input - Checking if user is in created channel (ii)', () => {
     clearV1();
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    const testChannelId = channelsCreateV1(testAuthId, 'testChannelName', true).channelId;
+    const testChannelId = channelsCreateV2(testAuthId, 'testChannelName', true).channelId;
 
     // Checking if channel is reflected in user's channels
     const testUserChannels = channelsListV2(testAuthId).channels;
@@ -279,3 +320,5 @@ describe('Testing channelsCreateV1()', () => {
     expect(testOwnerMembers.uId).toStrictEqual(testUId);
   });
 });
+
+*/
