@@ -24,10 +24,12 @@ app.get('/echo', (req, res, next) => {
 });
 
 app.get('/users/profile/v2', (req, res) => {
-  const {token, uId} = req.query;
-  res.json(userProfileV1(token, uId));
+  const token = String(req.query.token);
+  const uId = Number(req.query.uId);
+  res.json(userProfileV2(token, uId));
 
 });
+
 
 // for logging errors
 app.use(morgan('dev'));
