@@ -26,6 +26,24 @@ export function dmDetailsV1(token: string, dmId: number) {
     members: data.users?.filter(user => user.dms.includes(dmId)),
   };
 }
+/*
+dmLeaveV1 takes a dmId and an active token and removes the calling user from the DM
+
+Arguments:
+    dmId    - the Id of the DM channel
+    token    - the session token of the user calling the request
+
+Return Value:
+    Returns an empty object - {} if no error
+    Returns {error: 'error'} if any of,
+     dmID is not valid
+     dmID is valid but authUserId is not a member of the DM
+     token us not valid
+*/
+export function dmLeaveV1(token: string, dmId: number) {
+    return token;
+}
+
 // returns true or false if the input dmId is or is not a valid dmId in the datastore repectivly.
 function checkValidDmId(dmId: number) {
   const data = getData();
