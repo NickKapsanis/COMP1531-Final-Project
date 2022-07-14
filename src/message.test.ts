@@ -6,10 +6,10 @@ const port = config.port;
 const url = config.url;
 
 describe('Tests for message/senddm/V1', () => {
-  let token1;
-  let token2;
-  let dmId1;
-  let dmId2;
+  let token1: string;
+  let token2: string;
+  let dmId1: number;
+  let dmId2: number;
 
   beforeEach(() => {
     //  member of: token1: [1], token2: [2]
