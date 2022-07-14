@@ -1,4 +1,4 @@
-import { getUId } from './other.js'
+import { getUId } from './other'
 
 import request from 'sync-request';
 import config from './config.json';
@@ -25,8 +25,8 @@ describe('Testing userProfileV1()', () => {
 
     requestClear();
     const testUser1 = requestAuthRegister('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
-    const uId1 = getUId(testUser1.authUserId);
-    expect(requestUserProfileV2(-1, testUId)).toStrictEqual({ error : 'error' });
+    const uId1 = Number(getUId(testUser1.authUserId));
+    expect(requestUserProfileV2('invalid-token', uId1)).toStrictEqual({ error : 'error' });
   
   });
 
@@ -43,7 +43,7 @@ describe('Testing userProfileV1()', () => {
 
     requestClear();
     const testUser1 = requestAuthRegister('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
-    const uId1 = getUId(testUser1.authUserId);
+    const uId1 = Number(getUId(testUser1.authUserId));
     const token1 =  testUser1.token;
     const userProfile1 = requestUserProfileV2(token1, uId1);
     expect(userProfile1.uId).toStrictEqual(uId1);
@@ -58,7 +58,7 @@ describe('Testing userProfileV1()', () => {
     requestClear();
     const testUser1 = requestAuthRegister('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const testUser2 = requestAuthRegister('correct@email.com', 'testPassword123', 'correctFirstName', 'correctLastName');
-    const uId2 = getUId(testUser2.authUserId);
+    const uId2 = Number(getUId(testUser2.authUserId));
     const token1 =  testUser1.token;
     const userProfile2 = requestUserProfileV2(token1, uId2);
 
@@ -108,7 +108,7 @@ function requestAuthRegister(email: string, password: string, nameFirst: string,
 function requestUserProfileV2(token: string, uId: number) {
   const res = request(
     'GET',
-    `${url}:${port}/auth/register/v2`,
+    `${url}:${port}/user/profile/v2`,
     {
       qs: {
         token: token,
