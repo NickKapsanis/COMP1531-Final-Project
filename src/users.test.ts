@@ -1,5 +1,4 @@
 import { createChannel, createUser, channelJoin } from './channel.test';
-import { userSethandlelV1 } from './users';
 import { getUId } from './other';
 
 import request from 'sync-request';
@@ -8,7 +7,7 @@ import { PORT, HOST } from './server';
 const url = 'http://' + HOST + ':' + PORT;
 
 /// /////////////////////////////////////////////
-/// //      Tests for userProfileV1() 	     /////
+/// ///      Tests for userProfileV1() 	     ////
 /// /////////////////////////////////////////////
 
 /*
@@ -69,7 +68,7 @@ describe('Testing userProfileV1()', () => {
 */
 
 /// /////////////////////////////////////////////
-/// //      Tests for usersAllV1() 	         /////
+/// ///      Tests for usersAllV1() 	        ///
 /// /////////////////////////////////////////////
 
 describe('Testing usersAllV1 - should all work if other functions work', () => {
@@ -80,25 +79,22 @@ describe('Testing usersAllV1 - should all work if other functions work', () => {
 
     james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
     jamesUId = getUId(james.authUserId);
-    userSethandlelV1(james.token, 'coolJames');
 
     rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Hayes');
     rufusUId = getUId(rufus.authUserId);
-    userSethandlelV1(rufus.token, 'epicRufus');
 
     alex = createUser('alex@gmail.com', 'testPassword123', 'Alex', 'King');
     alexUId = getUId(alex.authUserId);
-    userSethandlelV1(alex.token, 'amazingAlex');
 
-    rufusChannel = createChannel(rufus.authUserId, 'testChannel2', true);
-    channelJoin(alex.token, rufusChannel);
+    rufusChannel = createChannel(rufus.token, 'testChannel2', true);
+    channelJoin(alex.token, rufusChannel.channelId);
   });
 
   test('test successful case', () => {
     expect(usersAll(james.token)).toEqual([
-      { userId: jamesUId, email: 'james@gmail.com', nameFirst: 'James', nameLast: 'Brown', handleStr: 'coolJames' },
-      { userId: rufusUId, email: 'rufus@gmail.com', nameFirst: 'Rufus', nameLast: 'Hayes', handleStr: 'epicRufus' },
-      { userId: alexUId, email: 'alex@gmail.com', nameFirst: 'Alex', nameLast: 'King', handleStr: 'amazingAlex' },
+      { uId: jamesUId, email: 'james@gmail.com', nameFirst: 'James', nameLast: 'Brown', handleStr: 'jamesbrown' },
+      { uId: rufusUId, email: 'rufus@gmail.com', nameFirst: 'Rufus', nameLast: 'Hayes', handleStr: 'rufushayes' },
+      { uId: alexUId, email: 'alex@gmail.com', nameFirst: 'Alex', nameLast: 'King', handleStr: 'alexking' },
     ]);
   });
 });

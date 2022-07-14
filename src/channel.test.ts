@@ -1,93 +1,90 @@
 import { getUId } from './other';
-import { getData } from './dataStore';
-import { getChannel } from './channel';
 import request from 'sync-request';
 import { PORT, HOST } from './server';
-import { dataStoreType } from './dataStore';
 
 const url = 'http://' + HOST + ':' + PORT;
 
 // helper function - calls auth register through the server
 const createUser = (emails: string, passwords: string, name: string, surname: string) => {
-    const res = request(
-      'POST', url + '/auth/register/v2',
-      {
-        body: JSON.stringify({ email: emails, password: passwords, nameFirst: name, nameLast: surname }),
-        headers: {
-          'Content-type': 'application/json',
-        },
-      }
-    );
-    return JSON.parse(String(res.getBody()));
-  };
-  
-  // helper function - calls channelsCreate through the server
-  const createChannel = (tokens: string, names: string, publicity: boolean) => {
-    const res = request(
-      'POST', 
-      url + '/channels/create/v2',
-      {
-        body: JSON.stringify({ token: tokens, name: names, isPublic: publicity }),
-        headers: {
-          'Content-type': 'application/json',
-        },
-      }
-    );
-    return JSON.parse(String(res.getBody()));
-  };
-  
-  // goes through server to call channelJoinV2
-  const channelJoin = (tokens: string, channelIds: number) => {
-    const res = request(
-      'POST', url + '/channel/join/v2',
-      {
-        body: JSON.stringify({ token: tokens, channelId: channelIds }),
-        headers: { 
-          'Content-type': 'application/json',
-          },
-      }
-    );
-    return JSON.parse(String(res.getBody()));
-  };
-  
-  // goes through server to call channelInviteV2
-  const channelInvite = (tokens: string, channelIds: number, uIds: number) => {
-    const res = request(
-      'POST', url + '/channel/invite/v2',
-      {
-        body: JSON.stringify({ token: tokens, channelId: channelIds, uId: uIds }),
-        headers: { 
-            'Content-type': 'application/json',
-           },
-        }
-    );
-    return JSON.parse(String(res.getBody()));
-  };
-  
-  // goes through server to call addOwnerV1
-  const addOwner = (tokens: string, channelIds: number, uIds: number) => {
-    const res = request(
-      'POST', url + '/channel/addowner/v1',
-      {
-        body: JSON.stringify({ token: tokens, channelId: channelIds, uId: uIds }),
-        headers: { 'Content-type': 'application/json' }
-      }
-    );
-    return JSON.parse(String(res.getBody()));
-  };
-  
-  // goes through server to call removeOwnerV1
-  const removeOwner = (tokens: string, channelIds: number, uIds: number) => {
-    const res = request(
-      'POST', url + '/channel/removeowner/v1',
-      {
-        body: JSON.stringify({ token: tokens, channelId: channelIds, uId: uIds }),
-        headers: { 'Content-type': 'application/json' }
-      }
-    );
-    return JSON.parse(String(res.getBody()));
-  };
-  
+  const res = request(
+    'POST', url + '/auth/register/v2',
+    {
+      body: JSON.stringify({ email: emails, password: passwords, nameFirst: name, nameLast: surname }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  return JSON.parse(String(res.getBody()));
+};
+
+// helper function - calls channelsCreate through the server
+const createChannel = (tokens: string, names: string, publicity: boolean) => {
+  const res = request(
+    'POST',
+    url + '/channels/create/v2',
+    {
+      body: JSON.stringify({ token: tokens, name: names, isPublic: publicity }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  return JSON.parse(String(res.getBody()));
+};
+
+// goes through server to call channelJoinV2
+const channelJoin = (tokens: string, channelIds: number) => {
+  const res = request(
+    'POST', url + '/channel/join/v2',
+    {
+      body: JSON.stringify({ token: tokens, channelId: channelIds }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  return JSON.parse(String(res.getBody()));
+};
+
+// goes through server to call channelInviteV2
+const channelInvite = (tokens: string, channelIds: number, uIds: number) => {
+  const res = request(
+    'POST', url + '/channel/invite/v2',
+    {
+      body: JSON.stringify({ token: tokens, channelId: channelIds, uId: uIds }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  return JSON.parse(String(res.getBody()));
+};
+
+// goes through server to call addOwnerV1
+const addOwner = (tokens: string, channelIds: number, uIds: number) => {
+  const res = request(
+    'POST', url + '/channel/addowner/v1',
+    {
+      body: JSON.stringify({ token: tokens, channelId: channelIds, uId: uIds }),
+      headers: { 'Content-type': 'application/json' }
+    }
+  );
+  return JSON.parse(String(res.getBody()));
+};
+
+// goes through server to call removeOwnerV1
+const removeOwner = (tokens: string, channelIds: number, uIds: number) => {
+  const res = request(
+    'POST', url + '/channel/removeowner/v1',
+    {
+      body: JSON.stringify({ token: tokens, channelId: channelIds, uId: uIds }),
+      headers: { 'Content-type': 'application/json' }
+    }
+  );
+  return JSON.parse(String(res.getBody()));
+};
+
 /*
 // Testing for channelDetailsV1
 describe('Testing channelDetailsV1', () => {
@@ -217,7 +214,7 @@ describe('Testing channelMessagesV1', () => {
 /// /////////////////////////////////////////////
 
 describe('Testing channelJoinV2', () => {
-    let james, rufus, publicChannel, privateChannel, rufusPrivateChannel;
+  let james, rufus, publicChannel, privateChannel, rufusPrivateChannel;
 
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
@@ -251,7 +248,7 @@ describe('Testing channelJoinV2', () => {
 /// /////////////////////////////////////////////
 
 describe('Testing channelInviteV2', () => {
-    let tom, ralph, alex, general, ralphChannel, ralphuId;
+  let tom, ralph, alex, general, ralphChannel, ralphuId;
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
 
@@ -286,15 +283,14 @@ describe('Testing channelInviteV2', () => {
 /// /////////////////////////////////////////////
 
 describe('Testing addChannelOwnerV1', () => {
-    let steven, richard, lily, richarduId, lilyuId, richardChannel, publicChannel;
+  let steven, richard, lily, lilyuId, richardChannel, publicChannel;
 
-   beforeEach(() => {
+  beforeEach(() => {
     request('DELETE', url + '/clear/v1');
 
     steven = createUser('steven@gmail.com', 'testPassword123', 'steven', 'Brown');
     richard = createUser('richard@gmail.com', 'testPassword123', 'richard', 'Hayes');
     lily = createUser('lily@gmail.com', 'testPassword123', 'lily', 'King');
-    richarduId = getUId(richard.authUserId);
     lilyuId = getUId(lily.authUserId);
 
     publicChannel = createChannel(steven.token, 'testChannel1', true);
@@ -326,7 +322,7 @@ describe('Testing addChannelOwnerV1', () => {
 /// /////////////////////////////////////////////
 
 describe('Testing removeChannelOwnerV1', () => {
-    let homer, bart, marge, bartuId, margeuId, bartChannel;
+  let homer, bart, marge, bartuId, margeuId, bartChannel;
 
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
@@ -359,14 +355,10 @@ describe('Testing removeChannelOwnerV1', () => {
   });
   test('successful case', () => {
     addOwner(bart.token, bartChannel.channelId, margeuId);
-    let data: dataStoreType = getData();
-    const channel = getChannel(bartChannel.channelId, data.channels);
-    console.log(channel.ownerMembers)
     expect(removeOwner(bart.token, bartChannel.channelId, margeuId)).toEqual({});
   });
 });
 
 // assumption - both global and channel owners can add and remove themselves as channel owners
-
 
 export { createChannel, createUser, channelJoin };

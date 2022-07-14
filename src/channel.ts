@@ -122,19 +122,17 @@ function channelMessagesV1(authUserId, channelId, start) {
   return messageDetails;
 }
 
-
-
 // helper function to reduce reptition
 function getChannel(channelId: number, channelsArray: channel[]) {
-    let channel: channel;
-    for (let i = 0; i < channelsArray.length; i++) {
-      if (channelId === channelsArray[i].channelId) {
-        channel = channelsArray[i];
-      }
+  let channel: channel;
+  for (let i = 0; i < channelsArray.length; i++) {
+    if (channelId === channelsArray[i].channelId) {
+      channel = channelsArray[i];
     }
-    return channel;
   }
-  
+  return channel;
+}
+
 /**
 * channelJoinV2
 * this function allows a user to join public channels
@@ -202,11 +200,10 @@ function channelInviteV2(token: string, channelId: number, uId: number) {
 
   const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
   const userInviting: user = data.users[data.users.findIndex(user => user.authUserId === authUserId)];
-  const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
   let userJoining: user;
-  for (let user of data.users) {
+  for (const user of data.users) {
     if (uId === user.uId) {
-        userJoining = user;
+      userJoining = user;
     }
   }
 
@@ -343,11 +340,10 @@ function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
     return { error: 'error' };
   }
 
-  let index: number = data.channels.indexOf(channel);
+  const index: number = data.channels.indexOf(channel);
   data.channels[index].ownerMembers.splice(data.channels[index].ownerMembers.indexOf(uId, 1));
   setData(data);
   return {};
 }
-
 
 export { channelDetailsV1, channelJoinV2, channelInviteV2, channelMessagesV1, addChannelOwnerV1, removeChannelOwnerV1, getChannel };
