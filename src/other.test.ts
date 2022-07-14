@@ -1,9 +1,11 @@
 import request from 'sync-request';
 import { PORT, HOST } from './server';
+import config from './config.json'
 
 const OK = 200;
-const port = PORT;
-const url = 'http://' + HOST;
+const port = config.port;
+const hosturl = config.url;
+const url = hosturl + ':' + port;
 
 /*
 /////////////////////////////////////////////
@@ -15,7 +17,7 @@ describe('Testing clearV1()', () => {
   test('', () => {
     request(
       'POST',
-      `${url}:${port}/auth/register/v2`,
+      url + '/auth/register/v2',
       {
         body: JSON.stringify({
           email: 'testemail@email.com',
@@ -31,16 +33,18 @@ describe('Testing clearV1()', () => {
 
     const res2 = request(
       'DELETE',
-      `${url}:${port}/clear/v1`
+      url + '/clear/v1',
+      {
+        qs: {},
+      }
     );
 
     const body = JSON.parse(String(res2.getBody()));
-    expect(res2.statusCode).toBe(OK);
     expect(body).toStrictEqual({});
-
+    expect(res2.statusCode).toBe(OK);
     const res3 = request(
       'POST',
-      `${url}:${port}/auth/login/v2`,
+      url + '/auth/login/v2',
       {
         body: JSON.stringify({
           email: 'testemail@email.com',
