@@ -1,7 +1,7 @@
 
 import request from 'sync-request';
-//import { PORT, HOST } from './server';
-import config from './config.json'
+// import { PORT, HOST } from './server';
+import config from './config.json';
 
 const port = config.port;
 const hosturl = config.url;
@@ -144,7 +144,7 @@ describe('testing authLoginV1 for input errors', () => {
   });
   /// /////////////////////////////////////////////////////////////////////////
   /// /////////////////////////////////////////////////////////////////////////
-  
+
   test.each([
     { email: 'TheEmail@gmail.com', password: '1234567', d: 'email and password match' },
   ])('$d', ({ email, password, d }) => {
