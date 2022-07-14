@@ -36,10 +36,10 @@ describe('Testing userProfileV1()', () => {
     const uId1 = Number(getUId(testUser1.authUserId));
     const token1 = testUser1.token;
     const userProfile1 = requestUserProfileV2(token1, uId1);
-    expect(userProfile1.uId).toStrictEqual(uId1);
-    expect(userProfile1.email).toStrictEqual('testemail@email.com');
-    expect(userProfile1.nameFirst).toStrictEqual('testFirstName');
-    expect(userProfile1.nameLast).toStrictEqual('testLastName');
+    expect(userProfile1.user.uId).toStrictEqual(uId1);
+    expect(userProfile1.user.email).toStrictEqual('testemail@email.com');
+    expect(userProfile1.user.nameFirst).toStrictEqual('testFirstName');
+    expect(userProfile1.user.nameLast).toStrictEqual('testLastName');
   });
 
   test('Testing correct output for when authUserId and uId belong to different people', () => {
@@ -50,10 +50,10 @@ describe('Testing userProfileV1()', () => {
     const token1 = testUser1.token;
     const userProfile2 = requestUserProfileV2(token1, uId2);
 
-    expect(userProfile2.uId).toStrictEqual(uId2);
-    expect(userProfile2.email).toStrictEqual('correct@email.com');
-    expect(userProfile2.nameFirst).toStrictEqual('correctFirstName');
-    expect(userProfile2.nameLast).toStrictEqual('correctLastName');
+    expect(userProfile2.user.uId).toStrictEqual(uId2);
+    expect(userProfile2.user.email).toStrictEqual('correct@email.com');
+    expect(userProfile2.user.nameFirst).toStrictEqual('correctFirstName');
+    expect(userProfile2.user.nameLast).toStrictEqual('correctLastName');
   });
 });
 
@@ -102,5 +102,5 @@ function requestUserProfileV2(token: string, uId: number) {
     }
   );
 
-  return JSON.parse(String(res.getBody())).user;
+  return JSON.parse(String(res.getBody()));
 }

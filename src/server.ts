@@ -82,10 +82,10 @@ app.delete('/clear/v1', (req, res) => {
   res.json(clearV1());
 });
 
-app.get('/channels/create/v2', (req, res) => {
-  const token = String(req.query.token);
-  const name = String(req.query.name);
-  const isPublic = Boolean(req.query.isPublic);
+app.post('/channels/create/v2', (req, res) => {
+  const token = String(req.body.token);
+  const name = String(req.body.name);
+  const isPublic = Boolean(req.body.isPublic);
   res.json(channelsCreateV1(token, name, isPublic));
 });
 

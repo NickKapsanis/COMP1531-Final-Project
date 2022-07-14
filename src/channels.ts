@@ -1,9 +1,4 @@
-import {getData, setData, channel} from './dataStore';
-import {getUId} from './other';
-
-type channelId = {
-    channelId : number
-}
+import { getData, setData, channel } from './dataStore';
 
 /*
 this function gives an array of all channels the user is in
@@ -25,8 +20,7 @@ function channelsListV1(authUserId) {
     let numChannels = 0;
     let channelsArray = [];
 
-
-    //this loop searches for given user id within every channel.   
+    //this loop searches for given user id within every channel.
     for (let i = 0; i < data.channels.length; i++) {
         for (let n = 0; n < data.channels[i].allMembers.length; n++) {
             if (data.channels[i].allMembers[n] === uId) {
@@ -50,7 +44,6 @@ function channelsListV1(authUserId) {
 }
 */
 
-
 /*
 this function gives an array of all channels
 
@@ -73,7 +66,7 @@ function channelsListallV1(authUserId) {
         return { channels: [] };
     }
 
-    //this loop finds all arrays, adds them to channelsArray  
+    //this loop finds all arrays, adds them to channelsArray
     for (let j = 0; j < data.channels.length; j++) {
 
         let channel = {
@@ -88,16 +81,16 @@ function channelsListallV1(authUserId) {
 */
 
 /*
-The function channelsCreateV1() creates a channel and adds it to 
+The function channelsCreateV1() creates a channel and adds it to
 the dataStore. the user is added as the owner and member of the channel.
 Returns the unique channelId for the created channel.
 
 * Parameters -
-    token      - (string) 
+    token      - (string)
     name       - (string)
     isPublic   - (boolean)
 
-* Returns - 
+* Returns -
     (1) error if authUserId does not exist
     {error : 'error'}
 
@@ -105,33 +98,33 @@ Returns the unique channelId for the created channel.
     channelId - (integer)
 */
 function channelsCreateV1(token: string, name: string, isPublic: boolean) {
-    let data = getData();
-    let creator = data.users.find(user => user.tokens.find(t => t === token));
-    
-    // Error cases
-    if (creator === undefined) { return { error : 'error' } };
-    if (name.length > 20 || name.length < 1) { return { error : 'error' } };
+  const data = getData();
+  const creator = data.users.find(user => user.tokens.find(t => t === token));
 
-    const newChannelId = data.channels.length + 1;
+  // Error cases
+  if (creator === undefined) { return { error: 'error' }; }
+  if (name.length > 20 || name.length < 1) { return { error: 'error' }; }
 
-    let newChannel : channel = {
-        
-        'channelId': newChannelId,
-        'name': name,
-        'isPublic' : isPublic,
-        'allMembers' : [creator.uId],
-        'ownerMembers' : [creator.uId], 
-        'messages': []
-    }
+  const newChannelId = data.channels.length + 1;
 
-    data.channels.push(newChannel);
-    data.users = data.users.filter(i => i.authUserId !== creator.authUserId);
-    creator.channels.push(newChannelId);
-    data.users.push(creator);
+  const newChannel : channel = {
 
-    setData(data);
+    channelId: newChannelId,
+    name: name,
+    isPublic: isPublic,
+    allMembers: [creator.uId],
+    ownerMembers: [creator.uId],
+    messages: []
+  };
 
-    return { channelId: newChannelId };
+  data.channels.push(newChannel);
+  data.users = data.users.filter(i => i.authUserId !== creator.authUserId);
+  creator.channels.push(newChannelId);
+  data.users.push(creator);
+
+  setData(data);
+
+  return { channelId: newChannelId };
 }
 
-export {channelsCreateV1}
+export { channelsCreateV1 };
