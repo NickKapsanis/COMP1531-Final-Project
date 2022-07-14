@@ -3,6 +3,7 @@ import { userProfileV1 } from './users';
 import { channelsListV2 } from './channels';
 import { getUId } from './other'
 import { arrayBuffer } from 'stream/consumers';
+import { checkValidToken } from './auth';
 
 /*
 /*
@@ -372,6 +373,9 @@ function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
 *   {}                   empty object   Successful run
 */
 function channelsLeaveV1(token: string, channelId: number) {
+
+  if (!checkValidToken(token)) return {error: 'error'}
+
     const data = getData();
 
     const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId
