@@ -68,7 +68,7 @@ function channelDetailsV2(token: string, channelId: number): channelDetailsOutpu
   const ownerMembersDetails: Array<userOutput> = [];
 
   owners.forEach(uId => {
-    const user = userProfileV2(token, uId);
+    const user = userProfileV2(token, uId).user;
     ownerMembersDetails.push(user);
   });
 
@@ -78,7 +78,7 @@ function channelDetailsV2(token: string, channelId: number): channelDetailsOutpu
   const allMembersDetails: Array<userOutput> = [];
 
   members.forEach(uId => {
-    const user = userProfileV2(token, uId);
+    const user = userProfileV2(token, uId).user;
     allMembersDetails.push(user);
   });
 
