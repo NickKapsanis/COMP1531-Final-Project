@@ -1,8 +1,6 @@
-import { dataStoreType, getData, setData, user, channel } from './dataStore';
-import { userProfileV1 } from './users';
+import { dataStoreType, getData, setData, channel } from './dataStore';
 import { channelsListV2 } from './channels';
-import { getUId } from './other'
-import { arrayBuffer } from 'stream/consumers';
+import { getUId } from './other';
 import { checkValidToken } from './auth';
 
 /*
@@ -126,19 +124,18 @@ function channelMessagesV1(authUserId, channelId, start) {
   return messageDetails;
 }
 
-
 */
 // helper function to reduce reptition
 function getChannel(channelId: number, channelsArray: channel[]) {
-    let channel: channel;
-    for (let i = 0; i < channelsArray.length; i++) {
-      if (channelId === channelsArray[i].channelId) {
-        channel = channelsArray[i];
-      }
+  let channel: channel;
+  for (let i = 0; i < channelsArray.length; i++) {
+    if (channelId === channelsArray[i].channelId) {
+      channel = channelsArray[i];
     }
-    return channel;
   }
-  
+  return channel;
+}
+
 /**
 * channelJoinV2
 * this function allows a user to join public channels
@@ -360,59 +357,56 @@ function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
 
 /**
 * channelLeaveV1
-* this function makes a user leave a channel. 
+* this function makes a user leave a channel.
 * (public or private) given their token and the channelId of leaving channel.
-* 
+*
 * Arguments:
 *   token: integer - the authUserID for the member inviting a new member
 *   channelId - The channel to be joined
-*  
+*
 * Return Value:
 *   {error: 'error'}     object         Error message when given invalid channelId
 *                                       or valid channelId given member is not a part of.
 *   {}                   empty object   Successful run
 */
 function channelsLeaveV1(token: string, channelId: number) {
+  if (!checkValidToken(token)) return { error: 'error' };
 
-  if (!checkValidToken(token)) return {error: 'error'}
+  const data = getData();
 
-    const data = getData();
+  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
 
-    const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId
-    
-    let user = data.users.find(i => i.authUserId === authUserId);
-    if (user === undefined) { return { error : 'error' } };
+  const user = data.users.find(i => i.authUserId === authUserId);
+  if (user === undefined) { return { error: 'error' }; }
 
-    //the channelsListV1, which uses getUId function already does error checking within.
-    let channelsArray = channelsListV2(token).channels;
-    let uId = getUId(authUserId);
+  // the channelsListV1, which uses getUId function already does error checking within.
+  const channelsArray = channelsListV2(token).channels;
+  const uId = getUId(authUserId);
 
-    if (channelsArray.length === 0) {
-        return {error: 'error'};
-    }
+  if (channelsArray.length === 0) {
+    return { error: 'error' };
+  }
 
-    //loops through all channels given member is a part of, removes member.
-    for (let i = 0; i < channelsArray.length; i++) {
-        if (channelsArray[i].channelId === channelId) {
+  // loops through all channels given member is a part of, removes member.
+  for (let i = 0; i < channelsArray.length; i++) {
+    if (channelsArray[i].channelId === channelId) {
+      const foundChannel = data.channels.find(channel => channel.channelId === channelId);
+      const foundChannelIndex = data.channels.findIndex(channel => channel.channelId === channelId);
 
-            let foundChannel = data.channels.find(channel=>channel.channelId === channelId);
-            const foundChannelIndex = data.channels.findIndex(channel=>channel.channelId === channelId);
+      for (let n = 0; n < foundChannel.allMembers.length; n++) {
+        if (foundChannel.allMembers[n] === uId) {
+          const newMembersArray = foundChannel.allMembers.filter(item => item !== uId);
+          foundChannel.allMembers = newMembersArray;
+          data.channels[foundChannelIndex] = foundChannel;
 
-            for (let n = 0; n < foundChannel.allMembers.length; n++) {
-                if (foundChannel.allMembers[n] === uId) {
-                    const newMembersArray = foundChannel.allMembers.filter(item => item !== uId);
-                    foundChannel.allMembers = newMembersArray;
-                    data.channels[foundChannelIndex] = foundChannel;
-                    
-                    setData(data);
-                    return {};                  
-                }
-            }
+          setData(data);
+          return {};
         }
+      }
     }
-    //case given user wasn't a part of channel. 
-    return {error: 'error'};
+  }
+  // case given user wasn't a part of channel.
+  return { error: 'error' };
 }
-
 
 export { channelsLeaveV1, channelJoinV2 };

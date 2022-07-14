@@ -80,10 +80,9 @@ app.get('/users/all/v1', (req, res) => {
 app.post('/channels/create/v2', (req, res) => {
   const data = req.body;
   res.json(channelsCreateV2(data.token, data.name, data.isPublic));
-})
+});
 
-
-//channelsLeaveV1
+// channelsLeaveV1
 app.post('/channel/leave/v1', (req, res) => {
   const data = req.body;
   res.json(channelsLeaveV1(data.token, data.channelId));
