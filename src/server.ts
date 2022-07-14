@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import config from './config.json';
 import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
 import { clearV1 } from './other';
+import { channelsListV2, channelsListallV2 } from './channels';
 import cors from 'cors';
 
 // Set up web app, use JSON
@@ -44,6 +45,16 @@ app.post('/auth/logout/v1', (req, res) => {
 // clearV1()
 app.delete('/clear/v1', (req, res) => {
   res.json(clearV1());
+});
+
+app.get('/channels/list/v2', (req, res) => {
+  const data = req.query.token as string;
+  res.json(channelsListV2(data));
+});
+
+app.get('channels/listall/v2', (req, res) => {
+  const data = req.query.token as string;
+  res.json(channelsListallV2(data));
 });
 
 // for logging errors
