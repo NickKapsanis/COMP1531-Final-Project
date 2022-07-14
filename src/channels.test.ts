@@ -1,9 +1,19 @@
 import request from 'sync-request';
 import config from './config.json';
+import { channel } from './dataStore';
 
 const port = config.port;
 const hosturl = config.url;
 const url = hosturl + ':' + port;
+
+type channelDetails = {
+  channelId: number,
+  name: string,
+}
+
+type channelsListBodyObj = {
+  channels: channelDetails[],
+}
 
 // helper function - calls auth register through the server
 
@@ -51,7 +61,7 @@ test('testing when token doesn\'t exist', () => {
       }
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody()));
+  const bodyObj = JSON.parse(res.body as string);
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toEqual({ error: 'error' });
@@ -60,7 +70,10 @@ test('testing when token doesn\'t exist', () => {
 test('testing when user is not in any channel', () => {
   request('DELETE', url + '/clear/v1');
 
+
   const jamesToken = createUser('james@email.com', 'testPassword123', 'James', 'James').token;
+  //console.log(jamesToken);
+
 
   const res = request(
     'GET',
@@ -71,10 +84,10 @@ test('testing when user is not in any channel', () => {
       }
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody));
+  const bodyObj = JSON.parse(res.body as string);
 
   expect(res.statusCode).toBe(200);
-  expect(bodyObj).toEqual([]);
+  expect(bodyObj.channels).toEqual([]);
 });
 
 test('tests if all correct channels are listed in channel list', () => {
@@ -83,10 +96,10 @@ test('tests if all correct channels are listed in channel list', () => {
   const jamesToken = createUser('james@email.com', 'testPassword123', 'James', 'James').token;
   const rufusToken = createUser('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').token;
 
-  const firstCreatedChannel = createChannel(jamesToken, 'James C1', true).channelId;
-  const secondCreatedChannel = createChannel(jamesToken, 'James C2', false).channelId;
-  const thirdCreatedChannel = createChannel(rufusToken, 'Rufus C1', true).channelId;
-  const fourthCreatedChannel = createChannel(jamesToken, 'James C3', true).channelId;
+  const firstCreatedChannel: number = createChannel(jamesToken, 'James C1', true).channelId;
+  const secondCreatedChannel: number = createChannel(jamesToken, 'James C2', false).channelId;
+  const thirdCreatedChannel: number = createChannel(rufusToken, 'Rufus C1', true).channelId;
+  const fourthCreatedChannel: number = createChannel(jamesToken, 'James C3', true).channelId;
 
   const res = request(
     'GET',
@@ -97,7 +110,7 @@ test('tests if all correct channels are listed in channel list', () => {
       }
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody));
+  const bodyObj: channelsListBodyObj = JSON.parse(String(res.getBody));
 
   const findC1 = bodyObj.channels.find(channel => channel.channelId === firstCreatedChannel);
   const findC2 = bodyObj.channels.find(channel => channel.channelId === secondCreatedChannel);
@@ -116,7 +129,7 @@ test('tests if all correct channels are listed in channel list', () => {
 });
 
 /// /////////////////////////////////////////////
-/// //    Tests for channelsListAllV2()	   /////
+/// ////// Tests for channelsListAllV2() ////////
 /// /////////////////////////////////////////////
 
 // similar to previous function test, but no matter if private or not.
@@ -135,10 +148,10 @@ test('tests when no channel exists', () => {
       }
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody));
+  const bodyObj = JSON.parse(res.body as string);
 
   expect(res.statusCode).toBe(200);
-  expect(bodyObj).toEqual([]);
+  expect(bodyObj.channels).toEqual([]);
 });
 
 test('tests when token isnt valid', () => {
@@ -153,7 +166,10 @@ test('tests when token isnt valid', () => {
       }
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody));
+  //console.log('blahh');
+  //console.log(JSON.parse(res.body as string));
+
+  const bodyObj = JSON.parse(res.body as string);
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toEqual({ error: 'error' });
@@ -179,7 +195,7 @@ test('tests if all correct channels are listed in channel list', () => {
       }
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody));
+  const bodyObj: channelsListBodyObj = JSON.parse(String(res.getBody));
 
   const findC1 = bodyObj.channels.find(channel => channel.channelId === firstCreatedChannel);
   const findC2 = bodyObj.channels.find(channel => channel.channelId === secondCreatedChannel);
@@ -192,67 +208,3 @@ test('tests if all correct channels are listed in channel list', () => {
   expect(findC3.name).toEqual(thirdCreatedChannel);
   expect(findC4.name).toEqual(fourthCreatedChannel);
 });
-
-/*
-
-/// /////////////////////////////////////////////
-/// //    Tests for channelsCreateV2() 	   /////
-/// /////////////////////////////////////////////
-
-describe('Testing channelsCreateV2()', () => {
-  test('Testing if error is returned when name length < 1', () => {
-    clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    const output = channelsCreateV2(testAuthId, '', true);
-    expect(output).toStrictEqual({ error: 'error' });
-  });
-
-  test('Testing if error is returned when name length > 20', () => {
-    clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    const output = channelsCreateV2(testAuthId, 'thisIsAVeryLongChannelNameWhichIsInvalid', true);
-    expect(output).toStrictEqual({ error: 'error' });
-  });
-
-  test('Testing if error is returned when authUserId does not exist', () => {
-    clearV1();
-    const testAuthId = -111;
-    const output = channelsCreateV2(testAuthId, 'testChannelName', true);
-    expect(output).toStrictEqual({ error: 'error' });
-  });
-
-  test('Testing correct input - Checking if channel is created (i)', () => {
-    clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    const testChannelId = channelsCreateV2(testAuthId, 'testChannelName', false).channelId;
-
-    // Checking if channel id is created
-    expect(testChannelId).toStrictEqual(expect.any(Number));
-
-    // Checking if channel is created and pushed in the datastore
-    const allChannels = channelsListallV2(testAuthId).channels;
-    const check = allChannels.find(i => i.channelId === testChannelId);
-    expect(check.name).toStrictEqual('testChannelName');
-  });
-
-  test('Testing correct input - Checking if user is in created channel (ii)', () => {
-    clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    const testChannelId = channelsCreateV2(testAuthId, 'testChannelName', true).channelId;
-
-    // Checking if channel is reflected in user's channels
-    const testUserChannels = channelsListV2(testAuthId).channels;
-    const testChannel1 = testUserChannels.find(i => i.channelId === testChannelId);
-    expect(testChannel1.name).toStrictEqual('testChannelName');
-
-    // Checking if user is reflected in channel's all members and user array
-    const testUId = getUId(testAuthId);
-    const testChannel2 = channelDetailsV1(testAuthId, testChannelId);
-    const testAllMembers = testChannel2.allMembers.find(i => i.uId === testUId);
-    const testOwnerMembers = testChannel2.ownerMembers.find(i => i.uId === testUId);
-    expect(testAllMembers.uId).toStrictEqual(testUId);
-    expect(testOwnerMembers.uId).toStrictEqual(testUId);
-  });
-});
-
-*/

@@ -47,14 +47,17 @@ app.delete('/clear/v1', (req, res) => {
   res.json(clearV1());
 });
 
+// channelsListV2
 app.get('/channels/list/v2', (req, res) => {
   const data = req.query.token as string;
   res.json(channelsListV2(data));
 });
 
-app.get('channels/listall/v2', (req, res) => {
+//channelsListallV2
+app.get('/channels/listall/v2', (req, res) => {
   const data = req.query.token as string;
   res.json(channelsListallV2(data));
+  //console.log(channelsListallV2(data));
 });
 
 // for logging errors
