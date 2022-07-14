@@ -3,11 +3,15 @@ import { authRegisterV1 } from './auth';
 import { clearV1, getUId } from './other';
 import express from 'express';
 import request from 'sync-request';
-import { PORT, HOST} from './server';
+//import { PORT, HOST} from './server';
+
+import config from './config.json';
+const port = config.port;
+const hosturl = config.url;
+const url = hosturl + ':' + port;
+
 
 // helper function - calls auth register through the server
-
-const url = 'http://' + HOST + ':' + PORT;
 
 const createUser = (emails: string, passwords: string, name: string, surname: string) => {
   const res = request(
@@ -52,7 +56,7 @@ test('testing when authUserId doesn\'t exist', () => {
 
   const res = request(
     'GET',
-    `http://${HOST}:${PORT}/channels/list/v2`,
+    url + '/channels/list/v2',
           {
             qs: {
               token: 'hello',
@@ -74,7 +78,7 @@ test('testing when user is not in any channel', () => {
 
   const res = request(
     'GET',
-    `http://${HOST}:${PORT}/channels/list/v2`,
+    url + '/channels/list/v2',
           {
             qs: {
               token: jamesAuthId,
@@ -105,7 +109,7 @@ test('tests if all correct channels are listed in channel list', () => {
 
     const res = request(
       'GET',
-      `http://${HOST}:${PORT}/channels/list/v2`,
+      url + '/channels/list/v2',
             {
               qs: {
                 token: jamesAuthId,
@@ -152,7 +156,7 @@ test('tests when no channel exists', () => {
 
   const res = request(
     'GET',
-    `http://${HOST}:${PORT}/channels/listall/v2`,
+    url + '/channels/listall/v2',
           {
             qs: {
               channelsListallV2: jamesAuthId,
@@ -178,7 +182,7 @@ test('tests when authUserId does\'nt exist', () => {
 
   const res = request(
     'GET',
-    `http://${HOST}:${PORT}/channels/listall/v2`,
+    url + '/channels/listall/v2',
           {
             qs: {
               channelsListallV2: 6969,
@@ -207,7 +211,7 @@ test('tests if all correct channels are listed in channel list', () => {
 
     const res = request(
       'GET',
-      `http://${HOST}:${PORT}/channels/list/v2`,
+      url + '/channels/listall/v2',
             {
               qs: {
                 token: rufusAuthId,
