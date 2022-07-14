@@ -425,6 +425,9 @@ test('tests the case that user isn\'t valid', () => {
         },
       }
     );
+
+    console.log(res);
+
   const bodyObj = JSON.parse(String(res.getBody()));
   const JamesChannels = channelsListV2(james.authUserId);
 
