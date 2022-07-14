@@ -3,12 +3,13 @@ import { clearV1, getUId } from './other'
 import { userProfileV1, userSetnameV1, userSetemailV1, userSethandlelV1 } from './users'
 import request from 'sync-request';
 import config from './config.json';
-import { PORT, HOST} from './server';
+
+const port = config.port;
+const hosturl = config.url;
+const url = hosturl + ':' + port;
 
 
 // helper function - calls auth register through the server
-
-const url = 'http://' + HOST + ':' + PORT;
 
 const createUser = (emails: string, passwords: string, name: string, surname: string) => {
   const res = request(
@@ -112,7 +113,7 @@ test('Testing if changing nothing still returns same name.', () => {
 
   const res = request(
     'PUT',
-    `http://${HOST}:${PORT}/user/profile/setname/v1`,
+    url + '/user/profile/setname/v1',
     {
       body: JSON.stringify({
         token: alice.authUserId,
@@ -142,7 +143,7 @@ test('Testing changing only first name.', () => {
 
   const res = request(
     'PUT',
-    `http://${HOST}:${PORT}/user/profile/setname/v1`,
+    url + '/user/profile/setname/v1',
     {
       body: JSON.stringify({
         token: alice.authUserId,
@@ -174,7 +175,7 @@ test('Testing changing only last name.', () => {
   
   const res = request(
     'PUT',
-    `http://${HOST}:${PORT}/user/profile/setname/v1`,
+    url + '/user/profile/setname/v1',
     {
       body: JSON.stringify({
         token: alice.authUserId,
@@ -205,7 +206,7 @@ test('Testing changing both names.', () => {
 
   const res = request(
     'PUT',
-    `http://${HOST}:${PORT}/user/profile/setname/v1`,
+    url + '/user/profile/setname/v1',
     {
       body: JSON.stringify({
         token: alice.authUserId,
@@ -241,7 +242,7 @@ test('Testing if changing nothing still returns same email.', () => {
 
   const res = request(
     'PUT',
-    `http://${HOST}:${PORT}/user/profile/setemail/v1`,
+    url + '/user/profile/setemail/v1',
     {
       body: JSON.stringify({
         token: alice.authUserId,
@@ -267,7 +268,7 @@ test('Testing changing email.', () => {
 
   const res = request(
     'PUT',
-    `http://${HOST}:${PORT}/user/profile/setemail/v1`,
+    url + '/user/profile/setemail/v1',
     {
       body: JSON.stringify({
         token: alice.authUserId,
@@ -298,7 +299,7 @@ test('Testing if changing nothing still returns same handle.', () => {
 
   const res = request(
     'PUT',
-    `http://${HOST}:${PORT}/user/profile/sethandle/v1`,
+    url + '/user/profile/sethandle/v1',
     {
       body: JSON.stringify({
         token: alice.authUserId,
@@ -327,7 +328,7 @@ test('Testing changing handle.', () => {
 
   const res = request(
     'PUT',
-    `http://${HOST}:${PORT}/user/profile/sethandle/v1`,
+    url + '/user/profile/sethandle/v1',
     {
       body: JSON.stringify({
         token: alice.authUserId,
