@@ -1,6 +1,6 @@
 import request from 'sync-request';
 import { getUId } from './other'
-
+import { getData} from './dataStore'
 import config from './config.json';
 
 const OK = 200;
@@ -29,15 +29,14 @@ describe('Testing dm/create/v1', () => {
       const member2 = requestAuthRegister("member2@email.com", "MemBer2", "member", "two");
       const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
 
-      console.log(">>>>>>>>\n");
-      console.log(creator);
-      const creatorUId = getUId(creator.authUserId);
-      const member1UId = getUId(member1.authUserId);
-      const member2UId = getUId(member2.authUserId);
-      const member3UId = getUId(member3.authUserId);
+      const creatorUId = Number(getUId(creator.authUserId));
+      const member1UId = Number(getUId(member1.authUserId));
+      const member2UId = Number(getUId(member2.authUserId));
+      const member3UId = Number(getUId(member3.authUserId));
+
       const uIds = [member1UId, member2UId, member3UId];
 
-      const output = requestDmCreate('invalid-token', uIds);
+      const output = requestDmCreate('invalid-token', [1,2]);
       expect(output).toStrictEqual({ error : 'error' });
     });
 
@@ -50,9 +49,9 @@ describe('Testing dm/create/v1', () => {
       const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
 
       const creatorUId = getUId(creator.authUserId);
-      const member1UId = getUId(member1.authUserId);
-      const member2UId = getUId(member2.authUserId);
-      const member3UId = getUId(member3.authUserId);
+      const member1UId = Number(getUId(member1.authUserId));
+      const member2UId = Number(getUId(member2.authUserId));
+      const member3UId = Number(getUId(member3.authUserId));
       const uIds = [member1UId, member2UId, member3UId];
 
       const output = requestDmCreate(creator.token, [-1, -2]);
@@ -67,9 +66,9 @@ describe('Testing dm/create/v1', () => {
       const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
 
       const creatorUId = getUId(creator.authUserId);
-      const member1UId = getUId(member1.authUserId);
-      const member2UId = getUId(member2.authUserId);
-      const member3UId = getUId(member3.authUserId);
+      const member1UId = Number(getUId(member1.authUserId));
+      const member2UId = Number(getUId(member2.authUserId));
+      const member3UId = Number(getUId(member3.authUserId));
       const uIds = [member1UId, member2UId, member3UId];
 
       const output = requestDmCreate(creator.token, [member1UId, member2UId, member3UId, member2UId]);
@@ -84,9 +83,9 @@ describe('Testing dm/create/v1', () => {
       const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
 
       const creatorUId = getUId(creator.authUserId);
-      const member1UId = getUId(member1.authUserId);
-      const member2UId = getUId(member2.authUserId);
-      const member3UId = getUId(member3.authUserId);
+      const member1UId = Number(getUId(member1.authUserId));
+      const member2UId = Number(getUId(member2.authUserId));
+      const member3UId = Number(getUId(member3.authUserId));
       const uIds = [member1UId, member2UId, member3UId];
 
       const output = requestDmCreate(creator.token, uIds);
@@ -117,9 +116,9 @@ describe('Testing dm/list/v1', () => {
       const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
 
       const creatorUId = getUId(creator.authUserId);
-      const member1UId = getUId(member1.authUserId);
-      const member2UId = getUId(member2.authUserId);
-      const member3UId = getUId(member3.authUserId);
+      const member1UId = Number(getUId(member1.authUserId));
+      const member2UId = Number(getUId(member2.authUserId));
+      const member3UId = Number(getUId(member3.authUserId));
       const uIds = [member1UId, member2UId];
       const uIds1 = [member1UId];
 
@@ -139,17 +138,17 @@ describe('Testing dm/list/v1', () => {
       const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
 
       const creatorUId = getUId(creator.authUserId);
-      const member1UId = getUId(member1.authUserId);
-      const member2UId = getUId(member2.authUserId);
-      const member3UId = getUId(member3.authUserId);
+      const member1UId = Number(getUId(member1.authUserId));
+      const member2UId = Number(getUId(member2.authUserId));
+      const member3UId = Number(getUId(member3.authUserId));
       const uIds = [member1UId, member2UId];
       const uIds1 = [member1UId];
 
       const firstDm = requestDmCreate(creator.token, uIds);
-      const SecondDm = requestDmCreate(creator.token, uIds);      
+      const SecondDm = requestDmCreate(creator.token, uIds1);      
 
-        const output = requestDmList(member3.token);
-        expect(output).toStrictEqual([]);
+      const output = requestDmList(member3.token);
+      expect(output).toStrictEqual([]);
     });
 
     test('Testing successful case (ii)', () => {
@@ -160,14 +159,14 @@ describe('Testing dm/list/v1', () => {
       const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
 
       const creatorUId = getUId(creator.authUserId);
-      const member1UId = getUId(member1.authUserId);
-      const member2UId = getUId(member2.authUserId);
-      const member3UId = getUId(member3.authUserId);
+      const member1UId = Number(getUId(member1.authUserId));
+      const member2UId = Number(getUId(member2.authUserId));
+      const member3UId = Number(getUId(member3.authUserId));
       const uIds = [member1UId, member2UId];
       const uIds1 = [member1UId];
 
       const firstDm = requestDmCreate(creator.token, uIds);
-      const secondDm = requestDmCreate(creator.token, uIds);
+      const secondDm = requestDmCreate(creator.token, uIds1);
 
         const output = requestDmList(member1.token);
         expect(output.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
@@ -180,6 +179,10 @@ describe('Testing dm/list/v1', () => {
         const output2 = requestDmList(creator.token);
         expect(output2.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
         expect(output2.find(i => i.dmId === secondDm.dmId)).not.toStrictEqual(undefined);
+
+        const output3 = requestDmList(member3.token);
+        expect(output3.find(i => i.dmId === firstDm.dmId)).toStrictEqual(undefined);
+        expect(output3.find(i => i.dmId === secondDm.dmId)).toStrictEqual(undefined);
     });
 
 })
@@ -205,14 +208,14 @@ describe('Testing dm/remove/v1', () => {
       const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
 
       const creatorUId = getUId(creator.authUserId);
-      const member1UId = getUId(member1.authUserId);
-      const member2UId = getUId(member2.authUserId);
-      const member3UId = getUId(member3.authUserId);
+      const member1UId = Number(getUId(member1.authUserId));
+      const member2UId = Number(getUId(member2.authUserId));
+      const member3UId = Number(getUId(member3.authUserId));
       const uIds = [member1UId, member2UId, member3UId];
 
       const dm = requestDmCreate(creator.token, uIds);
 
-        const output = requestDmCreate('invalid-token', dm.dmId);
+        const output = requestDmRemove('invalid-token', dm.dmId);
         expect(output).toStrictEqual({ error : 'error' });
     });
 
@@ -225,14 +228,14 @@ describe('Testing dm/remove/v1', () => {
       const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
 
       const creatorUId = getUId(creator.authUserId);
-      const member1UId = getUId(member1.authUserId);
-      const member2UId = getUId(member2.authUserId);
-      const member3UId = getUId(member3.authUserId);
+      const member1UId = Number(getUId(member1.authUserId));
+      const member2UId = Number(getUId(member2.authUserId));
+      const member3UId = Number(getUId(member3.authUserId));
       const uIds = [member1UId, member2UId, member3UId];
 
       const dm = requestDmCreate(creator.token, uIds);
 
-        const output = requestDmCreate(creator.token, [-1]);
+        const output = requestDmRemove(creator.token, -1);
         expect(output).toStrictEqual({ error : 'error' });
     });
 
@@ -244,15 +247,15 @@ describe('Testing dm/remove/v1', () => {
       const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
 
       const creatorUId = getUId(creator.authUserId);
-      const member1UId = getUId(member1.authUserId);
-      const member2UId = getUId(member2.authUserId);
-      const member3UId = getUId(member3.authUserId);
+      const member1UId = Number(getUId(member1.authUserId));
+      const member2UId = Number(getUId(member2.authUserId));
+      const member3UId = Number(getUId(member3.authUserId));
       const uIds = [member1UId, member2UId, member3UId];
 
       const dm = requestDmCreate(creator.token, uIds);
 
-        const output = requestDmCreate(member1.token, dm.dmId);
-        expect(output).toStrictEqual({ error : 'error' });
+      const output = requestDmRemove(member1.token, dm.dmId);
+      expect(output).toStrictEqual({ error : 'error' });
     });
 
     test('Testing successful run', () => {
@@ -263,17 +266,17 @@ describe('Testing dm/remove/v1', () => {
       const member3 = requestAuthRegister("member3@email.com", "membEr3", "member", "three");
 
       const creatorUId = getUId(creator.authUserId);
-      const member1UId = getUId(member1.authUserId);
-      const member2UId = getUId(member2.authUserId);
-      const member3UId = getUId(member3.authUserId);
+      const member1UId = Number(getUId(member1.authUserId));
+      const member2UId = Number(getUId(member2.authUserId));
+      const member3UId = Number(getUId(member3.authUserId));
       const uIds = [member1UId, member2UId, member3UId];
 
       const dm = requestDmCreate(creator.token, uIds);
 
-        const output = requestDmCreate(creator.token, dm.dmId);
-        const output2 = requestDmList(member1.token)
+        const output = requestDmRemove(creator.token, dm.dmId);
+        const output2 = requestDmList(member1.token);
         expect(output2).toStrictEqual([]);
-        const output3 = requestDmList(creator.token)
+        const output3 = requestDmList(creator.token);
         expect(output2).toStrictEqual([]);
     });
 
@@ -339,7 +342,7 @@ function requestDmList(token: string) {
       `${url}:${port}/dm/list/v1`, 
       {
         qs : {
-            token : token
+          token: token
         }
       }
     );

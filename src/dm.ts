@@ -7,7 +7,7 @@ type dmIdObj = {
 
 type uId = number;
 
-type uIds = Array<uId>;
+type uIds = number[];
 
 type error = { 
     error : 'error' 
@@ -63,7 +63,7 @@ export function dmCreateV1(token : string, uIds : uIds) : dmIdObj | error  {
     return { dmId: newDmId };
 }
 
-export function dmListV1(token: string) : error | dms {
+export function dmListV1(token: string) {
     let data = getData();
     let user = data.users.find(user => user.tokens.find(t => t === token));
 
@@ -91,6 +91,16 @@ export function dmRemoveV1(token: string, dmId: number) {
 
     if (user === undefined || dm === undefined) { return { error : 'error' } };
     if (user.uId !== dm.owner) { return { error : 'error' } };
+
+    let users = dm.allMembers;
+    users.push(dm.owner);
+
+    for (let x of users) {
+        user = data.users.find(i => i.uId === x);
+        data.users = data.users.filter(i => i.uId !== x);
+        user.dms = user.dms.filter(i=> i !== dmId);
+        data.users.push(user);
+    }
 
     data.dms = data.dms.filter(i => i.dmId !== dmId);
     setData(data);
