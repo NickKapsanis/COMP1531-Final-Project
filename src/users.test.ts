@@ -102,5 +102,5 @@ function requestUserProfileV2(token: string, uId: number) {
     }
   );
 
-  return JSON.parse(String(res.getBody()));
+  return JSON.parse(String(res.getBody())).user;
 }

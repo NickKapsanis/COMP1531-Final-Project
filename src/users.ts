@@ -7,6 +7,9 @@ type user = {
   nameLast: string,
   handleStr: string
 }
+type userProfile = {
+  user: user
+}
 
 type error = {
   error : 'error'
@@ -34,20 +37,24 @@ returns the user information of the corresponding uId
     }
 */
 
-function userProfileV2(token: string, uId: number) : error | user {
+function userProfileV2(token: string, uId: number) : error | userProfile {
   const data = getData();
   const user1 = data.users.find(user => user.tokens.find(t => t === token));
   const user2 = data.users.find(i => i.uId === uId);
 
   if (user1 === undefined || user2 === undefined) { return { error: 'error' }; }
 
-  return {
+  let user2Info: user = {
     uId: user2.uId,
     email: user2.email,
     nameFirst: user2.nameFirst,
     nameLast: user2.nameLast,
     handleStr: user2.handleStr
   };
+
+  return {
+    user: user2Info
+  }
 }
 
 export { userProfileV2 };
