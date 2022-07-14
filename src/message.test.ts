@@ -5,15 +5,22 @@ const OK = 200;
 const port = config.port;
 const url = config.url;
 
+type message = {
+  messageId : number;
+  uId : number;
+  timeSent : number;
+  message : string;
+}
+
 describe('Tests for message/edit/V1', () => {
-  let token1;
-  let token2;
-  let token3;
-  let channelId1;
-  let channelId2;
-  let messageId1;
-  let messageId2;
-  let messageId3;
+  let token1: string;
+  let token2: string;
+  let token3: string;
+  let channelId1: number;
+  let channelId2: number;
+  let messageId1: number;
+  let messageId2: number;
+  let messageId3: number;
 
   beforeEach(() => {
     //  channelMembers1: [1,2], channelOwners1: [1], channelMembers2: [2, 3], channelOwners2: [1, 2] (because token1 is a global owner)
@@ -77,8 +84,8 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 6: successful message edit (in channels)', () => {
     const res = requestMessageEditV1(token1, messageId1, 'Edited Message 1.1');
-    const messages = requestChannelMessageV2(token1, channelId1, 0);
-    const editedMessage = messages.find(message => message.messageId === messageId1);
+    const messages: Array<message> = requestChannelMessageV2(token1, channelId1, 0);
+    const editedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
@@ -88,8 +95,8 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 7: successful message edit (empty message string)', () => {
     const res = requestMessageEditV1(token1, messageId1, '');
-    const messages = requestChannelMessageV2(token1, channelId1, 0);
-    const editedMessage = messages.find(message => message.messageId === messageId1);
+    const messages: Array<message> = requestChannelMessageV2(token1, channelId1, 0);
+    const editedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
@@ -99,8 +106,8 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 8: successful message edit (with global permissions)', () => {
     const res = requestMessageEditV1(token1, messageId3, 'Edited Message 2.1');
-    const messages = requestChannelMessageV2(token1, channelId2, 0);
-    const editedMessage = messages.find(message => message.messageId === messageId3);
+    const messages: Array<message> = requestChannelMessageV2(token1, channelId2, 0);
+    const editedMessage: message = messages.find(message => message.messageId === messageId3);
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
@@ -109,12 +116,12 @@ describe('Tests for message/edit/V1', () => {
   });
 
   test('Case 9: successful message edit (with dms)', () => {
-    const dmId1 = requestDmCreateV1(token1, [1, 3]);
-    const messageId5 = requestMessageSendDmV1(token1, dmId1, 'Message Dm 1.1');
+    const dmId1: number = requestDmCreateV1(token1, [1, 3]);
+    const messageId5: number = requestMessageSendDmV1(token1, dmId1, 'Message Dm 1.1');
 
     const res = requestMessageEditV1(token1, messageId5, 'Edited Message Dm 1.1');
-    const messages = requestDmMessageV1(token1, dmId1, 0);
-    const editedMessage = messages.find(message => message.messageId === messageId5);
+    const messages: Array<message> = requestDmMessageV1(token1, dmId1, 0);
+    const editedMessage: message = messages.find(message => message.messageId === messageId5);
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
