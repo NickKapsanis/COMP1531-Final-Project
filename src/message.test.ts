@@ -5,15 +5,22 @@ const OK = 200;
 const port = config.port;
 const url = config.url;
 
+type message = {
+  messageId : number;
+  uId : number;
+  timeSent : number;
+  message : string;
+}
+
 describe('Tests for message/remove/V1', () => {
-  let token1;
-  let token2;
-  let token3;
-  let channelId1;
-  let channelId2;
-  let messageId1;
-  let messageId2;
-  let messageId3;
+  let token1: string;
+  let token2: string;
+  let token3: string;
+  let channelId1: number;
+  let channelId2: number;
+  let messageId1: number;
+  let messageId2: number;
+  let messageId3: number;
 
   beforeEach(() => {
     //  channelMembers1: [1,2], channelOwners1: [1], channelMembers2: [2, 3], channelOwners2: [1, 2] //because 1 is a global owner
@@ -76,8 +83,8 @@ describe('Tests for message/remove/V1', () => {
 
   test('Case 6: successful message remove', () => {
     const res = requestMessageRemoveV1(token1, messageId1);
-    const messages = requestChannelMessageV2(token1, channelId1, 0);
-    const removedMessage = messages.find(message => message.messageId === messageId1);
+    const messages: Array<message> = requestChannelMessageV2(token1, channelId1, 0);
+    const removedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
@@ -89,13 +96,13 @@ describe('Tests for message/remove/V1', () => {
 function requestMessageRemoveV1(token: string, messageId: number) {
   return request(
     'DELETE',
-        `${url}:${port}/message/edit/v1`,
-        {
-          qs: {
-            token: token,
-            messageId: messageId,
-          }
-        }
+    `${url}:${port}/message/edit/v1`,
+    {
+      qs: {
+        token: token,
+        messageId: messageId,
+      }
+    }
   );
 }
 
@@ -107,15 +114,15 @@ function requestMessageRemoveV1(token: string, messageId: number) {
 function requestAuthUserRegisterV2(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
-          `${url}:${port}/auth/register/v2`,
-          {
-            json: {
-              email: email,
-              password: password,
-              nameFirst: nameFirst,
-              nameLast: nameLast
-            }
-          }
+    `${url}:${port}/auth/register/v2`,
+    {
+      json: {
+        email: email,
+        password: password,
+        nameFirst: nameFirst,
+        nameLast: nameLast
+      }
+    }
   );
 
   return JSON.parse(String(res.getBody())).token;
@@ -124,14 +131,14 @@ function requestAuthUserRegisterV2(email: string, password: string, nameFirst: s
 function requestChannelsCreateV2(token: string, name: string, isPublic: boolean) {
   const res = request(
     'POST',
-          `${url}:${port}/channels/create/v2`,
-          {
-            json: {
-              token: token,
-              name: name,
-              isPublic: isPublic,
-            }
-          }
+    `${url}:${port}/channels/create/v2`,
+    {
+      json: {
+        token: token,
+        name: name,
+        isPublic: isPublic,
+      }
+    }
   );
 
   return JSON.parse(String(res.getBody())).channelId;
@@ -140,14 +147,14 @@ function requestChannelsCreateV2(token: string, name: string, isPublic: boolean)
 function requestChannelInviteV2(token: string, channelId: number, uId: number) {
   const res = request(
     'POST',
-          `${url}:${port}/channel/invite/v2`,
-          {
-            json: {
-              token: token,
-              channelId: channelId,
-              uId: uId,
-            }
-          }
+    `${url}:${port}/channel/invite/v2`,
+    {
+      json: {
+        token: token,
+        channelId: channelId,
+        uId: uId,
+      }
+    }
   );
 
   return JSON.parse(String(res.getBody()));
@@ -156,14 +163,14 @@ function requestChannelInviteV2(token: string, channelId: number, uId: number) {
 function requestChannelMessageV2(token: string, channelId: number, start: number) {
   const res = request(
     'POST',
-          `${url}:${port}/channel/messages/v2`,
-          {
-            json: {
-              token: token,
-              channelId: channelId,
-              start: start,
-            }
-          }
+    `${url}:${port}/channel/messages/v2`,
+    {
+      json: {
+        token: token,
+        channelId: channelId,
+        start: start,
+      }
+    }
   );
 
   return JSON.parse(String(res.getBody())).messages;
@@ -172,14 +179,14 @@ function requestChannelMessageV2(token: string, channelId: number, start: number
 function requestMessageSendV1(token: string, channelId: number, message: string) {
   const res = request(
     'POST',
-          `${url}:${port}/message/send/v1`,
-          {
-            json: {
-              token: token,
-              channelId: channelId,
-              message: message,
-            }
-          }
+    `${url}:${port}/message/send/v1`,
+    {
+      json: {
+        token: token,
+        channelId: channelId,
+        message: message,
+      }
+    }
   );
 
   return JSON.parse(String(res.getBody())).messageId;
@@ -188,7 +195,7 @@ function requestMessageSendV1(token: string, channelId: number, message: string)
 function requestClear() {
   const res = request(
     'DELETE',
-          `${url}:${port}/clear/v1`
+    `${url}:${port}/clear/v1`
   );
 
   return JSON.parse(String(res.getBody()));
