@@ -7,8 +7,8 @@ const url = config.url;
 
 // Testing for channelDetailsV1
 describe('Testing channelDetailsV1', () => {
-  let token;
-  let channelId;
+  let token: string;
+  let channelId: number;
 
   beforeEach(() => {
     token = requestAuthRegisterV2('example123@email.com', 'password', 'John', 'Smith');
@@ -151,7 +151,7 @@ describe('Testing channelMessagesV1', () => {
 });
 
 ////////////////////////////////////////////////
-/////      Tests for channelJoinV1() 	   /////
+/////       Tests for channelJoinV1()      /////
 ////////////////////////////////////////////////
 
 test('tests the case that authUserId is invalid', () => {
@@ -211,7 +211,7 @@ test('tests the case of a success', () => {
 });
 
 ////////////////////////////////////////////////
-/////      Tests for channelInviteV1() 	   /////
+/////     Tests for channelInviteV1()      /////
 ////////////////////////////////////////////////
 
 test('tests the case that user inviting does not exist', () => {
