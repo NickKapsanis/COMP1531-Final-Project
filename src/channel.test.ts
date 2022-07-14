@@ -66,8 +66,8 @@ describe('Testing channelDetailsV1', () => {
 
 // Tests for channelMessagesV1
 describe('Testing channelMessagesV1', () => {
-  let token;
-  let channelId;
+  let token: string;
+  let channelId: number;
 
   beforeEach(() => {
     token = requestAuthRegisterV2('example123@gmail.com', 'password', 'John', 'Smith');
@@ -157,7 +157,7 @@ function requestChannelMessagesV2(token: string, channelId: number, start: numbe
 
 /*
 ////////////////////////////////////////////////
-/////      Tests for channelJoinV1() 	   /////
+/////       Tests for channelJoinV1()      /////
 ////////////////////////////////////////////////
 
 test('tests the case that authUserId is invalid', () => {
@@ -217,7 +217,7 @@ test('tests the case of a success', () => {
 });
 
 ////////////////////////////////////////////////
-/////      Tests for channelInviteV1() 	   /////
+/////     Tests for channelInviteV1()      /////
 ////////////////////////////////////////////////
 
 test('tests the case that user inviting does not exist', () => {
