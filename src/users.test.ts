@@ -1,80 +1,65 @@
-import { getUId } from './other'
+import { getUId } from './other';
 
 import request from 'sync-request';
 import config from './config.json';
 
-const OK = 200;
 const port = config.port;
 const url = config.url;
 
-
-////////////////////////////////////////////////
-/////      Tests for userProfileV1() 	     /////
-////////////////////////////////////////////////
+/// /////////////////////////////////////////////
+// Tests for userProfileV1()
+/// /////////////////////////////////////////////
 
 describe('Testing userProfileV1()', () => {
-
   test('Testing if error is returned if both token and uId do not exist', () => {
-
     requestClear();
-    expect(requestUserProfileV2('invalid-token',-3)).toStrictEqual({ error : 'error' });
-  
+    expect(requestUserProfileV2('invalid-token', -3)).toStrictEqual({ error: 'error' });
   });
 
   test('Testing if error is returned if token does not exist', () => {
-
     requestClear();
     const testUser1 = requestAuthRegister('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const uId1 = Number(getUId(testUser1.authUserId));
-    expect(requestUserProfileV2('invalid-token', uId1)).toStrictEqual({ error : 'error' });
-  
+    expect(requestUserProfileV2('invalid-token', uId1)).toStrictEqual({ error: 'error' });
   });
 
   test('Testing if error is returned if uId does not exist', () => {
-
     requestClear();
     const testUser1 = requestAuthRegister('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const token1 = testUser1.token;
-    expect(requestUserProfileV2(token1, -1)).toStrictEqual({ error : 'error' });
-  
+    expect(requestUserProfileV2(token1, -1)).toStrictEqual({ error: 'error' });
   });
 
   test('Testing correct output for when token and uId belong to same person', () => {
-
     requestClear();
     const testUser1 = requestAuthRegister('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const uId1 = Number(getUId(testUser1.authUserId));
-    const token1 =  testUser1.token;
+    const token1 = testUser1.token;
     const userProfile1 = requestUserProfileV2(token1, uId1);
     expect(userProfile1.uId).toStrictEqual(uId1);
     expect(userProfile1.email).toStrictEqual('testemail@email.com');
     expect(userProfile1.nameFirst).toStrictEqual('testFirstName');
     expect(userProfile1.nameLast).toStrictEqual('testLastName');
-
   });
 
   test('Testing correct output for when authUserId and uId belong to different people', () => {
-
     requestClear();
     const testUser1 = requestAuthRegister('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const testUser2 = requestAuthRegister('correct@email.com', 'testPassword123', 'correctFirstName', 'correctLastName');
     const uId2 = Number(getUId(testUser2.authUserId));
-    const token1 =  testUser1.token;
+    const token1 = testUser1.token;
     const userProfile2 = requestUserProfileV2(token1, uId2);
 
     expect(userProfile2.uId).toStrictEqual(uId2);
     expect(userProfile2.email).toStrictEqual('correct@email.com');
     expect(userProfile2.nameFirst).toStrictEqual('correctFirstName');
     expect(userProfile2.nameLast).toStrictEqual('correctLastName');
-
   });
-
 });
-
 
 /*
 ////////////////////////////////////////////////
-/////           Helper Functions      	   /////
+Helper Functions
 ////////////////////////////////////////////////
 */
 
@@ -117,5 +102,5 @@ function requestUserProfileV2(token: string, uId: number) {
     }
   );
 
-  return JSON.parse(String(res.getBody()));
+  return JSON.parse(String(res.getBody())).user;
 }

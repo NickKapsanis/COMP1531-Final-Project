@@ -1,11 +1,14 @@
-import {getData} from './dataStore'
+import { getData } from './dataStore';
 
 type user = {
-  uId: number, 
+  uId: number,
   email: string,
-  nameFirst: string, 
-  nameLast: string, 
+  nameFirst: string,
+  nameLast: string,
   handleStr: string
+}
+type userProfile = {
+  user: user
 }
 
 type error = {
@@ -22,11 +25,11 @@ returns the user information of the corresponding uId
 
 * Return values :
   (1) Error returned if either authUserId or uId do not exist
-    {error : 'error'} 
-   
+    {error : 'error'}
+
   (2) User information returned for user with uId given as parameter
-    { 
-      uId       : (integer)   
+    {
+      uId       : (integer)
       email     : (string)
       nameFirst : (string)
       nameLast  : (string)
@@ -34,20 +37,24 @@ returns the user information of the corresponding uId
     }
 */
 
-function userProfileV2(token: string, uId: number) : error | user {
-  let data = getData();
-  let user1 = data.users.find(user => user.tokens.find(t => t === token));
-  let user2 = data.users.find(i => i.uId === uId);
+function userProfileV2(token: string, uId: number) : error | userProfile {
+  const data = getData();
+  const user1 = data.users.find(user => user.tokens.find(t => t === token));
+  const user2 = data.users.find(i => i.uId === uId);
 
-  if (user1 === undefined || user2 === undefined) { return { error : 'error'} };
-  
-  return {
-    uId: user2.uId, 
+  if (user1 === undefined || user2 === undefined) { return { error: 'error' }; }
+
+  let user2Info: user = {
+    uId: user2.uId,
     email: user2.email,
-    nameFirst: user2.nameFirst, 
-    nameLast: user2.nameLast, 
+    nameFirst: user2.nameFirst,
+    nameLast: user2.nameLast,
     handleStr: user2.handleStr
+  };
+
+  return {
+    user: user2Info
   }
 }
 
-export { userProfileV2 }
+export { userProfileV2 };
