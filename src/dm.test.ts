@@ -1,8 +1,15 @@
 import request from 'sync-request';
-import { PORT, HOST } from './server';
 import { giveUid } from './dm';
+import config from './config.json';
 
-const url = 'http://' + HOST + ':' + PORT;
+//note the testing here requires
+// /clear/v1
+// /auth/register/v2
+// /dm/create/v1
+ 
+const port = config.port;
+const hosturl = config.url;
+const url = hosturl + ':' + port;
 
 describe('Testing dm/details/v1', () => {
   beforeEach(() => {
