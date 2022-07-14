@@ -2,8 +2,8 @@ import { getData, setData, dataStoreType, message } from './dataStore';
 import { channelsListV2 } from './channels';
 
 type channelOutput = {
-  channelId: number; 
-  name: string; 
+  channelId: number;
+  name: string;
 }
 
 type messageId = {
