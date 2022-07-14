@@ -1,1 +1,1 @@
-{"users":[{"uId":1,"authUserId":1,"tokens":["0be06e36-a129-4244-9046-05cc1198126d"],"nameFirst":"testFirstName","nameLast":"testLastName","email":"testemail@email.com","password":"testPassword123","handleStr":"testfirstnametestlas","channels":[1],"dms":[],"isGlobalOwner":1}],"channels":[{"channelId":1,"name":"testChannelName","isPublic":false,"allMembers":[1],"ownerMembers":[1],"messages":[]}],"dms":[]}
+{"users":[],"channels":[],"dms":[]}
