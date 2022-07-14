@@ -46,21 +46,22 @@ app.post('/auth/logout/v1', (req, res) => {
   res.json(authLogoutV1(data.token));
 });
 
-app.post('dm/create/v1', (req, res) => {
+app.post('/dm/create/v1', (req, res) => {
 
-  const {token, uIds} = req.body;
+  const token = req.body.token;
+  const uIds = req.body.uIds;
   res.json(dmCreateV1(token, uIds));
 
 });
 
-app.get('dm/list/v1', (req, res) => {
+app.get('/dm/list/v1', (req, res) => {
 
-  const token = String(req.query);
+  const token = String(req.query.token);
   res.json(dmListV1(token));
 
 });
 
-app.delete('dm/remove/v1', (req, res) => {
+app.delete('/dm/remove/v1', (req, res) => {
 
   const token = String(req.query.token);
   const dmId = Number(req.query.dmId);
@@ -68,7 +69,7 @@ app.delete('dm/remove/v1', (req, res) => {
 
 });
 
-app.get('/users/profile/v2', (req, res) => {
+app.get('/user/profile/v2', (req, res) => {
   const token = String(req.query.token);
   const uId = Number(req.query.uId);
   res.json(userProfileV2(token, uId));
