@@ -1,8 +1,11 @@
 
 import request from 'sync-request';
-import { PORT, HOST } from './server';
+//import { PORT, HOST } from './server';
+import config from './config.json'
 
-const url = 'http://' + HOST + ':' + PORT;
+const port = config.port;
+const hosturl = config.url;
+const url = hosturl + ':' + port;
 
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
@@ -90,6 +93,7 @@ describe('testing registration for sucess', () => {
     expect(res.statusCode).toStrictEqual(200);
   });
 });
+
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
@@ -140,7 +144,7 @@ describe('testing authLoginV1 for input errors', () => {
   });
   /// /////////////////////////////////////////////////////////////////////////
   /// /////////////////////////////////////////////////////////////////////////
-
+  
   test.each([
     { email: 'TheEmail@gmail.com', password: '1234567', d: 'email and password match' },
   ])('$d', ({ email, password, d }) => {
@@ -175,7 +179,7 @@ describe('testing authLoginV1 for input errors', () => {
 describe('testing auth/logout/v1', () => {
   test('given an active token log out', () => {
     // register and log in
-    request('DELETE', url + '/clear/v1');
+  //  request('DELETE', url + '/clear/v1');
     const res1 = request(
       'POST',
       url + '/auth/register/v2',
