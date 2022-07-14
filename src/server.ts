@@ -2,13 +2,7 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
-import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
-import { dmCreateV1, dmListV1, dmRemoveV1 } from './dm'
-import { userProfileV2 } from './users'
-import { clearV1 } from './other';
-import { channelsCreateV1 } from './channels';
-
-
+import { dmCreateV1, dmListV1, dmRemoveV1 } from './dm';
 
 // Set up web app, use JSON
 const app = express();
@@ -28,28 +22,21 @@ app.get('/echo', (req, res, next) => {
   }
 });
 
-
 app.post('/dm/create/v1', (req, res) => {
-
   const token = req.body.token;
   const uIds = req.body.uIds;
   res.json(dmCreateV1(token, uIds));
-
 });
 
 app.get('/dm/list/v1', (req, res) => {
-
   const token = String(req.query.token);
   res.json(dmListV1(token));
-
 });
 
 app.delete('/dm/remove/v1', (req, res) => {
-
   const token = String(req.query.token);
   const dmId = Number(req.query.dmId);
   res.json(dmRemoveV1(token, dmId));
-
 });
 
 // for logging errors
