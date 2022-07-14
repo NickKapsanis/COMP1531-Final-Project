@@ -1,31 +1,62 @@
-import { authRegisterV1, authLoginV1 } from './auth.js';
-import { clearV1, getUId } from './other.js';
+import request from 'sync-request';
+import config from './config.json';
 
-/// /////////////////////////////////////////////
-/// //          Tests for clearV1()         /////
-/// /////////////////////////////////////////////
+const OK = 200;
+const port = config.port;
+const hosturl = config.url;
+const url = hosturl + ':' + port;
 
-describe('Testing clear()', () => {
+/*
+/////////////////////////////////////////////
+///          Tests for clearV1()        /////
+/////////////////////////////////////////////
+*/
+
+describe('Testing clearV1()', () => {
   test('', () => {
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    clearV1();
-    expect(authLoginV1('testemail@email.com', 'testPassword123')).toStrictEqual({ error: 'error' });
-  });
-});
+    request(
+      'POST',
+      url + '/auth/register/v2',
+      {
+        body: JSON.stringify({
+          email: 'testemail@email.com',
+          password: 'testPassword123',
+          nameFirst: 'testFirstName',
+          nameLast: 'testLastName'
+        }),
+        headers: {
+          'Content-type': 'application/json',
+        }
+      }
+    );
 
-/// /////////////////////////////////////////////
-/// //          Tests for getUId()     	   /////
-/// /////////////////////////////////////////////
+    const res2 = request(
+      'DELETE',
+      url + '/clear/v1',
+      {
+        qs: {},
+      }
+    );
 
-describe('Testing getUID()', () => {
-  test('Testing getUId for correct input', () => {
-    clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    expect(getUId(testAuthId)).toStrictEqual(testAuthId);
-  });
+    const body = JSON.parse(String(res2.getBody()));
+    expect(body).toStrictEqual({});
+    expect(res2.statusCode).toBe(OK);
+    const res3 = request(
+      'POST',
+      url + '/auth/login/v2',
+      {
+        body: JSON.stringify({
+          email: 'testemail@email.com',
+          password: 'testPassword123',
+        }),
+        headers: {
+          'Content-type': 'application/json',
+        }
+      }
+    );
 
-  test('Testing getUId for incorrect input', () => {
-    clearV1();
-    expect(getUId(-1)).toStrictEqual({ error: 'error' });
+    const body1 = JSON.parse(String(res3.getBody()));
+    expect(res3.statusCode).toBe(OK);
+    expect(body1).toStrictEqual({ error: 'error' });
   });
 });
