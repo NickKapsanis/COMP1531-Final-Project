@@ -1,12 +1,16 @@
 import { clearV1, getUId } from './other';
 import { getData } from './dataStore';
 import request from 'sync-request';
-import { PORT, HOST } from './server';
+//import { PORT, HOST } from './server';
+import config from './config.json'
 import { dataStoreType } from './dataStore';
 import { authRegisterV1 } from './auth'; 
 
 
-const url = 'http://' + HOST + ':' + PORT;
+const port = config.port;
+const hosturl = config.url;
+const url = hosturl + ':' + port;
+
 
 // helper function - calls auth register through the server
 const createUser = (emails: string, passwords: string, name: string, surname: string) => {
@@ -414,7 +418,7 @@ test('tests the case that user isn\'t valid', () => {
 
   const res = request(
       'POST',
-      `http://${HOST}:${PORT}/channel/leave/v1`,
+      url + '/channel/leave/v1',
       {
         body: JSON.stringify({
           token: rufus.authUserId,
@@ -425,8 +429,6 @@ test('tests the case that user isn\'t valid', () => {
         },
       }
     );
-
-    console.log(res);
 
   const bodyObj = JSON.parse(String(res.getBody()));
   const JamesChannels = channelsListV2(james.authUserId);
@@ -444,7 +446,7 @@ test('tests the case with only given user in channel', () => {
 
   const res = request(
       'POST',
-      `http://${HOST}:${PORT}/channel/leave/v1`,
+      url + '/channel/leave/v1',
       {
         body: JSON.stringify({
           token: james.authUserId,
@@ -477,7 +479,7 @@ test('tests the general case, channel with multiple people.', () => {
 
   const res = request(
       'POST',
-      `http://${HOST}:${PORT}/channel/leave/v1`,
+      url + '/channel/leave/v1',
       {
         body: JSON.stringify({
           token: rufus.authUserId,
@@ -514,7 +516,7 @@ test('tests the multiple channels and multiple people.', () => {
 
   const res = request(
       'POST',
-      `http://${HOST}:${PORT}/channel/leave/v1`,
+      url + '/channel/leave/v1',
       {
         body: JSON.stringify({
           token: james.authUserId,
