@@ -77,7 +77,7 @@ app.get('/users/all/v1', (req, res) => {
 app.post('/channels/create/v2', (req, res) => {
   const data = req.body;
   res.json(channelsCreateV2(data.token, data.name, data.isPublic));
-})
+});
 
 app.get('/channels/list/v2', (req, res) => {
   const data = req.query.token as string;
@@ -88,8 +88,6 @@ app.get('channels/listall/v2', (req, res) => {
   const data = req.query.token as string;
   res.json(channelsListallV2(data));
 });
-
-
 
 // for logging errors
 app.use(morgan('dev'));
