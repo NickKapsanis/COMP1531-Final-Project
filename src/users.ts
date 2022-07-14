@@ -7,13 +7,6 @@ type user = {
   nameLast: string,
   handleStr: string
 }
-type userProfile = {
-  user: user
-}
-
-type error = {
-  error : 'error'
-}
 
 /*
 Given an authUserId and a uId, the function userProfileV1
@@ -37,7 +30,7 @@ returns the user information of the corresponding uId
     }
 */
 
-function userProfileV2(token: string, uId: number) : error | userProfile {
+function userProfileV2(token: string, uId: number) {
   const data = getData();
   const user1 = data.users.find(user => user.tokens.find(t => t === token));
   const user2 = data.users.find(i => i.uId === uId);
