@@ -242,13 +242,16 @@ function requestAuthRegister() {
 
 function requestChannelsCreate(token: string, name: string, isPublic: boolean) {
   const res = request(
-    'GET',
+    'POST',
     `${url}:${port}/channels/create/v2`,
     {
-      qs: {
+      body: JSON.stringify({
         token: token,
         name: name,
         isPublic: isPublic,
+      }),
+      headers: {
+        'Content-type': 'application/json',
       },
     }
   );
