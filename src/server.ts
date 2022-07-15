@@ -33,6 +33,7 @@ app.post('/channels/create/v2', (req, res) => {
   const isPublic = Boolean(req.body.isPublic);
   res.json(channelsCreateV1(token, name, isPublic));
 });
+
 // authRegister
 app.post('/auth/register/v2', (req, res) => {
   const data = req.body;
@@ -48,6 +49,7 @@ app.post('/auth/logout/v1', (req, res) => {
   const data = req.body;
   res.json(authLogoutV1(data.token));
 });
+
 // clearV1()
 app.delete('/clear/v1', (req, res) => {
   res.json(clearV1());
@@ -138,6 +140,18 @@ app.put('/user/profile/setemail/v1', (req, res) => {
 app.put('/user/profile/sethandle/v1', (req, res) => {
   const { token, handleStr } = req.body;
   res.json(userSethandlelV1(token, handleStr));
+});
+
+// channelsListV2
+app.get('/channels/list/v2', (req, res) => {
+  const data = req.query.token as string;
+  res.json(channelsListV2(data));
+});
+
+// channelsListallV2
+app.get('/channels/listall/v2', (req, res) => {
+  const data = req.query.token as string;
+  res.json(channelsListallV2(data));
 });
 
 // for logging errors
