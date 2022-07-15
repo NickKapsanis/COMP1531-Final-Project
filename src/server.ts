@@ -7,10 +7,13 @@ import { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1
 import { clearV1 } from './other';
 import { usersAllV1, userSetnameV1, userSetemailV1, userSethandlelV1 } from './users';
 import { channelsCreateV2 } from './channels';
+import cors from 'cors';
 
 // Set up web app, use JSON
 const app = express();
 app.use(express.json());
+// Use middleware that allows for access from other domains
+app.use(cors());
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
@@ -96,6 +99,10 @@ app.put('/user/profile/setemail/v1', (req, res) => {
 app.put('/user/profile/sethandle/v1', (req, res) => {
   const { token, handleStr } = req.body;
   res.json(userSethandlelV1(token, handleStr));
+});
+// clearV1()
+app.delete('/clear/v1', (req, res) => {
+  res.json(clearV1());
 });
 
 // for logging errors
