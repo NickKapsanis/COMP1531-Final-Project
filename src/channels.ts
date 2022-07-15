@@ -1,5 +1,12 @@
 import { getData, setData, channel } from './dataStore';
 
+export type channelsListItem = {
+    channelId: number,
+    name: string
+  };
+
+export type channelsListType = {channels: channelsListItem[]};
+
 /*
 this function gives an array of all channels the user is in
 
