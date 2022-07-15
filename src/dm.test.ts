@@ -465,7 +465,7 @@ describe('Testing dm/create/v1', () => {
     const member2 = requestAuthRegister('member2@email.com', 'MemBer2', 'member', 'two');
     const member3 = requestAuthRegister('member3@email.com', 'membEr3', 'member', 'three');
 
-    const creatorUid = Number(getUId(creator.authUserId));
+    // const creatorUid = Number(getUId(creator.authUserId));
     const member1UId = Number(getUId(member1.authUserId));
     const member2UId = Number(getUId(member2.authUserId));
     const member3UId = Number(getUId(member3.authUserId));
@@ -481,7 +481,7 @@ describe('Testing dm/create/v1', () => {
     //   requestUserProfile(member1.token, member1UId),
     //   requestUserProfile(member2.token, member2UId),
     //   requestUserProfile(member3.token, member3UId),
-   // ]));
+    // ]));
   });
 });
 
@@ -688,31 +688,31 @@ function requestDmRemove(token: string, dmId: number) {
   return JSON.parse(String(res.getBody()));
 }
 
-function requestDmDetails(token: string, dmId: number) {
-  const res = request(
-    'GET',
-    url + '/dm/details/v1',
-    {
-      qs: {
-        token: token,
-        dmId: dmId,
-      }
-    }
-  );
-  expect(res.statusCode).toStrictEqual(200);
-  return JSON.parse(String(res.getBody()));
-}
-function requestUserProfile(token: string, uId: number) {
-  const res = request(
-    'GET',
-    url + '/user/profile/v2',
-    {
-      qs: {
-        token: token,
-        uID: uId,
-      }
-    }
-  );
-  expect(res.statusCode).toStrictEqual(200);
-  return JSON.parse(String(res.getBody()));
-}
+// function requestDmDetails(token: string, dmId: number) {
+//   const res = request(
+//     'GET',
+//     url + '/dm/details/v1',
+//     {
+//       qs: {
+//         token: token,
+//         dmId: dmId,
+//       }
+//     }
+//   );
+//   expect(res.statusCode).toStrictEqual(200);
+//   return JSON.parse(String(res.getBody()));
+// }
+// function requestUserProfile(token: string, uId: number) {
+//   const res = request(
+//     'GET',
+//     url + '/user/profile/v2',
+//     {
+//       qs: {
+//         token: token,
+//         uID: uId,
+//       }
+//     }
+//   );
+//   expect(res.statusCode).toStrictEqual(200);
+//   return JSON.parse(String(res.getBody()));
+// }

@@ -31,4 +31,9 @@ as all errors have the same error message (as per the specs), there is a possibi
 tests match the intended output (error : error), but at incorrect points 
 
 (7)
+Global owners who are not members of a channel will not be able to access view 
+the channel's messages through channelMessagesV2 and dmMessagesV1, 
+as the interface states only members can. 
+
 Both global and channel owners can add and remove themselves as channel owners
+

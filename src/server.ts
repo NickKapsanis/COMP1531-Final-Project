@@ -7,15 +7,18 @@ import { dmCreateV1, dmListV1, dmRemoveV1 } from './dm';
 import { channelsCreateV1, channelsListV2, channelsListallV2 } from './channels';
 import { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, channelsLeaveV1 } from './channel';
 import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
+import cors from 'cors';
 import { usersAllV1, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
-
+import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
 import { channelDetailsV2, channelMessagesV2 } from './channel';
 
 // Set up web app, use JSON
 const app = express();
 app.use(express.json());
+
+app.use(cors());
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
@@ -214,6 +217,31 @@ app.get('/channel/messages/v2', (req, res) => {
 app.post('/channel/leave/v1', (req, res) => {
   const data = req.body;
   res.json(channelsLeaveV1(data.token, data.channelId));
+});
+
+// messegeSendV1
+app.post('/message/send/v1', (req, res) => {
+  const { token, channelId, message } = req.body;
+  res.json(messageSendV1(token, channelId, message));
+});
+
+// messegeSendDmV1
+app.post('/message/senddm/v1', (req, res) => {
+  const { token, dmId, message } = req.body;
+  res.json(messageSendDmV1(token, dmId, message));
+});
+
+// messageRemoveV1
+app.delete('/message/remove/v1', (req, res) => {
+  const token = String(req.query.token);
+  const messageId = Number(req.query.messageId);
+  res.json(messageRemoveV1(token, messageId));
+});
+
+// messageEditV1
+app.put('/message/edit/v1', (req, res) => {
+  const { token, messageId, message } = req.body;
+  res.json(messageEditV1(token, messageId, message));
 });
 
 // for logging errors
