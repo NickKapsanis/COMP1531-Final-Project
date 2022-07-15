@@ -6,7 +6,7 @@ import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
 import { channelsLeaveV1, channelJoinV2 } from './channel';
 import { clearV1 } from './other';
 import { usersAllV1 } from './users';
-import { channelsCreateV2 } from './channels';
+import { channelsCreateV2, channelsListV2 } from './channels';
 
 // Set up web app, use JSON
 const app = express();
@@ -86,6 +86,12 @@ app.post('/channels/create/v2', (req, res) => {
 app.post('/channel/leave/v1', (req, res) => {
   const data = req.body;
   res.json(channelsLeaveV1(data.token, data.channelId));
+});
+
+// channelsListV2
+app.get('/channels/list/v2', (req, res) => {
+  const data = req.query.token as string;
+  res.json(channelsListV2(data));
 });
 
 // for logging errors
