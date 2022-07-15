@@ -34,7 +34,7 @@ app.post('/channels/create/v2', (req, res) => {
   res.json(channelsCreateV1(token, name, isPublic));
 });
 
-  // authRegister
+// authRegister
 app.post('/auth/register/v2', (req, res) => {
   const data = req.body;
   res.json(authRegisterV1(data.email, data.password, data.nameFirst, data.nameLast));
