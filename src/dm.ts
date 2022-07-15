@@ -68,7 +68,7 @@ export function dmListV1(token: string) {
 
   if (user === undefined) { return { error: 'error' }; }
 
-  const dms = [];
+  const dmsArray = [];
 
   for (const x of user.dms) {
     const dm = data.dms.find(dm => dm.dmId === x);
@@ -76,10 +76,12 @@ export function dmListV1(token: string) {
       dmId: dm.dmId,
       name: dm.name
     };
-    dms.push(obj);
+    dmsArray.push(obj);
   }
 
-  return dms;
+  return { 
+    dms: dmsArray 
+  };
 }
 
 export function dmRemoveV1(token: string, dmId: number) {

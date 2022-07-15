@@ -86,7 +86,7 @@ describe('Testing dm/list/v1', () => {
   test('Testing successful case - No Dms (i)', () => {
     const member3 = requestAuthRegister('member3@email.com', 'membEr3', 'member', 'three');
     const output = requestDmList(member3.token);
-    expect(output).toStrictEqual([]);
+    expect(output.dms).toStrictEqual([]);
   });
 
   test('Testing successful case (ii)', () => {
@@ -104,20 +104,20 @@ describe('Testing dm/list/v1', () => {
     const secondDm = requestDmCreate(creator.token, uIds1);
 
     const output = requestDmList(member1.token);
-    expect(output.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
-    expect(output.find(i => i.dmId === secondDm.dmId)).not.toStrictEqual(undefined);
+    expect(output.dms.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
+    expect(output.dms.find(i => i.dmId === secondDm.dmId)).not.toStrictEqual(undefined);
 
     const output1 = requestDmList(member2.token);
-    expect(output1.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
-    expect(output1.find(i => i.dmId === secondDm.dmId)).toStrictEqual(undefined);
+    expect(output1.dms.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
+    expect(output1.dms.find(i => i.dmId === secondDm.dmId)).toStrictEqual(undefined);
 
     const output2 = requestDmList(creator.token);
-    expect(output2.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
-    expect(output2.find(i => i.dmId === secondDm.dmId)).not.toStrictEqual(undefined);
+    expect(output2.dms.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
+    expect(output2.dms.find(i => i.dmId === secondDm.dmId)).not.toStrictEqual(undefined);
 
     const output3 = requestDmList(member3.token);
-    expect(output3.find(i => i.dmId === firstDm.dmId)).toStrictEqual(undefined);
-    expect(output3.find(i => i.dmId === secondDm.dmId)).toStrictEqual(undefined);
+    expect(output3.dms.find(i => i.dmId === firstDm.dmId)).toStrictEqual(undefined);
+    expect(output3.dms.find(i => i.dmId === secondDm.dmId)).toStrictEqual(undefined);
   });
 });
 /*
@@ -185,9 +185,9 @@ describe('Testing dm/remove/v1', () => {
     requestDmCreate(creator.token, uIds);
 
     const output2 = requestDmList(member1.token);
-    expect(output2).toStrictEqual([]);
+    expect(output2.dms).toStrictEqual([]);
     const output3 = requestDmList(creator.token);
-    expect(output3).toStrictEqual([]);
+    expect(output3.dms).toStrictEqual([]);
   });
 });
 
