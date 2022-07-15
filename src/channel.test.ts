@@ -71,6 +71,7 @@ describe('Testing channelDetailsV1', () => {
   // });
 });
 
+// Helper function for HTTP calls for channelDetailsV2
 function requestChannelDetailsV2(token: string, channelId: number) {
   return request(
     'GET',
@@ -81,6 +82,98 @@ function requestChannelDetailsV2(token: string, channelId: number) {
             channelId: channelId,
           }
         }
+  );
+}
+
+// Tests for channelMessagesV1
+describe('Testing channelMessagesV1', () => {
+  let token: string;
+  let channelId: number;
+
+  beforeEach(() => {
+    token = requestAuthRegisterV2('example123@gmail.com', 'password', 'John', 'Smith').token;
+    channelId = requestChannelsCreateV2(token, 'Channel 1', true).channelId;
+  });
+
+  afterEach(() => {
+    requestClearV1();
+  });
+
+  test('Case 1: channelId does not refer to valid channel', () => {
+    // Finding an invalid channelId to pass in
+    const allChannels = requestChannelsListallV2(token).channels;
+    let invalidId = 199;
+    for (const i in allChannels) {
+      if (invalidId === allChannels[i].channelId) {
+        invalidId = invalidId + 100;
+      }
+    }
+
+    const start = 0;
+    const res = requestChannelMessagesV2(token, invalidId, start);
+    const bodyObj = JSON.parse(String(res.getBody()));
+
+    expect(res.statusCode).toBe(OK);
+    expect(bodyObj).toStrictEqual({ error: 'error' });
+  });
+
+  test('Case 2: authorised user is not a member of channel', () => {
+    const memberOf = requestChannelsListV2(token).channels;
+    let notMemberId = 199;
+    for (const i in memberOf) {
+      if (notMemberId === memberOf[i].channelId) {
+        notMemberId = notMemberId + 100;
+      }
+    }
+
+    const start = 0;
+    const res = requestChannelMessagesV2(token, notMemberId, start);
+    const bodyObj = JSON.parse(String(res.getBody()));
+
+    expect(res.statusCode).toBe(OK);
+    expect(bodyObj).toStrictEqual({ error: 'error' });
+  });
+
+  test('Case 3: start is greater than total messages in channel', () => {
+    const start = 1;
+    const res = requestChannelMessagesV2(token, channelId, start);
+    const bodyObj = JSON.parse(String(res.getBody()));
+
+    expect(res.statusCode).toBe(OK);
+    expect(bodyObj).toStrictEqual({ error: 'error' });
+  });
+
+  test('Case 4: All valid arguments', () => {
+    const start = 0;
+    const res = requestChannelMessagesV2(token, channelId, start);
+    const bodyObj = JSON.parse(String(res.getBody()));
+
+    expect(res.statusCode).toBe(OK);
+    expect(bodyObj).toStrictEqual({
+      messages: [],
+      start: 0,
+      end: -1,
+    });
+  });
+
+  // test('Case 5: Deals with invalid/undefined inputs', () => {
+  //     const messages = channelMessagesV1('', '', '');
+  //     expect(messages).toStrictEqual({ error: 'error' });
+  // });
+});
+
+// Helper function for HTTP calls for channelMessagesV2
+function requestChannelMessagesV2(token: string, channelId: number, start: number) {
+  return request(
+    'GET',
+          `${url}:${port}/channel/messages/v2`,
+          {
+            qs: {
+              token: token,
+              channelId: channelId,
+              start: start,
+            }
+          }
   );
 }
 

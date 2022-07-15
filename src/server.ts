@@ -6,7 +6,7 @@ import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
 import { clearV1 } from './other';
 import cors from 'cors';
 
-import { channelDetailsV2 } from './channel';
+import { channelDetailsV2, channelMessagesV2 } from './channel';
 
 // Set up web app, use JSON
 const app = express();
@@ -51,6 +51,15 @@ app.get('/channel/details/v2', (req, res) => {
   const token = String(req.query.token);
   const channelId = Number(req.query.channelId);
   res.json(channelDetailsV2(token, channelId));
+});
+
+// channelMessagesV2
+app.get('/channel/messages/v2', (req, res) => {
+  const token = String(req.query.token);
+  const channelId = Number(req.query.channelId);
+  const start = Number(req.query.start);
+
+  res.json(channelMessagesV2(token, channelId, start));
 });
 
 // clearV1()
