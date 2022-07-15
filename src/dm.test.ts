@@ -1,6 +1,7 @@
 import request from 'sync-request';
 import { getUId } from './other';
 import config from './config.json';
+import { dmList } from './dm';
 
 const port = config.port;
 const url = config.url;
@@ -103,19 +104,19 @@ describe('Testing dm/list/v1', () => {
     const firstDm = requestDmCreate(creator.token, uIds);
     const secondDm = requestDmCreate(creator.token, uIds1);
 
-    const output = requestDmList(member1.token);
+    const output: dmList = requestDmList(member1.token);
     expect(output.dms.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
     expect(output.dms.find(i => i.dmId === secondDm.dmId)).not.toStrictEqual(undefined);
 
-    const output1 = requestDmList(member2.token);
+    const output1: dmList = requestDmList(member2.token);
     expect(output1.dms.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
     expect(output1.dms.find(i => i.dmId === secondDm.dmId)).toStrictEqual(undefined);
 
-    const output2 = requestDmList(creator.token);
+    const output2: dmList = requestDmList(creator.token);
     expect(output2.dms.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
     expect(output2.dms.find(i => i.dmId === secondDm.dmId)).not.toStrictEqual(undefined);
 
-    const output3 = requestDmList(member3.token);
+    const output3: dmList = requestDmList(member3.token);
     expect(output3.dms.find(i => i.dmId === firstDm.dmId)).toStrictEqual(undefined);
     expect(output3.dms.find(i => i.dmId === secondDm.dmId)).toStrictEqual(undefined);
   });

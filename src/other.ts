@@ -47,5 +47,23 @@ function clearV1() {
   setData(newData);
   return {};
 }
+/*
+checkValidUid checks if each given Uid in the uIds array is in the datastore
+Arguments:
+    Uids: number[] - the user Ids of the users to check for
 
+Return Value:
+    boolean
+*/
+export function checkValidUids(uIds: number[]) {
+  // filters through uIds returning an array of only the valid userIds
+  // checks if the valid ids are less than the given ids, if so there are invalid ids. return false
+  if (uIds.filter(uId => checkValidUid(uId) === true).length < uIds.length) return false;
+  else return true;
+}
+export function checkValidUid(uId: number) {
+  const data = getData();
+  if (data.users?.find(user => user.uId === uId) === undefined) return false;
+  else return true;
+}
 export { clearV1, getUId };

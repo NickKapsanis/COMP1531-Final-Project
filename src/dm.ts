@@ -1,33 +1,26 @@
-import { getData, setData, dm } from './dataStore';
-
-type dmIdObj = {
-    dmId : number
-}
-
-type uId = number;
-
-type uIds = uId[];
-
-type error = {
-    error : 'error'
-}
+import { checkValidToken } from './auth';
+import { getData, setData, dm, dataStoreType } from './dataStore';
+import { checkValidUids } from './other';
 
 export type dmListItem = {
   dmId: number,
-  dmName: string
+  name: string,
 }
 
-export type dmList = dmListItem[];
+export type dmList = { dms: dmListItem[]};
 
-export function dmCreateV1(token : string, uIds : uIds) : dmIdObj | error {
-  const data = getData();
+export function dmCreateV1(token: string, uIds: number[]) {
+  const data: dataStoreType = getData();
+  // Input checking 3 possible failures
+  // token is invalid
+  if (!checkValidToken(token)) return { error: 'error' };
+  // any uId in uIds is invalid
+  if (!checkValidUids(uIds)) return { error: 'error' };
+  // duplicate uId in uIds by comparing array size to set size
+  if (uIds.length !== new Set(uIds).size) return { error: 'error' };
+  // if all above if's are passed over all input is valid and safe to reference into.
+
   const creator = data.users.find(user => user.tokens.find(t => t === token));
-  const duplicateUIds = uIds => uIds.filter((item, index) => uIds.indexOf(item) !== index);
-
-  // Error cases
-  if (creator === undefined) { return { error: 'error' }; }
-  if (duplicateUIds(uIds).length > 0) { return { error: 'error' }; }
-
   const newDmId = data.dms.length + 1;
 
   const handleArray = [];
@@ -79,9 +72,7 @@ export function dmListV1(token: string) {
     dmsArray.push(obj);
   }
 
-  return { 
-    dms: dmsArray 
-  };
+  return { dms: dmsArray };
 }
 
 export function dmRemoveV1(token: string, dmId: number) {
