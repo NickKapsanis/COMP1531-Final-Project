@@ -2,18 +2,16 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
-import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
+import { channelsCreateV1, channelsListV2, channelsListallV2 } from './channels';
 import { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1 } from './channel';
+import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
+import { usersAllV1, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
-import { usersAllV1 } from './users';
-import { channelsCreateV2 } from './channels';
-import cors from 'cors';
+import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 
 // Set up web app, use JSON
 const app = express();
 app.use(express.json());
-// Use middleware that allows for access from other domains
-app.use(cors());
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
@@ -29,15 +27,16 @@ app.get('/echo', (req, res, next) => {
   }
 });
 
+app.post('/channels/create/v2', (req, res) => {
+  const token = String(req.body.token);
+  const name = String(req.body.name);
+  const isPublic = Boolean(req.body.isPublic);
+  res.json(channelsCreateV1(token, name, isPublic));
+});
 // authRegister
 app.post('/auth/register/v2', (req, res) => {
   const data = req.body;
   res.json(authRegisterV1(data.email, data.password, data.nameFirst, data.nameLast));
-});
-// getUId
-app.post('/other/getUId/v1', (req, res) => {
-  const data = req.body;
-  res.json(getUId(data.authUserId));
 });
 // authLogin
 app.post('/auth/login/v2', (req, res) => {
@@ -49,6 +48,22 @@ app.post('/auth/logout/v1', (req, res) => {
   const data = req.body;
   res.json(authLogoutV1(data.token));
 });
+// clearV1()
+app.delete('/clear/v1', (req, res) => {
+  res.json(clearV1());
+});
+// channelsListV2
+app.get('/channels/list/v2', (req, res) => {
+  const data = req.query.token as string;
+  res.json(channelsListV2(data));
+});
+
+// channelsListallV2
+app.get('/channels/listall/v2', (req, res) => {
+  const data = req.query.token as string;
+  res.json(channelsListallV2(data));
+});
+
 // channelJoin
 app.post('/channel/join/v2', (req, res) => {
   const data = req.body;
@@ -82,9 +97,47 @@ app.get('/users/all/v1', (req, res) => {
   }
   res.send(JSON.stringify(usersAllV1(token)));
 });
-app.post('/channels/create/v2', (req, res) => {
+// userProfile
+app.get('/user/profile/v2', (req, res) => {
+  const token = String(req.query.token);
+  const uId = Number(req.query.uId);
+  res.json(userProfileV2(token, uId));
+});
+app.post('/other/getUId/v1', (req, res) => {
   const data = req.body;
-  res.json(channelsCreateV2(data.token, data.name, data.isPublic));
+  res.json(getUId(data.authUserId));
+});
+// channelsListV2
+app.get('/channels/list/v2', (req, res) => {
+  const data = req.query.token as string;
+  res.json(channelsListV2(data));
+});
+// channelsListallV2
+app.get('/channels/listall/v2', (req, res) => {
+  const data = req.query.token as string;
+  res.json(channelsListallV2(data));
+});
+app.post('/channels/create/v2', (req, res) => {
+  const token = String(req.body.token);
+  const name = String(req.body.name);
+  const isPublic = Boolean(req.body.isPublic);
+  res.json(channelsCreateV1(token, name, isPublic));
+});
+// userSetnameV1
+app.put('/user/profile/setname/v1', (req, res) => {
+  const { token, nameFirst, nameLast } = req.body;
+  res.json(userSetnameV1(token, nameFirst, nameLast));
+  // console.log(userSetnameV1(token, nameFirst, nameLast));
+});
+// userSetemailV1
+app.put('/user/profile/setemail/v1', (req, res) => {
+  const { token, email } = req.body;
+  res.json(userSetemailV1(token, email));
+});
+// userSethandlelV1
+app.put('/user/profile/sethandle/v1', (req, res) => {
+  const { token, handleStr } = req.body;
+  res.json(userSethandlelV1(token, handleStr));
 });
 
 // for logging errors

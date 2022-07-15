@@ -1,11 +1,21 @@
-import { getData } from './dataStore';
+type user = {
+  uId: number,
+  email: string,
+  nameFirst: string,
+  nameLast: string,
+  handleStr: string
+}
+
+import { getData, setData } from './dataStore';
 import isEmail from 'validator/lib/isEmail';
+import { checkValidToken } from './auth';
+
 /*
 Given an authUserId and a uId, the function userProfileV1
 returns the user information of the corresponding uId
 
 * Parameters :
-    authUserId (integer)
+    token      (string)
     uId        (integer)
 
 * Return values :
@@ -22,19 +32,25 @@ returns the user information of the corresponding uId
     }
 */
 
-function userProfileV1(authUserId: number, uId: number) {
+function userProfileV2(token: string, uId: number) {
   const data = getData();
-  const user1 = data.users.find(i => i.authUserId === authUserId);
+  const user1 = data.users.find(user => user.tokens.find(t => t === token));
   const user2 = data.users.find(i => i.uId === uId);
 
+  // checking if either uId or token are invalid
   if (user1 === undefined || user2 === undefined) { return { error: 'error' }; }
 
-  return {
+  // constructing output
+  const user2Info: user = {
     uId: user2.uId,
     email: user2.email,
     nameFirst: user2.nameFirst,
     nameLast: user2.nameLast,
     handleStr: user2.handleStr
+  };
+
+  return {
+    user: user2Info
   };
 }
 
@@ -54,21 +70,31 @@ changes the user details according to what was inputted.
   (2) nothing
     {}
 */
-function userSetnameV1(authUserId: number, nameFirst: string, nameLast: string) {
+function userSetnameV1(token: string, nameFirst: string, nameLast: string) {
+  if (!checkValidToken(token)) return { error: 'error' };
+
+  const data = getData();
+
   // does all the error checking
   if (nameFirst.length > 50 || nameFirst.length < 1 ||
     nameLast.length > 50 || nameLast.length < 1) {
     return { error: 'error' };
   }
 
-  // finds person from the data, and changes their firstname.
-  const data = getData();
+  // finds person from the data.
+  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
   const user = data.users.find(i => i.authUserId === authUserId);
+  const userIndex = data.users.findIndex(i => i.authUserId === authUserId);
+
   if (user === undefined) {
     return { error: 'error' };
   }
-  user.nameFirst = nameFirst;
 
+  // changes users first and last names.
+  data.users[userIndex].nameFirst = nameFirst;
+  data.users[userIndex].nameLast = nameLast;
+
+  setData(data);
   return {};
 }
 
@@ -87,20 +113,29 @@ changes the user details according to what was inputted.
   (2) nothing
     {}
 */
-function userSetemailV1(authUserId: number, email: string) {
+function userSetemailV1(token: string, email: string) {
+  if (!checkValidToken(token)) return { error: 'error' };
+
+  const data = getData();
+
   // does all the error checking
   if (!isEmail(email)) {
     return { error: 'error' };
   }
 
-  // finds person from the data, and changes their firstname.
-  const data = getData();
+  // finds person from the data.
+  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
   const user = data.users.find(i => i.authUserId === authUserId);
+  const userIndex = data.users.findIndex(i => i.authUserId === authUserId);
+
   if (user === undefined) {
     return { error: 'error' };
   }
-  user.email = email;
 
+  // changes users email.
+  data.users[userIndex].email = email;
+
+  setData(data);
   return {};
 }
 
@@ -119,26 +154,34 @@ changes the user details according to what was inputted.
   (2) nothing
     {}
 */
-function userSethandlelV1(authUserId: number, handleStr: string) {
-  // finds person from the data, and changes their firstname.
+function userSethandlelV1(token: string, handleStr: string) {
+  if (!checkValidToken(token)) return { error: 'error' };
   const data = getData();
+
+  // finds the user.
+  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
   const user = data.users.find(i => i.authUserId === authUserId);
-  if (user === undefined) {
-    return { error: 'error' };
-  }
+  const userIndex = data.users.findIndex(i => i.authUserId === authUserId);
 
-  // does all the error checking
-  // this regex string is from the internet, checks that characters are alphanumeric,
-  if (user.nameFirst.length > 20 || user.nameFirst.length < 3 || !user.nameFirst.match(/^[0-9a-z]+$/)) {
-    return { error: 'error' };
+  // if given name is current name, do nothing.
+  if (data.users[userIndex].handleStr === handleStr) {
+    return {};
   }
-
   // checks that the handle isn't already used by another user.
   if (data.users.find(i => i.handleStr === handleStr) !== undefined) {
     return { error: 'error' };
   }
+  // does error checking
+  if (handleStr.length > 20 || handleStr.length < 3 || !(handleStr.match(/^[0-9a-zA-Z]+$/))) {
+    return { error: 'error3' };
+  }
+  if (user === undefined) {
+    return { error: 'error' };
+  }
 
-  user.handleStr = handleStr;
+  data.users[userIndex].handleStr = handleStr;
+
+  setData(data);
   return {};
 }
 
@@ -156,15 +199,22 @@ Given a session token, output all public user details in the system
     surname
     handleStr
 */
+
 function usersAllV1(token: string) {
   const outputArray: { uId: number, email: string, nameFirst: string, nameLast: string, handleStr: string}[] = [];
   const data = getData();
   for (const user of data.users) {
     outputArray.push(
-      { uId: user.uId, email: user.email, nameFirst: user.nameFirst, nameLast: user.nameLast, handleStr: user.handleStr }
+      {
+        uId: user.uId,
+        email: user.email,
+        nameFirst: user.nameFirst,
+        nameLast: user.nameLast,
+        handleStr: user.handleStr
+      }
     );
   }
   return outputArray;
 }
 
-export { userProfileV1, userSetnameV1, userSetemailV1, userSethandlelV1, usersAllV1 };
+export { userProfileV2, userSetnameV1, userSetemailV1, userSethandlelV1, usersAllV1, user };

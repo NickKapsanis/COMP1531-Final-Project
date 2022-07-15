@@ -1,43 +1,108 @@
-import { channelsListV1, channelsListallV1, channelsCreateV1 } from './channels.js';
-import { authRegisterV1 } from './auth.js';
-import { clearV1, getUId } from './other.js';
-import { channelDetailsV1 } from './channel.js';
+import request from 'sync-request';
+import config from './config.json';
+// import { getUId } from './other';
+import { channelsListType } from './channels';
+// import { channelDetailsOutput, userOutput } from './channel'
+
+const OK = 200;
+const port = config.port;
+const hosturl = config.url;
+const url = hosturl + ':' + port;
+
+// type userOutput = {
+//   uId: number;
+//   email: string;
+//   nameFirst: string;
+//   nameLast: string;
+//   handleStr: string;
+// }
+
+// type channelDetailsOutput = {
+//   name: string;
+//   isPublic: boolean;
+//   ownerMembers: Array<userOutput>;
+//   allMembers: Array<userOutput>;
+// }
+
+type channelDetails = {
+  channelId: number,
+  name: string,
+}
+
+type channelsListBodyObj = {
+  channels: channelDetails[],
+}
 
 /// /////////////////////////////////////////////
-/// //      Tests for channelsListV1() 	   /////
+/// //      Tests for channelsListV2()      /////
 /// /////////////////////////////////////////////
 
-test('testing when authUserId doesn\'t exist', () => {
-  clearV1();
-  const somebodyChannelArray = channelsListV1(9690);
-  expect(somebodyChannelArray).toEqual({ error: 'error' });
+test('testing when token doesn\'t exist', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const res = request(
+    'GET',
+    url + '/channels/list/v2',
+    {
+      qs: {
+        token: 'hello',
+      }
+    }
+  );
+  const bodyObj = JSON.parse(res.getBody() as string);
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toEqual({ error: 'error' });
 });
 
 test('testing when user is not in any channel', () => {
-  clearV1();
-  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
-  const JamesChannelArray = channelsListV1(jamesAuthId).channels;
-  expect(JamesChannelArray).toEqual([]);
+  request('DELETE', url + '/clear/v1');
+
+  const jamesToken = createUser('james@email.com', 'testPassword123', 'James', 'James').token;
+
+  const res = request(
+    'GET',
+    url + '/channels/list/v2',
+    {
+      qs: {
+        token: jamesToken,
+      }
+    }
+  );
+  const bodyObj = JSON.parse(res.getBody() as string);
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj.channels).toEqual([]);
 });
 
 test('tests if all correct channels are listed in channel list', () => {
-  clearV1();
+  request('DELETE', url + '/clear/v1');
 
-  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
-  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').authUserId;
+  const jamesToken = createUser('james@email.com', 'testPassword123', 'James', 'James').token;
+  const rufusToken = createUser('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').token;
 
-  const firstCreatedChannel = channelsCreateV1(jamesAuthId, 'James C1', true).channelId;
-  const secondCreatedChannel = channelsCreateV1(jamesAuthId, 'James C2', false).channelId;
-  const thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', true).channelId;
-  const fourthCreatedChannel = channelsCreateV1(jamesAuthId, 'James C3', true).channelId;
+  const firstCreatedChannel: number = createChannel(jamesToken, 'James C1', true).channelId;
+  const secondCreatedChannel: number = createChannel(jamesToken, 'James C2', false).channelId;
+  const thirdCreatedChannel: number = createChannel(rufusToken, 'Rufus C1', true).channelId;
+  const fourthCreatedChannel: number = createChannel(jamesToken, 'James C3', true).channelId;
 
-  const jamesChannelArray = channelsListV1(jamesAuthId).channels;
+  const res = request(
+    'GET',
+    url + '/channels/list/v2',
+    {
+      qs: {
+        token: jamesToken,
+      }
+    }
+  );
+  const bodyObj: channelsListBodyObj = JSON.parse(String(res.getBody()));
 
-  const findC1 = jamesChannelArray.find(i => i.channelId === firstCreatedChannel);
-  const findC2 = jamesChannelArray.find(i => i.channelId === secondCreatedChannel);
-  const findC3 = jamesChannelArray.find(i => i.channelId === thirdCreatedChannel);
-  const findC4 = jamesChannelArray.find(i => i.channelId === fourthCreatedChannel);
+  const findC1 = bodyObj.channels.find(channel => channel.channelId === firstCreatedChannel);
+  const findC2 = bodyObj.channels.find(channel => channel.channelId === secondCreatedChannel);
+  const findC3 = bodyObj.channels.find(channel => channel.channelId === thirdCreatedChannel);
+  const findC4 = bodyObj.channels.find(channel => channel.channelId === fourthCreatedChannel);
 
+  expect(res.statusCode).toBe(200);
   expect(findC1.name).toEqual('James C1');
   expect(findC2.name).toEqual('James C2');
   expect(findC4.name).toEqual('James C3');
@@ -48,174 +113,213 @@ test('tests if all correct channels are listed in channel list', () => {
   expect(findC3).toEqual(undefined);
 });
 
-test('tests if correct channel properties are listed in channel list', () => {
-  clearV1();
-
-  const aliceAuthId = authRegisterV1('Alice@email.com', 'testPassword123', 'Alice', 'Alice').authUserId;
-  const damianAuthId = authRegisterV1('Damian@email.com', 'testPassword123', 'Damian', 'Damian').authUserId;
-
-  const firstCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C1', true).channelId;
-  const secondCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C2', true).channelId;
-  const thirdCreatedChannel = channelsCreateV1(damianAuthId, 'Damian C1', false).channelId;
-  const fourthCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C3', true).channelId;
-  const fifthCreatedChannel = channelsCreateV1(damianAuthId, 'Damian C2', true).channelId;
-
-  const aliceChannelArray = channelsListV1(aliceAuthId).channels;
-
-  const findC1 = aliceChannelArray.find(i => i.channelId === firstCreatedChannel);
-  const findC2 = aliceChannelArray.find(i => i.channelId === secondCreatedChannel);
-  const findC3 = aliceChannelArray.find(i => i.channelId === thirdCreatedChannel);
-  const findC4 = aliceChannelArray.find(i => i.channelId === fourthCreatedChannel);
-  const findC5 = aliceChannelArray.find(i => i.channelId === fifthCreatedChannel);
-
-  expect(findC1.name).toEqual('Alice C1');
-  expect(findC2.name).toEqual('Alice C2');
-  expect(findC4.name).toEqual('Alice C3');
-
-  expect(findC1.channelId).toEqual(firstCreatedChannel);
-  expect(findC2.channelId).toEqual(secondCreatedChannel);
-  expect(findC3).toEqual(undefined);
-  expect(findC4.channelId).toEqual(fourthCreatedChannel);
-  expect(findC5).toEqual(undefined);
-
-  expect(aliceChannelArray.length).toEqual(3);
-});
-
 /// /////////////////////////////////////////////
-/// //    Tests for channelsListAllV1()	   /////
+/// ////// Tests for channelsListAllV2() ////////
 /// /////////////////////////////////////////////
 
 // similar to previous function test, but no matter if private or not.
 
 test('tests when no channel exists', () => {
-  clearV1();
-  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
-  const everyChannelArray = channelsListallV1(jamesAuthId).channels;
-  expect(everyChannelArray).toEqual([]);
+  request('DELETE', url + '/clear/v1');
+
+  const jamesToken = createUser('james@email.com', 'testPassword123', 'James', 'James').token;
+
+  const res = request(
+    'GET',
+    url + '/channels/listall/v2',
+    {
+      qs: {
+        token: jamesToken,
+      }
+    }
+  );
+  const bodyObj = JSON.parse(res.getBody() as string);
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj.channels).toEqual([]);
 });
 
-test('tests when authUserId does\'nt exist', () => {
-  clearV1();
-  const everyChannelArray = channelsListallV1(11);
-  expect(everyChannelArray).toEqual({ error: 'error' });
+test('tests when token isnt valid', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const res = request(
+    'GET',
+    url + '/channels/listall/v2',
+    {
+      qs: {
+        token: 'hello',
+      }
+    }
+  );
+  // console.log('blahh');
+  // console.log(JSON.parse(res.body as string));
+
+  const bodyObj = JSON.parse(res.getBody() as string);
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toEqual({ error: 'error' });
 });
 
 test('tests if all correct channels are listed in channel list', () => {
-  clearV1();
+  request('DELETE', url + '/clear/v1');
 
-  const jamesAuthId = authRegisterV1('james@email.com', 'testPassword123', 'James', 'James').authUserId;
-  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').authUserId;
+  const jamesToken = createUser('james@email.com', 'testPassword123', 'James', 'James').token;
+  const rufusToken = createUser('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').token;
 
-  const firstCreatedChannel = channelsCreateV1(jamesAuthId, 'James C1', false).channelId;
-  const secondCreatedChannel = channelsCreateV1(jamesAuthId, 'James C2', false).channelId;
-  const thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', false).channelId;
-  const fourthCreatedChannel = channelsCreateV1(jamesAuthId, 'James C3', true).channelId;
+  const firstCreatedChannel = createChannel(jamesToken, 'James C1', false).channelId;
+  const secondCreatedChannel = createChannel(jamesToken, 'James C2', false).channelId;
+  const thirdCreatedChannel = createChannel(rufusToken, 'Rufus C1', false).channelId;
+  const fourthCreatedChannel = createChannel(jamesToken, 'James C3', true).channelId;
 
-  const everyChannelArray = channelsListallV1(rufusAuthId).channels;
+  const res = request(
+    'GET',
+    url + '/channels/listall/v2',
+    {
+      qs: {
+        token: rufusToken,
+      }
+    }
+  );
+  const bodyObj: channelsListBodyObj = JSON.parse(String(res.getBody()));
 
-  const findC1 = everyChannelArray.find(i => i.channelId === firstCreatedChannel);
-  const findC2 = everyChannelArray.find(i => i.channelId === secondCreatedChannel);
-  const findC3 = everyChannelArray.find(i => i.channelId === thirdCreatedChannel);
-  const findC4 = everyChannelArray.find(i => i.channelId === fourthCreatedChannel);
+  const findC1 = bodyObj.channels.find(channel => channel.channelId === firstCreatedChannel);
+  const findC2 = bodyObj.channels.find(channel => channel.channelId === secondCreatedChannel);
+  const findC3 = bodyObj.channels.find(channel => channel.channelId === thirdCreatedChannel);
+  const findC4 = bodyObj.channels.find(channel => channel.channelId === fourthCreatedChannel);
 
-  expect(findC1.name).toEqual('James C1');
-  expect(findC2.name).toEqual('James C2');
-  expect(findC3.name).toEqual('Rufus C1');
-  expect(findC4.name).toEqual('James C3');
-
+  expect(res.statusCode).toBe(200);
   expect(findC1.channelId).toEqual(firstCreatedChannel);
   expect(findC2.channelId).toEqual(secondCreatedChannel);
   expect(findC3.channelId).toEqual(thirdCreatedChannel);
   expect(findC4.channelId).toEqual(fourthCreatedChannel);
 });
 
-test('tests if correct channel properties are listed in channel list', () => {
-  clearV1();
-
-  const aliceAuthId = authRegisterV1('alice@email.com', 'testPassword123', 'Alice', 'Alice').authUserId;
-  const rufusAuthId = authRegisterV1('rufus@email.com', 'testPassword123', 'Rufus', 'Rufus').authUserId;
-
-  const firstCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C1', false).channelId;
-  const secondCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C2', false).channelId;
-  const thirdCreatedChannel = channelsCreateV1(rufusAuthId, 'Rufus C1', false).channelId;
-  const fourthCreatedChannel = channelsCreateV1(aliceAuthId, 'Alice C3', true).channelId;
-
-  const everyChannelArray = channelsListallV1(aliceAuthId).channels;
-
-  const findC1 = everyChannelArray.find(i => i.channelId === firstCreatedChannel);
-  const findC2 = everyChannelArray.find(i => i.channelId === secondCreatedChannel);
-  const findC3 = everyChannelArray.find(i => i.channelId === thirdCreatedChannel);
-  const findC4 = everyChannelArray.find(i => i.channelId === fourthCreatedChannel);
-
-  expect(findC1.name).toEqual('Alice C1');
-  expect(findC2.name).toEqual('Alice C2');
-  expect(findC3.name).toEqual('Rufus C1');
-  expect(findC4.name).toEqual('Alice C3');
-
-  expect(findC1.channelId).toEqual(firstCreatedChannel);
-  expect(findC2.channelId).toEqual(secondCreatedChannel);
-  expect(findC3.channelId).toEqual(thirdCreatedChannel);
-  expect(findC4.channelId).toEqual(fourthCreatedChannel);
-
-  expect(everyChannelArray.length).toEqual(4);
-});
-
-/// /////////////////////////////////////////////
-/// //    Tests for channelsCreateV1() 	   /////
-/// /////////////////////////////////////////////
-
+/*
+////////////////////////////////////////////////
+Tests for channelsCreateV1()
+////////////////////////////////////////////////
+*/
 describe('Testing channelsCreateV1()', () => {
+  beforeEach(() => {
+    requestClear();
+  });
+
   test('Testing if error is returned when name length < 1', () => {
-    clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    const output = channelsCreateV1(testAuthId, '', true);
+    const user = createUser('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    const token = user.token;
+    const output = createChannel(token, '', true);
     expect(output).toStrictEqual({ error: 'error' });
   });
 
   test('Testing if error is returned when name length > 20', () => {
-    clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    const output = channelsCreateV1(testAuthId, 'thisIsAVeryLongChannelNameWhichIsInvalid', true);
+    const user = createUser('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    const token = user.token;
+    const output = createChannel(token, 'thisIsAVeryLongChannelNameWhichIsInvalid', true);
     expect(output).toStrictEqual({ error: 'error' });
   });
 
-  test('Testing if error is returned when authUserId does not exist', () => {
-    clearV1();
-    const testAuthId = -111;
-    const output = channelsCreateV1(testAuthId, 'testChannelName', true);
+  test('Testing if error is returned when token is invalid', () => {
+    const output = createChannel('invalid-token', 'testChannelName', true);
     expect(output).toStrictEqual({ error: 'error' });
   });
 
-  test('Testing correct input - Checking if channel is created (i)', () => {
-    clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    const testChannelId = channelsCreateV1(testAuthId, 'testChannelName', false).channelId;
+  test('Testing correct input - Checking if channel is created', () => {
+    const user = createUser('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
+    const token = user.token;
+    const testChannelId = createChannel(token, 'testChannelName', false).channelId;
+    // const uId = Number(getUId(user.authUserId));
 
     // Checking if channel id is created
     expect(testChannelId).toStrictEqual(expect.any(Number));
 
-    // Checking if channel is created and pushed in the datastore
-    const allChannels = channelsListallV1(testAuthId).channels;
-    const check = allChannels.find(i => i.channelId === testChannelId);
-    expect(check.name).toStrictEqual('testChannelName');
-  });
+    // Iterating through channels list of the creator to see if channel exists
+    const channelsList : channelsListType = requestChannelsListallV2(token);
+    const channelIsFound = channelsList.channels.find(i => i.channelId === testChannelId);
+    expect(channelIsFound).not.toStrictEqual(undefined);
 
-  test('Testing correct input - Checking if user is in created channel (ii)', () => {
-    clearV1();
-    const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
-    const testChannelId = channelsCreateV1(testAuthId, 'testChannelName', true).channelId;
+    // Checking if channel is created through channelDetails function
+    // const channelDetails : channelDetailsOutput = requestChannelDetailsV2(token, testChannelId);
+    // expect(channelDetails).not.toStrictEqual({ error: 'error' });
+    // expect(channelDetails.name).toStrictEqual('testChannelName');
+    // expect(channelDetails.isPublic).toStrictEqual(false);
 
-    // Checking if channel is reflected in user's channels
-    const testUserChannels = channelsListV1(testAuthId).channels;
-    const testChannel1 = testUserChannels.find(i => i.channelId === testChannelId);
-    expect(testChannel1.name).toStrictEqual('testChannelName');
-
-    // Checking if user is reflected in channel's all members and user array
-    const testUId = getUId(testAuthId);
-    const testChannel2 = channelDetailsV1(testAuthId, testChannelId);
-    const testAllMembers = testChannel2.allMembers.find(i => i.uId === testUId);
-    const testOwnerMembers = testChannel2.ownerMembers.find(i => i.uId === testUId);
-    expect(testAllMembers.uId).toStrictEqual(testUId);
-    expect(testOwnerMembers.uId).toStrictEqual(testUId);
+    // // Checking if owner is in channel
+    // const channelOwners = channelDetails.ownerMembers;
+    // const ownerIsFound = channelOwners.find(i => i.uId === uId);
+    // expect(ownerIsFound).not.toStrictEqual(undefined);
   });
 });
+
+/*
+Helper Functions
+*/
+
+// Helper function - clear()
+function requestClear() {
+  request(
+    'DELETE',
+    `${hosturl}:${port}/clear/v1`
+  );
+}
+
+// helper function - getting channelsListAll()
+function requestChannelsListallV2(token: string) {
+  const res = request(
+    'GET',
+        `${hosturl}:${port}/channels/listall/v2`,
+        {
+          qs: {
+            token: token,
+          }
+        }
+  );
+
+  expect(res.statusCode).toBe(OK);
+  return JSON.parse(String(res.getBody()));
+}
+
+// helper function - gets channelsDetails()
+// function requestChannelDetailsV2(token: string, channelId: number) {
+//   const res = request(
+//     'GET',
+//     `${hosturl}:${port}/channel/details/v2`,
+//     {
+//       qs: {
+//         token: token,
+//         channelId: channelId,
+//       }
+//     }
+//   );
+
+//   expect(res.statusCode).toBe(OK);
+//   return JSON.parse(String(res.getBody()));
+// }
+
+// helper function - calls auth register through the server
+const createUser = (emails: string, passwords: string, name: string, surname: string) => {
+  const res = request(
+    'POST', url + '/auth/register/v2',
+    {
+      body: JSON.stringify({ email: emails, password: passwords, nameFirst: name, nameLast: surname }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  return JSON.parse(String(res.getBody()));
+};
+
+// helper function - calls channelsCreate through the server
+const createChannel = (tokens: string, names: string, publicity: boolean) => {
+  const res = request(
+    'POST',
+    url + '/channels/create/v2',
+    {
+      body: JSON.stringify({ token: tokens, name: names, isPublic: publicity }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  return JSON.parse(String(res.getBody()));
+};

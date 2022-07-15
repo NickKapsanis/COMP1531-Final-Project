@@ -1,5 +1,12 @@
-import { dataStoreType, getData, setData, user, channel } from './dataStore';
-import { getUId } from './other';
+import { getData, setData, channel } from './dataStore';
+import { checkValidToken } from './auth';
+
+export type channelsListItem = {
+    channelId: number,
+    name: string
+  };
+
+export type channelsListType = {channels: channelsListItem[]};
 
 /*
 this function gives an array of all channels the user is in
@@ -10,20 +17,23 @@ Arguments:
 Return Value:
     channelsArray: array    - an array of all channels user is in.
 */
-function channelsListV1(authUserId) {
+function channelsListV2(token: string) {
+  if (!checkValidToken(token)) return { error: 'error' };
+
   const data = getData();
+
+  const authUserId = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
 
   const user = data.users.find(i => i.authUserId === authUserId);
   if (user === undefined) { return { error: 'error' }; }
 
-  const uId = getUId(authUserId);
   let numChannels = 0;
   const channelsArray = [];
 
   // this loop searches for given user id within every channel.
   for (let i = 0; i < data.channels.length; i++) {
     for (let n = 0; n < data.channels[i].allMembers.length; n++) {
-      if (data.channels[i].allMembers[n] === uId) {
+      if (data.channels[i].allMembers[n] === user.uId) {
         numChannels++;
 
         const channel = {
@@ -44,20 +54,26 @@ function channelsListV1(authUserId) {
 }
 
 /*
-this function gives an array of all channels
+  this function gives an array of all channels.
+  converted to typescript for v2.
 
-Arguments:
-    authUserId: integer    - the users unique identification number
+  Arguments:
+      authUserId: integer    - the users unique identification number
 
-Return Value:
-    allChannelsArray: array    - an array of all channels.
-*/
-function channelsListallV1(authUserId) {
+  Return Value:
+      allChannelsArray: array    - an array of all channels.
+  */
+function channelsListallV2(token: string) {
+  if (!checkValidToken(token)) return { error: 'error' };
+
   const data = getData();
-  const allChannelsArray = [];
+
+  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
 
   const user = data.users.find(i => i.authUserId === authUserId);
   if (user === undefined) { return { error: 'error' }; }
+
+  const allChannelsArray = [];
 
   // case with no channels
   if (data.channels.length === 0) {
@@ -82,7 +98,7 @@ the dataStore. the user is added as the owner and member of the channel.
 Returns the unique channelId for the created channel.
 
 * Parameters -
-    authUserId - (integer)
+    token      - (string)
     name       - (string)
     isPublic   - (boolean)
 
@@ -93,18 +109,18 @@ Returns the unique channelId for the created channel.
     (2)
     channelId - (integer)
 */
-function channelsCreateV2(token: string, name: string, isPublic: boolean) {
-  const data: dataStoreType = getData();
-  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
-  const creator: user = data.users.find(i => i.authUserId === authUserId);
+function channelsCreateV1(token: string, name: string, isPublic: boolean) {
+  const data = getData();
+  const creator = data.users.find(user => user.tokens.find(t => t === token));
 
   // Error cases
-  if (authUserId === undefined) { return { error: 'error' }; }
   if (creator === undefined) { return { error: 'error' }; }
   if (name.length > 20 || name.length < 1) { return { error: 'error' }; }
 
-  const newChannelId: number = data.channels.length + 1;
-  const newChannel: channel = {
+  const newChannelId = data.channels.length + 1;
+
+  const newChannel : channel = {
+
     channelId: newChannelId,
     name: name,
     isPublic: isPublic,
@@ -114,10 +130,13 @@ function channelsCreateV2(token: string, name: string, isPublic: boolean) {
   };
 
   data.channels.push(newChannel);
-  data.users[data.users.indexOf(creator)].channels.push(newChannelId);
+  data.users = data.users.filter(i => i.authUserId !== creator.authUserId);
+  creator.channels.push(newChannelId);
+  data.users.push(creator);
+
   setData(data);
 
   return { channelId: newChannelId };
 }
 
-export { channelsListV1, channelsListallV1, channelsCreateV2 };
+export { channelsCreateV1, channelsListV2, channelsListallV2 };
