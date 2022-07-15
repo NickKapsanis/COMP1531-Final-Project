@@ -38,7 +38,7 @@ function userProfileV2(token: string, uId: number) {
   // checking if either uId or token are invalid
   if (user1 === undefined || user2 === undefined) { return { error: 'error' }; }
 
-  //constructing output
+  // constructing output
   const user2Info: user = {
     uId: user2.uId,
     email: user2.email,
