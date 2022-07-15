@@ -3,6 +3,7 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 import { dmDetailsV1, dmLeaveV1, dmMessagesV1 } from './dm';
+import { dmCreateV1, dmListV1, dmRemoveV1 } from './dm';
 import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
 import { clearV1 } from './other';
 import cors from 'cors';
@@ -44,6 +45,23 @@ app.get('/dm/messages/v1', (req, res) => {
   res.json(dmMessagesV1(token, dmId, start));
 });
 
+// dmCreate
+app.post('/dm/create/v1', (req, res) => {
+  const token = req.body.token;
+  const uIds = req.body.uIds;
+  res.json(dmCreateV1(token, uIds));
+});
+// dmList
+app.get('/dm/list/v1', (req, res) => {
+  const token = String(req.query.token);
+  res.json(dmListV1(token));
+});
+// dmRemove
+app.delete('/dm/remove/v1', (req, res) => {
+  const token = String(req.query.token);
+  const dmId = Number(req.query.dmId);
+  res.json(dmRemoveV1(token, dmId));
+});
 // authRegister
 app.post('/auth/register/v2', (req, res) => {
   const data = req.body;
