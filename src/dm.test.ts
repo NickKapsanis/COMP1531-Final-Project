@@ -5,7 +5,7 @@ import { dmList } from './dm';
 
 const port = config.port;
 const url = config.url;
-
+// note that response codes are tested in helper functions.
 /*
 ////////////////////////////////////////////////
 /////       Tests for dm/create/v1         /////
@@ -59,6 +59,7 @@ describe('Testing dm/create/v1', () => {
     const member2 = requestAuthRegister('member2@email.com', 'MemBer2', 'member', 'two');
     const member3 = requestAuthRegister('member3@email.com', 'membEr3', 'member', 'three');
 
+    const creatorUid = Number(getUId(creator.authUserId));
     const member1UId = Number(getUId(member1.authUserId));
     const member2UId = Number(getUId(member2.authUserId));
     const member3UId = Number(getUId(member3.authUserId));
@@ -66,6 +67,15 @@ describe('Testing dm/create/v1', () => {
 
     const output = requestDmCreate(creator.token, uIds);
     expect(output.dmId).toStrictEqual(expect.any(Number));
+
+    const dmDetails = requestDmDetails(creator.token, output.dmId);
+    expect(dmDetails.name).toStrictEqual('creatoroftm, memberone, memberthree, membertwo');
+    expect(new Set(dmDetails.members)).toStrictEqual(new Set([
+      requestUserProfile(creator.token, creatorUid),
+      requestUserProfile(member1.token, member1UId),
+      requestUserProfile(member2.token, member2UId),
+      requestUserProfile(member3.token, member3UId),
+    ]))
   });
 });
 
@@ -221,8 +231,9 @@ function requestAuthRegister(email: string, password: string, nameFirst: string,
         },
       }
   );
-
+  expect(res.statusCode).toStrictEqual(200);
   return JSON.parse(String(res.getBody()));
+
 }
 
 function requestDmCreate(token: string, uIds: Array<number>) {
@@ -239,7 +250,7 @@ function requestDmCreate(token: string, uIds: Array<number>) {
         },
       }
   );
-
+  expect(res.statusCode).toStrictEqual(200);
   return JSON.parse(String(res.getBody()));
 }
 
@@ -253,7 +264,7 @@ function requestDmList(token: string) {
         }
       }
   );
-
+  expect(res.statusCode).toStrictEqual(200);
   return JSON.parse(String(res.getBody()));
 }
 
@@ -268,6 +279,35 @@ function requestDmRemove(token: string, dmId: number) {
           }
         }
   );
+  expect(res.statusCode).toStrictEqual(200);
+  return JSON.parse(String(res.getBody()));
+}
 
+function requestDmDetails(token: string, dmId: number) {
+  const res = request(
+    'GET',
+      `${url}:${port}/dm/details/v1`,
+      {
+        qs: {
+          token: token,
+          dmId: dmId,
+        }
+      }
+  );
+  expect(res.statusCode).toStrictEqual(200);
+  return JSON.parse(String(res.getBody()));
+}
+function requestUserProfile(token: string, uId: number) {
+  const res = request(
+    'GET',
+      `${url}:${port}/user/profile/v2`,
+      {
+        qs: {
+          token: token,
+          uID: uId,
+        }
+      }
+  );
+  expect(res.statusCode).toStrictEqual(200);
   return JSON.parse(String(res.getBody()));
 }
