@@ -3,11 +3,13 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 import { channelsCreateV1, channelsListV2, channelsListallV2 } from './channels';
-import { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1 } from './channel';
+import { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, channelsLeaveV1 } from './channel';
 import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
 import { usersAllV1, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
+
+import { channelDetailsV2, channelMessagesV2 } from './channel';
 
 // Set up web app, use JSON
 const app = express();
@@ -39,11 +41,13 @@ app.post('/auth/register/v2', (req, res) => {
   const data = req.body;
   res.json(authRegisterV1(data.email, data.password, data.nameFirst, data.nameLast));
 });
+
 // authLogin
 app.post('/auth/login/v2', (req, res) => {
   const data = req.body;
   res.json(authLoginV1(data.email, data.password));
 });
+
 // authLogout
 app.post('/auth/logout/v1', (req, res) => {
   const data = req.body;
@@ -152,6 +156,28 @@ app.get('/channels/list/v2', (req, res) => {
 app.get('/channels/listall/v2', (req, res) => {
   const data = req.query.token as string;
   res.json(channelsListallV2(data));
+});
+
+// channelDetailsV2
+app.get('/channel/details/v2', (req, res) => {
+  const token = String(req.query.token);
+  const channelId = Number(req.query.channelId);
+  res.json(channelDetailsV2(token, channelId));
+});
+
+// channelMessagesV2
+app.get('/channel/messages/v2', (req, res) => {
+  const token = String(req.query.token);
+  const channelId = Number(req.query.channelId);
+  const start = Number(req.query.start);
+
+  res.json(channelMessagesV2(token, channelId, start));
+});
+
+// channelsLeaveV1
+app.post('/channel/leave/v1', (req, res) => {
+  const data = req.body;
+  res.json(channelsLeaveV1(data.token, data.channelId));
 });
 
 // for logging errors

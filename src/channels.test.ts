@@ -1,28 +1,27 @@
 import request from 'sync-request';
 import config from './config.json';
-// import { getUId } from './other';
+import { getUId } from './other';
 import { channelsListType } from './channels';
-// import { channelDetailsOutput, userOutput } from './channel'
 
 const OK = 200;
 const port = config.port;
 const hosturl = config.url;
 const url = hosturl + ':' + port;
 
-// type userOutput = {
-//   uId: number;
-//   email: string;
-//   nameFirst: string;
-//   nameLast: string;
-//   handleStr: string;
-// }
+type userOutput = {
+  uId: number;
+  email: string;
+  nameFirst: string;
+  nameLast: string;
+  handleStr: string;
+}
 
-// type channelDetailsOutput = {
-//   name: string;
-//   isPublic: boolean;
-//   ownerMembers: Array<userOutput>;
-//   allMembers: Array<userOutput>;
-// }
+type channelDetailsOutput = {
+  name: string;
+  isPublic: boolean;
+  ownerMembers: Array<userOutput>;
+  allMembers: Array<userOutput>;
+}
 
 type channelDetails = {
   channelId: number,
@@ -227,7 +226,7 @@ describe('Testing channelsCreateV1()', () => {
     const user = createUser('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const token = user.token;
     const testChannelId = createChannel(token, 'testChannelName', false).channelId;
-    // const uId = Number(getUId(user.authUserId));
+    const uId = Number(getUId(user.authUserId));
 
     // Checking if channel id is created
     expect(testChannelId).toStrictEqual(expect.any(Number));
@@ -238,15 +237,15 @@ describe('Testing channelsCreateV1()', () => {
     expect(channelIsFound).not.toStrictEqual(undefined);
 
     // Checking if channel is created through channelDetails function
-    // const channelDetails : channelDetailsOutput = requestChannelDetailsV2(token, testChannelId);
-    // expect(channelDetails).not.toStrictEqual({ error: 'error' });
-    // expect(channelDetails.name).toStrictEqual('testChannelName');
-    // expect(channelDetails.isPublic).toStrictEqual(false);
+    const channelDetails : channelDetailsOutput = requestChannelDetailsV2(token, testChannelId);
+    expect(channelDetails).not.toStrictEqual({ error: 'error' });
+    expect(channelDetails.name).toStrictEqual('testChannelName');
+    expect(channelDetails.isPublic).toStrictEqual(false);
 
-    // // Checking if owner is in channel
-    // const channelOwners = channelDetails.ownerMembers;
-    // const ownerIsFound = channelOwners.find(i => i.uId === uId);
-    // expect(ownerIsFound).not.toStrictEqual(undefined);
+    // Checking if owner is in channel
+    const channelOwners = channelDetails.ownerMembers;
+    const ownerIsFound = channelOwners.find(i => i.uId === uId);
+    expect(ownerIsFound).not.toStrictEqual(undefined);
   });
 });
 
@@ -279,21 +278,21 @@ function requestChannelsListallV2(token: string) {
 }
 
 // helper function - gets channelsDetails()
-// function requestChannelDetailsV2(token: string, channelId: number) {
-//   const res = request(
-//     'GET',
-//     `${hosturl}:${port}/channel/details/v2`,
-//     {
-//       qs: {
-//         token: token,
-//         channelId: channelId,
-//       }
-//     }
-//   );
+function requestChannelDetailsV2(token: string, channelId: number) {
+  const res = request(
+    'GET',
+    `${hosturl}:${port}/channel/details/v2`,
+    {
+      qs: {
+        token: token,
+        channelId: channelId,
+      }
+    }
+  );
 
-//   expect(res.statusCode).toBe(OK);
-//   return JSON.parse(String(res.getBody()));
-// }
+  expect(res.statusCode).toBe(OK);
+  return JSON.parse(String(res.getBody()));
+}
 
 // helper function - calls auth register through the server
 const createUser = (emails: string, passwords: string, name: string, surname: string) => {
