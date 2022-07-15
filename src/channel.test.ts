@@ -88,7 +88,7 @@ test('tests the case that user isnt in the given channel', () => {
 
   const bodyObj = JSON.parse(res.body as string);
   const JamesChannels = channelsListV2(james.token).channels;
-  //console.log(JamesChannels);
+  // console.log(JamesChannels);
 
   expect(JamesChannels[0].channelId).toEqual(testCreatedChannel.channelId);
   expect(res.statusCode).toBe(200);
@@ -152,7 +152,7 @@ test('tests the general case, channel with multiple people.', () => {
 
   expect(rufusChannels).toEqual([]);
   expect(res.statusCode).toBe(200);
-  expect(bodyObj).toEqual( {} );
+  expect(bodyObj).toEqual({});
 });
 
 test('tests the multiple channels and multiple people.', () => {
