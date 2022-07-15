@@ -182,8 +182,8 @@ describe('Testing dm/remove/v1', () => {
     const member3UId = Number(getUId(member3.authUserId));
     const uIds = [member1UId, member2UId, member3UId];
 
-    requestDmCreate(creator.token, uIds);
-
+    const output = requestDmCreate(creator.token, uIds);
+    requestDmRemove(creator.token, output.dmId);
     const output2 = requestDmList(member1.token);
     expect(output2.dms).toStrictEqual([]);
     const output3 = requestDmList(creator.token);
