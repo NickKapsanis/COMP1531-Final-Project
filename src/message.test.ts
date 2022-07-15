@@ -67,7 +67,7 @@ describe('Tests for message/edit/V1', () => {
   });
 
   test('Case 4: message not sent by user', () => {
-    const res = requestMessageEditV1(token1, messageId2, 'Edited Message 1.2');
+    const res = requestMessageEditV1(token2, messageId1, 'Edited Message 1.1');
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
@@ -75,7 +75,7 @@ describe('Tests for message/edit/V1', () => {
   });
 
   test('Case 5: user does not have owner permissions', () => {
-    const res = requestMessageEditV1(token2, messageId2, 'Edited Message 1.2');
+    const res = requestMessageEditV1(token3, messageId3, 'Edited Message 2.1');
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
@@ -84,7 +84,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 6: successful message edit (in channels)', () => {
     const res = requestMessageEditV1(token1, messageId1, 'Edited Message 1.1');
-    const messages: Array<message> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -95,7 +95,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 7: successful message edit (empty message string)', () => {
     const res = requestMessageEditV1(token1, messageId1, '');
-    const messages: Array<message> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -106,7 +106,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 8: successful message edit (with global permissions)', () => {
     const res = requestMessageEditV1(token1, messageId3, 'Edited Message 2.1');
-    const messages: Array<message> = requestChannelMessageV2(token1, channelId2, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV2(token2, channelId2, 0); // TODO: can token1 ie. global owner access channelMessagesV2
     const editedMessage: message = messages.find(message => message.messageId === messageId3);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -120,7 +120,7 @@ describe('Tests for message/edit/V1', () => {
     const messageId5: number = requestMessageSendDmV1(token1, dmId1, 'Message Dm 1.1');
 
     const res = requestMessageEditV1(token1, messageId5, 'Edited Message Dm 1.1');
-    const messages: Array<message> = requestDmMessageV1(token1, dmId1, 0);
+    const messages: Array<message | undefined> = requestDmMessageV1(token1, dmId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId5);
 
     const bodyObj = JSON.parse(String(res.getBody()));
