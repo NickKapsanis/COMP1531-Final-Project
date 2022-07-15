@@ -310,7 +310,7 @@ test('Testing if changing nothing still returns same handle.', () => {
 
   expect(res.statusCode).toBe(200);
   expect(aliceHandle).toEqual('alicesmith');
-  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(bodyObj).toStrictEqual( {} );
 });
 
 test('Testing changing handle.', () => {

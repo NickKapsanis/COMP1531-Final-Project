@@ -156,16 +156,19 @@ function userSethandlelV1(token: string, handleStr: string) {
   if (!checkValidToken(token)) return { error: 'error' };
   const data = getData();
 
-  // checks that the handle isn't already used by another user.
-  if (data.users.find(i => i.handleStr === handleStr) !== undefined) {
-    return { error: 'error' };
-  }
-
   // finds the user.
   const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
   const user = data.users.find(i => i.authUserId === authUserId);
   const userIndex = data.users.findIndex(i => i.authUserId === authUserId);
 
+  //if given name is current name, do nothing.
+  if (data.users[userIndex].handleStr === handleStr) {
+    return {};
+  }
+  // checks that the handle isn't already used by another user.
+  if (data.users.find(i => i.handleStr === handleStr) !== undefined) {
+    return { error: 'error' };
+  }
   // does error checking
   if (handleStr.length > 20 || handleStr.length < 3 || !(handleStr.match(/^[0-9a-zA-Z]+$/))) {
     return { error: 'error3' };
@@ -173,7 +176,7 @@ function userSethandlelV1(token: string, handleStr: string) {
   if (user === undefined) {
     return { error: 'error' };
   }
-
+  
   data.users[userIndex].handleStr = handleStr;
 
   setData(data);
