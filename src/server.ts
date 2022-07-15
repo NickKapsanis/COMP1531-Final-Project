@@ -14,10 +14,11 @@ import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
 import { channelDetailsV2, channelMessagesV2 } from './channel';
 
-
 // Set up web app, use JSON
 const app = express();
 app.use(express.json());
+
+app.use(cors());
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
