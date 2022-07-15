@@ -6,7 +6,7 @@ import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
 import { clearV1 } from './other';
 import cors from 'cors';
 
-import { messageSendV1 } from './message';
+import { messageSendV1, messageSendDmV1 } from './message';
 
 // Set up web app, use JSON
 const app = express();
@@ -52,6 +52,12 @@ app.delete('/clear/v1', (req, res) => {
 app.post('/message/send/v1', (req, res) => {
   const { token, channelId, message } = req.body;
   res.json(messageSendV1(token, channelId, message));
+});
+
+// messegeSendDmV1
+app.post('/message/senddm/v1', (req, res) => {
+  const { token, dmId, message } = req.body;
+  res.json(messageSendDmV1(token, dmId, message));
 });
 
 // for logging errors

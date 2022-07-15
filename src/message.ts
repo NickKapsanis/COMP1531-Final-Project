@@ -1,17 +1,15 @@
 import { getData, setData, dataStoreType, message } from './dataStore';
 import { channelsListV2 } from './channels';
+import { dmListV1 } from './dm';
 
 type channelOutput = {
   channelId: number;
   name: string;
 }
 
-type messageId = {
-    messageId: number;
-}
-
-type errorMessage = {
-    error: 'error'
+type dmOutput = {
+  dmId: number;
+  name: string;
 }
 
 /**
@@ -27,7 +25,7 @@ type errorMessage = {
  *      { error: 'error' }      object     Error message (given invalid input)
  *      { messageId: <number> } object     Successful message send
  */
-export function messageSendV1(token: string, channelId: number, message: string): messageId | errorMessage {
+export function messageSendV1(token: string, channelId: number, message: string) {
   const data: dataStoreType = getData();
 
   // Token validation
@@ -63,6 +61,60 @@ export function messageSendV1(token: string, channelId: number, message: string)
   };
 
   data.channels[channelGivenIndex].messages.unshift(newMessage);
+  setData(data);
+
+  return { messageId: newMessageId };
+}
+
+/**
+ * Given a valid inputs, sends message from user to specified dm and
+ * returns a unique message id.
+ *
+ * Arguments:
+ *      token:      string     The user's unique identifier
+ *      dmId:       number     The channel's unique identifier
+ *      message:    string     The edited message
+ *
+ * Returns:
+ *      { error: 'error' }      object     Error message (given invalid input)
+ *      { messageId: <number> } object     Successful message send
+ */
+export function messageSendDmV1(token: string, dmId: number, message: string) {
+  const data: dataStoreType = getData();
+
+  // Token validation
+  if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
+    return { error: 'error' };
+  }
+
+  const userId: number = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
+  const dmsMemberOf: Array<dmOutput> = dmListV1(token).dms;
+
+  // Checking if valid dmId was given
+  // Validating if authorised user is a member of the DM
+  if (data.dms.find(dm => dm.dmId === dmId) === undefined) {
+    return { error: 'error' };
+  } else if (dmsMemberOf.find(dm => dm.dmId === dmId) === undefined) {
+    return { error: 'error' };
+  }
+
+  const dmGivenIndex: number = data.dms.findIndex(dm => dm.dmId === dmId);
+
+  // Message validation
+  if (message.length < 1 || message.length > 1000) {
+    return { error: 'error' };
+  }
+
+  const newMessageId: number = generateId('d');
+
+  const newMessage: message = {
+    messageId: newMessageId,
+    uId: userId,
+    timeSent: Math.floor(Date.now() / 1000),
+    message: message,
+  };
+
+  data.dms[dmGivenIndex].messages.unshift(newMessage);
   setData(data);
 
   return { messageId: newMessageId };
