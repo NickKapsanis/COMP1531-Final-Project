@@ -1,6 +1,7 @@
 import { checkValidToken } from './auth';
 import { getData, setData, dm, dataStoreType } from './dataStore';
 import { checkValidUids } from './other';
+import { user } from './users'
 
 export type dmListItem = {
   dmId: number,
@@ -30,9 +31,20 @@ export function dmDetailsV1(token: string, dmId: number) {
   if (!isMemberOf(dmId, token) && !isOwnerOf(dmId, token)) return { error: 'error' };
   // if all if's above are not triggered, return details
   const data = getData();
+  const members: user[] = [];
+  const memberuId = data.users?.filter(user => user.dms.includes(dmId))
+  for (let user of memberuId) {
+    let tempuser: user = {
+      uId: user.uId,
+      email: user.email,
+      nameFirst: user.nameFirst,
+      nameLast: user.nameLast,
+      handleStr: user.handleStr,
+    }
+  }
   return {
     name: data.dms?.find(dm => dm.dmId === dmId)?.name,
-    members: data.users?.filter(user => user.dms.includes(dmId)),
+    members: members,
   };
 }
 /*
