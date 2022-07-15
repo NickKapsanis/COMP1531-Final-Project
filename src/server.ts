@@ -5,6 +5,7 @@ import config from './config.json';
 import { userProfileV2 } from './users';
 import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
 import { clearV1 } from './other';
+import { usersAllV1, userSetnameV1, userSetemailV1, userSethandlelV1 } from './users';
 import cors from 'cors';
 
 // Set up web app, use JSON
@@ -48,6 +49,39 @@ app.post('/auth/login/v2', (req, res) => {
 app.post('/auth/logout/v1', (req, res) => {
   const data = req.body;
   res.json(authLogoutV1(data.token));
+});
+
+// clear
+app.delete('/clear/v1', (req, res) => {
+  res.json(clearV1());
+});
+// usersAll
+app.get('/users/all/v1', (req, res) => {
+  const token = req.query.token;
+  if (typeof token !== 'string') {
+    res.status(500).json({ error: 'Invalid dataset' });
+    return;
+  }
+  res.send(JSON.stringify(usersAllV1(token)));
+});
+
+// userSetnameV1
+app.put('/user/profile/setname/v1', (req, res) => {
+  const { token, nameFirst, nameLast } = req.body;
+  res.json(userSetnameV1(token, nameFirst, nameLast));
+  // console.log(userSetnameV1(token, nameFirst, nameLast));
+});
+
+// userSetemailV1
+app.put('/user/profile/setemail/v1', (req, res) => {
+  const { token, email } = req.body;
+  res.json(userSetemailV1(token, email));
+});
+
+// userSethandlelV1
+app.put('/user/profile/sethandle/v1', (req, res) => {
+  const { token, handleStr } = req.body;
+  res.json(userSethandlelV1(token, handleStr));
 });
 // clearV1()
 app.delete('/clear/v1', (req, res) => {
