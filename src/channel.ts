@@ -1,6 +1,29 @@
-import { dataStoreType, getData, setData, user, channel } from './dataStore';
+import { getData, setData, dataStoreType, channel, message, user } from './dataStore';
+import { userProfileV2 } from './users';
+import { channelsListV2 } from './channels';
+import { getUId } from './other';
+import { checkValidToken } from './auth';
 
-/*
+type userOutput = {
+  uId: number;
+  email: string;
+  nameFirst: string;
+  nameLast: string;
+  handleStr: string;
+}
+
+type channelOutput = {
+  channelId: number;
+  name: string;
+}
+
+type messagesOutput = {
+  messages: Array<message>;
+  start: number;
+  end: number;
+}
+
+/**
  * Returns the basic details about the channel (such as its name, public status,
  * owners and members) given a channelId and authUserId.
  *
@@ -16,43 +39,43 @@ import { dataStoreType, getData, setData, user, channel } from './dataStore';
  *        allMembers
  *      }
  */
-/*
-function channelDetailsV1(authUserId: number, channelId: number) {
-  const store : dataStoreType = getData();
+function channelDetailsV2(token: string, channelId: number) {
+  const data: dataStoreType = getData();
 
-  if (store.users.find(user => user.authUserId === authUserId) === undefined) {
+  // Token validation
+  if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
     return { error: 'error' };
   }
 
-  const channelsMemberOf = channelsListV1(authUserId).channels;
+  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
 
   // Checking if valid channelIds were given
-  if (store.channels.find(channel => channel.channelId === channelId) === undefined) {
+  if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
     return { error: 'error' };
   } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
     return { error: 'error' };
   }
 
   // Finding the given channel
-  const channelDetails = store.channels.find(channel => channel.channelId === channelId);
+  const channelDetails: channel = data.channels.find(channel => channel.channelId === channelId);
 
   // Iterating through owners (which contains uIds) and finding their details
   // using userProfileV1
   const owners = channelDetails.ownerMembers;
-  const ownerMembersDetails = [];
+  const ownerMembersDetails: Array<userOutput> = [];
 
-  owners.forEach((uId) => {
-    const user = userProfileV1(authUserId, uId);
+  owners.forEach(uId => {
+    const user = userProfileV2(token, uId).user;
     ownerMembersDetails.push(user);
   });
 
   // Iterating through members (which contains uIds) and finding their details
   // using userProfileV1
   const members = channelDetails.allMembers;
-  const allMembersDetails = [];
+  const allMembersDetails: Array<userOutput> = [];
 
-  members.forEach((uId) => {
-    const user = userProfileV1(authUserId, uId);
+  members.forEach(uId => {
+    const user = userProfileV2(token, uId).user;
     allMembersDetails.push(user);
   });
 
@@ -79,47 +102,45 @@ function channelDetailsV1(authUserId: number, channelId: number) {
  *                                      where messages is an array of objects,
  *                                      start and end are integers.
  */
-/*
-function channelMessagesV1(authUserId, channelId, start) {
-  const store = getData();
+function channelMessagesV2(token: string, channelId: number, start: number) {
+  const data: dataStoreType = getData();
 
-  // Checking if authUserId is valid
-  if (store.users.find(user => user.authUserId === authUserId) === undefined) {
+  // Token validation
+  if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
     return { error: 'error' };
   }
 
-  const channelsMemberOf = channelsListV1(authUserId).channels;
+  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
 
   // Checking validity of 'channelId' input
-  if (store.channels.find(channel => channel.channelId === channelId) === undefined) {
+  if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
     return { error: 'error' };
   } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
     return { error: 'error' };
   }
 
-  const channelGiven = store.channels.find(channel => channel.channelId === channelId);
+  const channelGiven: channel = data.channels.find(channel => channel.channelId === channelId);
 
   // Checking validity of 'start' input
-  let maxRecentIndex = false;
+  let end: number;
   if (start > channelGiven.messages.length) {
     return { error: 'error' };
   } else if (start + 50 > channelGiven.messages.length) {
-    maxRecentIndex = true;
+    end = -1;
+  } else {
+    end = start + 50;
   }
 
   // Creating object to contain messages and the specified range
-  const messageDetails : any = {};
-  messageDetails.messages = channelGiven.messages.slice(start, start + 50);
-  messageDetails.start = start;
-  if (maxRecentIndex === true) {
-    messageDetails.end = -1;
-  } else {
-    messageDetails.end = start + 50;
-  }
+  const messageDetails: messagesOutput = {
+    messages: channelGiven.messages.slice(start, start + 50),
+    start: start,
+    end: end,
+  };
 
   return messageDetails;
 }
-*/
+
 // helper function to reduce reptition
 function getChannel(channelId: number, channelsArray: channel[]) {
   let channel: channel;
@@ -344,4 +365,58 @@ function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
   return {};
 }
 
-export { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, getChannel };
+/**
+* channelLeaveV1
+* this function makes a user leave a channel.
+* (public or private) given their token and the channelId of leaving channel.
+*
+* Arguments:
+*   token: integer - the authUserID for the member inviting a new member
+*   channelId - The channel to be joined
+*
+* Return Value:
+*   {error: 'error'}     object         Error message when given invalid channelId
+*                                       or valid channelId given member is not a part of.
+*   {}                   empty object   Successful run
+*/
+function channelsLeaveV1(token: string, channelId: number) {
+  if (!checkValidToken(token)) return { error: 'error' };
+
+  const data = getData();
+
+  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
+
+  const user = data.users.find(i => i.authUserId === authUserId);
+  if (user === undefined) { return { error: 'error' }; }
+
+  // the channelsListV1, which uses getUId function already does error checking within.
+  const channelsArray = channelsListV2(token).channels;
+  const uId = getUId(authUserId);
+
+  if (channelsArray.length === 0) {
+    return { error: 'error' };
+  }
+
+  // loops through all channels given member is a part of, removes member.
+  for (let i = 0; i < channelsArray.length; i++) {
+    if (channelsArray[i].channelId === channelId) {
+      const foundChannel = data.channels.find(channel => channel.channelId === channelId);
+      const foundChannelIndex = data.channels.findIndex(channel => channel.channelId === channelId);
+
+      for (let n = 0; n < foundChannel.allMembers.length; n++) {
+        if (foundChannel.allMembers[n] === uId) {
+          const newMembersArray = foundChannel.allMembers.filter(item => item !== uId);
+          foundChannel.allMembers = newMembersArray;
+          data.channels[foundChannelIndex] = foundChannel;
+
+          setData(data);
+          return {};
+        }
+      }
+    }
+  }
+  // case given user wasn't a part of channel.
+  return { error: 'error' };
+}
+
+export { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, getChannel, channelDetailsV2, channelMessagesV2, channelsLeaveV1 };
