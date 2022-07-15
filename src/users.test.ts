@@ -3,6 +3,7 @@ import { getUId } from './other';
 import request from 'sync-request';
 import config from './config.json';
 
+const OK = 200;
 const port = config.port;
 const url = config.url;
 
@@ -101,6 +102,6 @@ function requestUserProfileV2(token: string, uId: number) {
       },
     }
   );
-
+  expect(res.statusCode).toBe(OK);
   return JSON.parse(String(res.getBody()));
 }
