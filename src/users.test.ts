@@ -37,6 +37,8 @@ describe('Testing userProfileV1()', () => {
     const uId1 = Number(getUId(testUser1.authUserId));
     const token1 = testUser1.token;
     const userProfile1 = requestUserProfileV2(token1, uId1);
+
+    // testing that correct information is being returned of the user
     expect(userProfile1.user.uId).toStrictEqual(uId1);
     expect(userProfile1.user.email).toStrictEqual('testemail@email.com');
     expect(userProfile1.user.nameFirst).toStrictEqual('testFirstName');
@@ -51,6 +53,7 @@ describe('Testing userProfileV1()', () => {
     const token1 = testUser1.token;
     const userProfile2 = requestUserProfileV2(token1, uId2);
 
+    // testing that correct information is being returned of the user
     expect(userProfile2.user.uId).toStrictEqual(uId2);
     expect(userProfile2.user.email).toStrictEqual('correct@email.com');
     expect(userProfile2.user.nameFirst).toStrictEqual('correctFirstName');
