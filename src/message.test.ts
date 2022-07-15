@@ -106,7 +106,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 8: successful message edit (with global permissions)', () => {
     const res = requestMessageEditV1(token1, messageId3, 'Edited Message 2.1');
-    const messages: Array<message | undefined> = requestChannelMessageV2(token2, channelId2, 0); // TODO: can token1 ie. global owner access channelMessagesV2
+    const messages: Array<message | undefined> = requestChannelMessageV2(token2, channelId2, 0); // Assumption: global owner cannot access channelMessagesV2
     const editedMessage: message = messages.find(message => message.messageId === messageId3);
 
     const bodyObj = JSON.parse(String(res.getBody()));
