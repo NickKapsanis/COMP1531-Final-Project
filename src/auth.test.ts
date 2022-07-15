@@ -178,8 +178,6 @@ describe('testing authLoginV1 for input errors', () => {
 // /////////////////////////////////////////////////////////////////////////
 describe('testing auth/logout/v1', () => {
   test('given an active token log out', () => {
-    // register and log in
-  //  request('DELETE', url + '/clear/v1');
     const res1 = request(
       'POST',
       url + '/auth/register/v2',
