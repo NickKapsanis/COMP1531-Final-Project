@@ -1,6 +1,210 @@
 import { getData, setData } from './dataStore';
 import isEmail from 'validator/lib/isEmail';
 import { checkValidToken } from './auth';
+
+type user = {
+  uId: number,
+  email: string,
+  nameFirst: string,
+  nameLast: string,
+  handleStr: string
+}
+
+/*
+Given an authUserId and a uId, the function userProfileV1
+returns the user information of the corresponding uId
+
+* Parameters :
+    authUserId (integer)
+    uId        (integer)
+
+* Return values :
+  (1) Error returned if either authUserId or uId do not exist
+    {error : 'error'}
+
+  (2) User information returned for user with uId given as parameter
+    {
+      uId       : (integer)
+      email     : (string)
+      nameFirst : (string)
+      nameLast  : (string)
+      handleStr : (string)
+    }
+*/
+
+function userProfileV2(token: string, uId: number) {
+  const data = getData();
+  const user1 = data.users.find(user => user.tokens.find(t => t === token));
+  const user2 = data.users.find(i => i.uId === uId);
+
+  if (user1 === undefined || user2 === undefined) { return { error: 'error' }; }
+
+  const user2Info: user = {
+    uId: user2.uId,
+    email: user2.email,
+    nameFirst: user2.nameFirst,
+    nameLast: user2.nameLast,
+    handleStr: user2.handleStr
+  };
+
+  return {
+    user: user2Info
+  };
+}
+
+/*
+Given an authUserId, firstname and lastname, the function userSetnameV1
+changes the user details according to what was inputted.
+
+* Parameters :
+    authUserId (integer)
+    nameFirst        (string)
+    nameLast         (string)
+
+* Return values :
+  (1) Error returned if either authUserId or uId do not exist
+    {error : 'error'}
+
+  (2) nothing
+    {}
+*/
+function userSetnameV1(token: string, nameFirst: string, nameLast: string) {
+  if (!checkValidToken(token)) return { error: 'error' };
+
+  const data = getData();
+
+  // does all the error checking
+  if (nameFirst.length > 50 || nameFirst.length < 1 ||
+    nameLast.length > 50 || nameLast.length < 1) {
+    return { error: 'error' };
+  }
+
+  // finds person from the data.
+  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
+  const user = data.users.find(i => i.authUserId === authUserId);
+  const userIndex = data.users.findIndex(i => i.authUserId === authUserId);
+
+  if (user === undefined) {
+    return { error: 'error' };
+  }
+
+  // changes users first and last names.
+  data.users[userIndex].nameFirst = nameFirst;
+  data.users[userIndex].nameLast = nameLast;
+
+  setData(data);
+  return {};
+}
+
+/*
+Given an authUserId, and email, the function userSetnameV1
+changes the user details according to what was inputted.
+
+* Parameters :
+    authUserId (integer)
+    email        (string)
+
+* Return values :
+  (1) Error returned if either authUserId or uId do not exist
+    {error : 'error'}
+
+  (2) nothing
+    {}
+*/
+function userSetemailV1(token: string, email: string) {
+  if (!checkValidToken(token)) return { error: 'error' };
+
+  const data = getData();
+
+  // does all the error checking
+  if (!isEmail(email)) {
+    return { error: 'error' };
+  }
+
+  // finds person from the data.
+  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
+  const user = data.users.find(i => i.authUserId === authUserId);
+  const userIndex = data.users.findIndex(i => i.authUserId === authUserId);
+
+  if (user === undefined) {
+    return { error: 'error' };
+  }
+
+  // changes users email.
+  data.users[userIndex].email = email;
+
+  setData(data);
+  return {};
+}
+
+/*
+Given an authUserId, and handle, the function userSetnameV1
+changes the user details according to what was inputted.
+
+* Parameters :
+    authUserId (integer)
+    handle        (string)
+
+* Return values :
+  (1) Error returned if either authUserId or uId do not exist
+    {error : 'error'}
+
+  (2) nothing
+    {}
+*/
+function userSethandlelV1(token: string, handleStr: string) {
+  if (!checkValidToken(token)) return { error: 'error' };
+  const data = getData();
+
+  // checks that the handle isn't already used by another user.
+  if (data.users.find(i => i.handleStr === handleStr) !== undefined) {
+    return { error: 'error' };
+  }
+
+  // finds the user.
+  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
+  const user = data.users.find(i => i.authUserId === authUserId);
+  const userIndex = data.users.findIndex(i => i.authUserId === authUserId);
+
+  // does error checking
+  if (handleStr.length > 20 || handleStr.length < 3 || !(handleStr.match(/^[0-9a-zA-Z]+$/))) {
+    return { error: 'error3' };
+  }
+  if (user === undefined) {
+    return { error: 'error' };
+  }
+
+  data.users[userIndex].handleStr = handleStr;
+
+  setData(data);
+  return {};
+}
+
+/*
+Given a session token, output all public user details in the system
+
+* Parameters :
+    token: string
+
+* Return values :
+    array of user details, including:
+    uId
+    email
+    name
+    surname
+    handleStr
+*/
+function usersAllV1(token: string) {
+  const outputArray: { uId: number, email: string, nameFirst: string, nameLast: string, handleStr: string}[] = [];
+  const data = getData();
+  for (const user of data.users) {
+    outputArray.push(
+      { uId: user.uId, email: user.email, nameFirst: user.nameFirst, nameLast: user.nameLast, handleStr: user.handleStr }
+    );
+  }
+  return outputArray;
+}
+
 /*
 Given an authUserId and a uId, the function userProfileV1
 returns the user information of the corresponding uId
@@ -39,186 +243,4 @@ function userProfileV1(authUserId: number, uId: number) {
   };
 }
 
-
-/*
-Given an authUserId, firstname and lastname, the function userSetnameV1
-changes the user details according to what was inputted.
-
-* Parameters :
-    authUserId (integer)
-    nameFirst        (string)
-    nameLast         (string)
-
-* Return values :
-  (1) Error returned if either authUserId or uId do not exist
-    {error : 'error'} 
-   
-  (2) nothing
-    {}
-*/
-function userSetnameV1(token: string, nameFirst: string, nameLast: string) {
-  if (!checkValidToken(token)) return {error: 'error'}
-
-  const data = getData();
-
-
-  //does all the error checking
-  if (nameFirst.length > 50 || nameFirst.length < 1 || 
-    nameLast.length > 50 || nameLast.length < 1) {
-    return {error: 'error'};
-  }
-
-  //finds person from the data.
-  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
-  const user = data.users.find(i => i.authUserId === authUserId);
-  const userIndex = data.users.findIndex(i => i.authUserId === authUserId);
-
-
-  if (user === undefined) {
-    return { error : 'error'};
-  }
-
-  //changes users first and last names.
-  data.users[userIndex].nameFirst = nameFirst;
-  data.users[userIndex].nameLast = nameLast;
-
-  setData(data);
-  return {};
-}
-
-
-/*
-Given an authUserId, and email, the function userSetnameV1
-changes the user details according to what was inputted.
-
-* Parameters :
-    authUserId (integer)
-    email        (string)
-
-* Return values :
-  (1) Error returned if either authUserId or uId do not exist
-    {error : 'error'} 
-   
-  (2) nothing
-    {}
-*/
-function userSetemailV1(token: string, email: string) {
-  if (!checkValidToken(token)) return {error: 'error'}
-
-  const data = getData();
-
-  //does all the error checking
-  if (!isEmail(email)) {
-    return {error: 'error'};
-  }
-
-  
-  //finds person from the data.
-  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
-  const user = data.users.find(i => i.authUserId === authUserId);
-  const userIndex = data.users.findIndex(i => i.authUserId === authUserId);
-
-  if (user === undefined) {
-    return { error : 'error'};
-  }
-
-  //changes users email.
-  data.users[userIndex].email = email;
-
-  setData(data);
-  return {};
-}
-
-/*
-Given an authUserId, and handle, the function userSetnameV1
-changes the user details according to what was inputted.
-
-* Parameters :
-    authUserId (integer)
-    handle        (string)
-
-* Return values :
-  (1) Error returned if either authUserId or uId do not exist
-    {error : 'error'} 
-   
-  (2) nothing
-    {}
-*/
-function userSethandlelV1(token: string, handleStr: string) {
-  if (!checkValidToken(token)) return {error: 'error'}
-  const data = getData();
-
-  //checks that the handle isn't already used by another user.
-  if (data.users.find(i => i.handleStr === handleStr) !== undefined) {
-    return {error: 'error'};
-  }
-
-  //finds the user.
-  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
-  const user = data.users.find(i => i.authUserId === authUserId);
-  const userIndex = data.users.findIndex(i => i.authUserId === authUserId);
-
-    //does error checking
-  if (handleStr.length > 20 || handleStr.length < 3 || !(handleStr.match(/^[0-9a-z]+$/))) {
-    return {error: 'error'};
-  }
-  if (user === undefined) {
-    return { error : 'error'};
-  }
-
-  data.users[userIndex].handleStr = handleStr;
-
-  setData(data);
-  return {};
-}
-
-
-
-
-
-
-
-
-
-
-
-/*
-Given a session token, output all public user details in the system
-
-* Parameters :
-    token: string
-
-* Return values :
-    array of user details, including:
-    uId
-    email
-    name
-    surname
-    handleStr
-*/
-function usersAllV1(token: string) {
-  const outputArray: { uId: number, email: string, nameFirst: string, nameLast: string, handleStr: string}[] = [];
-  const data = getData();
-  for (const user of data.users) {
-    outputArray.push(
-      { uId: user.uId, email: user.email, nameFirst: user.nameFirst, nameLast: user.nameLast, handleStr: user.handleStr }
-    );
-  }
-  return outputArray;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export { userProfileV1, userSetnameV1, userSetemailV1, userSethandlelV1, usersAllV1 };
+export { userProfileV2, userSetnameV1, userSetemailV1, userSethandlelV1, usersAllV1, userProfileV1 };

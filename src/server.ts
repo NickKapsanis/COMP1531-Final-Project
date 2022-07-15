@@ -77,35 +77,26 @@ app.get('/users/all/v1', (req, res) => {
 app.post('/channels/create/v2', (req, res) => {
   const data = req.body;
   res.json(channelsCreateV2(data.token, data.name, data.isPublic));
-})
+});
 
-//userSetnameV1
+// userSetnameV1
 app.put('/user/profile/setname/v1', (req, res) => {
   const { token, nameFirst, nameLast } = req.body;
   res.json(userSetnameV1(token, nameFirst, nameLast));
-  //console.log(userSetnameV1(token, nameFirst, nameLast));
+  // console.log(userSetnameV1(token, nameFirst, nameLast));
 });
 
-//userSetemailV1
+// userSetemailV1
 app.put('/user/profile/setemail/v1', (req, res) => {
   const { token, email } = req.body;
   res.json(userSetemailV1(token, email));
 });
 
-//userSethandlelV1
+// userSethandlelV1
 app.put('/user/profile/sethandle/v1', (req, res) => {
   const { token, handleStr } = req.body;
   res.json(userSethandlelV1(token, handleStr));
 });
-
-
-
-
-
-
-
-
-
 
 // for logging errors
 app.use(morgan('dev'));

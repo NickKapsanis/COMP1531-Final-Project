@@ -1,13 +1,11 @@
-import { authRegisterV1 } from './auth'
-import { clearV1, getUId } from './other'
-import { userProfileV1, userSetnameV1, userSetemailV1, userSethandlelV1 } from './users'
+import { getUId } from './other';
+import { userProfileV2 } from './users';
 import request from 'sync-request';
 import config from './config.json';
 
 const port = config.port;
 const hosturl = config.url;
 const url = hosturl + ':' + port;
-
 
 // helper function - calls auth register through the server
 
@@ -24,26 +22,10 @@ const createUser = (emails: string, passwords: string, name: string, surname: st
   return JSON.parse(String(res.getBody()));
 };
 
-// helper function - calls channelsCreate through the server
-const createChannel = (tokens: string, names: string, publicity: boolean) => {
-  const res = request(
-    'POST', 
-    url + '/channels/create/v2',
-    {
-      body: JSON.stringify({ token: tokens, name: names, isPublic: publicity }),
-      headers: {
-        'Content-type': 'application/json',
-      },
-    }
-  );
-  return JSON.parse(String(res.getBody()));
-};
-
-
 /*
 
 ////////////////////////////////////////////////
-/////      Tests for userProfileV1() 	     /////
+///////////Tests for userProfileV1()////////////
 ////////////////////////////////////////////////
 
 describe('Testing userProfileV1()', () => {
@@ -52,7 +34,7 @@ describe('Testing userProfileV1()', () => {
 
     clearV1();
     expect(userProfileV1(-1,-3)).toStrictEqual({ error : 'error' });
-  
+
   });
 
   test('Testing if error is returned if authUserId does not exist', () => {
@@ -61,7 +43,7 @@ describe('Testing userProfileV1()', () => {
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
     const testUId = getUId(testAuthId);
     expect(userProfileV1(-1, testUId)).toStrictEqual({ error : 'error' });
-  
+
   });
 
   test('Testing if error is returned if uId does not exist', () => {
@@ -69,7 +51,7 @@ describe('Testing userProfileV1()', () => {
     clearV1();
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
     expect(userProfileV1(testAuthId, -1)).toStrictEqual({ error : 'error' });
-  
+
   });
 
   test('Testing correct output for when authUserId and uId belong to same person', () => {
@@ -102,15 +84,16 @@ describe('Testing userProfileV1()', () => {
 });
 */
 
-////////////////////////////////////////////////
-/////      Tests for userSetnameV1() 	     /////
-////////////////////////////////////////////////
+/// /////////////////////////////////////////////
+/// /////////Tests for userSetnameV1()////////////
+/// /////////////////////////////////////////////
 test('Testing if changing nothing still returns same name.', () => {
   request('DELETE', url + '/clear/v1');
-  
+
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
-  
-  console.log(alice);
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceFirstName = userProfileV2(alice.token, aliceUid).user.nameFirst;
+  let aliceLastName = userProfileV2(alice.token, aliceUid).user.nameLast;
 
   const res = request(
     'PUT',
@@ -118,8 +101,8 @@ test('Testing if changing nothing still returns same name.', () => {
     {
       body: JSON.stringify({
         token: alice.token,
-        nameFirst: 'Alicee',
-        nameLast: 'Smith'
+        nameFirst: aliceFirstName,
+        nameLast: aliceLastName
       }),
       headers: {
         'Content-type': 'application/json',
@@ -128,20 +111,22 @@ test('Testing if changing nothing still returns same name.', () => {
   );
   const bodyObj = JSON.parse(res.body as string);
 
-  console.log(alice.nameFirst);
+  aliceFirstName = userProfileV2(alice.token, aliceUid).user.nameFirst;
+  aliceLastName = userProfileV2(alice.token, aliceUid).user.nameLast;
 
   expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual( {} );
-  expect(alice.nameFirst).toEqual( 'Alice' );
-  expect(alice.nameLast).toEqual( 'Smith' );
-
+  expect(bodyObj).toStrictEqual({});
+  expect(aliceFirstName).toEqual('Alice');
+  expect(aliceLastName).toEqual('Smith');
 });
 
 test('Testing changing only first name.', () => {
-
   request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceFirstName = userProfileV2(alice.token, aliceUid).user.nameFirst;
+  let aliceLastName = userProfileV2(alice.token, aliceUid).user.nameLast;
 
   const res = request(
     'PUT',
@@ -159,22 +144,23 @@ test('Testing changing only first name.', () => {
   );
   const bodyObj = JSON.parse(String(res.getBody()));
 
+  aliceFirstName = userProfileV2(alice.token, aliceUid).user.nameFirst;
+  aliceLastName = userProfileV2(alice.token, aliceUid).user.nameLast;
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toStrictEqual({});
-  expect(bodyObj.nameFirst).toEqual( 'Alison' );
-  expect(bodyObj.nameLast).toEqual( 'Smith' );
-
+  expect(aliceFirstName).toEqual('Alison');
+  expect(aliceLastName).toEqual('Smith');
 });
 
 test('Testing changing only last name.', () => {
-
   request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
-  const rufus = createUser('rufus@email.com', 'testPassword123', 'Rufus', 'James');
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceFirstName = userProfileV2(alice.token, aliceUid).user.nameFirst;
+  let aliceLastName = userProfileV2(alice.token, aliceUid).user.nameLast;
 
-  
   const res = request(
     'PUT',
     url + '/user/profile/setname/v1',
@@ -190,21 +176,23 @@ test('Testing changing only last name.', () => {
     }
   );
   const bodyObj = JSON.parse(String(res.getBody()));
-  
+
+  aliceFirstName = userProfileV2(alice.token, aliceUid).user.nameFirst;
+  aliceLastName = userProfileV2(alice.token, aliceUid).user.nameLast;
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toStrictEqual({});
-  expect(bodyObj.nameFirst).toEqual( 'Alice' );
-  expect(bodyObj.lastFirst).toEqual( 'Sithlord' );
-
+  expect(aliceFirstName).toEqual('Alice');
+  expect(aliceLastName).toEqual('Sithlord');
 });
 
 test('Testing changing both names.', () => {
-
   request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
-  const rufus = createUser('rufus@email.com', 'testPassword123', 'Rufus', 'James');
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceFirstName = userProfileV2(alice.token, aliceUid).user.nameFirst;
+  let aliceLastName = userProfileV2(alice.token, aliceUid).user.nameLast;
 
   const res = request(
     'PUT',
@@ -223,24 +211,24 @@ test('Testing changing both names.', () => {
 
   const bodyObj = JSON.parse(String(res.getBody()));
 
+  aliceFirstName = userProfileV2(alice.token, aliceUid).user.nameFirst;
+  aliceLastName = userProfileV2(alice.token, aliceUid).user.nameLast;
+
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toStrictEqual({});
-  expect(bodyObj.nameFirst).toEqual( 'Alison' );
-  expect(bodyObj.lastFirst).toEqual( 'Sithlord' );
-
+  expect(aliceFirstName).toEqual('Alison');
+  expect(aliceLastName).toEqual('Sithlord');
 });
 
-
-
-////////////////////////////////////////////////
-/////      Tests for userSetemailV1() 	   /////
-////////////////////////////////////////////////
+/// /////////////////////////////////////////////
+/// /////////Tests for userSetemailV1()////////////
+/// /////////////////////////////////////////////
 test('Testing if changing nothing still returns same email.', () => {
-
   request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
-
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceEmail = userProfileV2(alice.token, aliceUid).user.email;
 
   const res = request(
     'PUT',
@@ -248,7 +236,7 @@ test('Testing if changing nothing still returns same email.', () => {
     {
       body: JSON.stringify({
         token: alice.token,
-        email: 'alice@email.com',
+        email: aliceEmail,
       }),
       headers: {
         'Content-type': 'application/json',
@@ -257,16 +245,19 @@ test('Testing if changing nothing still returns same email.', () => {
   );
   const bodyObj = JSON.parse(String(res.getBody()));
 
-  expect(bodyObj.email).toEqual( 'alice@email.com' );
+  aliceEmail = userProfileV2(alice.token, aliceUid).user.email;
 
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({});
+  expect(aliceEmail).toEqual('alice@email.com');
 });
 
 test('Testing changing email.', () => {
-
   request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
-
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceEmail = userProfileV2(alice.token, aliceUid).user.email;
 
   const res = request(
     'PUT',
@@ -283,21 +274,22 @@ test('Testing changing email.', () => {
   );
   const bodyObj = JSON.parse(String(res.getBody()));
 
+  aliceEmail = userProfileV2(alice.token, aliceUid).user.email;
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toStrictEqual({});
-  expect(bodyObj.email).toEqual( 'supercoolnew@email.com' );
+  expect(aliceEmail).toEqual('supercoolnew@email.com');
 });
 
-////////////////////////////////////////////////
-/////      Tests for userSethandleV1() 	   /////
-////////////////////////////////////////////////
+/// /////////////////////////////////////////////
+/// /////////Tests for userSethandleV1()//////////
+/// /////////////////////////////////////////////
 test('Testing if changing nothing still returns same handle.', () => {
-
   request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
-
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceHandle = userProfileV2(alice.token, aliceUid).user.handleStr;
 
   const res = request(
     'PUT',
@@ -305,7 +297,7 @@ test('Testing if changing nothing still returns same handle.', () => {
     {
       body: JSON.stringify({
         token: alice.token,
-        handleStr: 'AliceSmith',
+        handleStr: aliceHandle,
       }),
       headers: {
         'Content-type': 'application/json',
@@ -314,19 +306,19 @@ test('Testing if changing nothing still returns same handle.', () => {
   );
   const bodyObj = JSON.parse(String(res.getBody()));
 
+  aliceHandle = userProfileV2(alice.token, aliceUid).user.handleStr;
 
   expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({});
-  expect(bodyObj.handleStr).toEqual( 'alice@AliceSmith' );
-
-
+  expect(aliceHandle).toEqual('alicesmith');
+  expect(bodyObj).toStrictEqual({ error: 'error' });
 });
 
 test('Testing changing handle.', () => {
-
   request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceHandle = userProfileV2(alice.token, aliceUid).user.handleStr;
 
   const res = request(
     'PUT',
@@ -343,9 +335,9 @@ test('Testing changing handle.', () => {
   );
   const bodyObj = JSON.parse(String(res.getBody()));
 
+  aliceHandle = userProfileV2(alice.token, aliceUid).user.handleStr;
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toStrictEqual({});
-  expect(bodyObj.handleStr).toEqual( 'AwesomeNewHandle' );
-
+  expect(aliceHandle).toEqual('AwesomeNewHandle');
 });
