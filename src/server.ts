@@ -5,8 +5,7 @@ import config from './config.json';
 import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
 import { clearV1 } from './other';
 import cors from 'cors';
-
-import { messageSendV1, messageSendDmV1 } from './message';
+import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
 
 // Set up web app, use JSON
 const app = express();
@@ -58,6 +57,19 @@ app.post('/message/send/v1', (req, res) => {
 app.post('/message/senddm/v1', (req, res) => {
   const { token, dmId, message } = req.body;
   res.json(messageSendDmV1(token, dmId, message));
+});
+
+// messageRemoveV1
+app.delete('/message/remove/v1', (req, res) => {
+  const token = String(req.query.token);
+  const messageId = Number(req.query.messageId);
+  res.json(messageRemoveV1(token, messageId));
+});
+
+// messageEditV1
+app.put('/message/edit/v1', (req, res) => {
+  const { token, messageId, message } = req.body;
+  res.json(messageEditV1(token, messageId, message));
 });
 
 // for logging errors
