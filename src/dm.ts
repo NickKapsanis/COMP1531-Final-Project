@@ -27,7 +27,7 @@ export function dmDetailsV1(token: string, dmId: number) {
   // input check the 3 possible error returns
   if (!checkValidToken(token)) return { error: 'error' };
   if (!checkValidDmId(dmId)) return { error: 'error' };
-  if (!isMemberOf(dmId, token)) return { error: 'error' };
+  if (!isMemberOf(dmId, token) && !isOwnerOf(dmId, token)) return { error: 'error' };
   // if all if's above are not triggered, return details
   const data = getData();
   return {
@@ -112,41 +112,6 @@ export function dmMessagesV1(token: string, dmId: number, start: number) {
     end: end,
   };
 }
-
-// helper function returns true or false if the input dmId is or is not a valid dmId in the datastore repectivly.
-function checkValidDmId(dmId: number) {
-  const data = getData();
-  if (data.dms?.find(dm => dm.dmId === dmId) !== undefined) {
-    return true;
-  } else {
-    return false;
-  }
-}
-// helper function returns true or false if the input authUserId is or is not a member of the dmId
-function isMemberOf(dmId: number, token: string) {
-  const data = getData();
-  const authUserId = data.users?.find(user => user.tokens.find(tok => tok === token))?.authUserId;
-  if (data.dms?.find(dm => dm.allMembers.find(member => member === authUserId)) !== undefined) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-// helper function returns userId of authUserId returns -1 if the authUserId is not in the datastore.
-export function giveUid(authUserId: number) {
-  const userId = getData().users?.find(user => user.authUserId === authUserId)?.uId;
-  if (userId === undefined) return -1;
-  else return userId;
-}
-
-// helper function retunrs userId of given active token returns -1 if the userId does not exist.
-function tokenToUserId(token: string) {
-  const data = getData();
-  const userId = data.users?.find(user => user.tokens.find(tok => tok === token))?.uId;
-  if (userId === undefined) return -1;
-  else return userId;
-}
 /*
 dmCreateV1
 Given an active token and array of valid userIds create a DM containing the auth user and the users in the array,
@@ -181,6 +146,8 @@ export function dmCreateV1(token: string, uIds: number[]) {
   const newDmId = data.dms.length + 1;
 
   const handleArray = [];
+  // push the handle of the user who calls the creation of the DM
+  handleArray.push(data.users?.find(user => user.uId === tokenToUserId(token)).handleStr);
   for (const x of uIds) {
     const uIdUser = data.users.find(user => user.uId === x);
     if (uIdUser === undefined) { return { error: 'error' }; }
@@ -193,11 +160,14 @@ export function dmCreateV1(token: string, uIds: number[]) {
   handleArray.sort();
   const newDmName = handleArray.join(', ');
 
+  const allDmMembers = uIds;
+  uIds.push(tokenToUserId(token));
+
   const newDm : dm = {
 
     dmId: newDmId,
     name: newDmName,
-    allMembers: uIds,
+    allMembers: allDmMembers,
     owner: creator.uId,
     messages: []
   };
@@ -279,4 +249,49 @@ export function dmRemoveV1(token: string, dmId: number) {
   data.dms = data.dms.filter(i => i.dmId !== dmId);
   setData(data);
   return {};
+}
+// helper function returns true or false if the input dmId is or is not a valid dmId in the datastore repectivly.
+function checkValidDmId(dmId: number) {
+  const data = getData();
+  if (data.dms?.find(dm => dm.dmId === dmId) !== undefined) {
+    return true;
+  } else {
+    return false;
+  }
+}
+// helper function returns true or false if the input token authuser is or is not a member of the dmId
+function isMemberOf(dmId: number, token: string) {
+  const data = getData();
+  const userId = data.users?.find(user => user.tokens.find(tok => tok === token))?.uId;
+
+  if (data.dms?.find(dm => dm.dmId === dmId).allMembers.find(member => member === userId) !== undefined) {
+    return true;
+  } else {
+    return false;
+  }
+}
+// helper function returns true or false if the input token authUSer is or is not a memebr of the dmId
+function isOwnerOf(dmId: number, token: string) {
+  const data = getData();
+  const userId = data.users?.find(user => user.tokens.find(tok => tok === token))?.uId;
+  // now check in the owner field of the DM intrested in
+  if (data.dms?.find(dm => dm.dmId === dmId).owner === userId) {
+    return true;
+  } else {
+    return false;
+  }
+}
+// helper function returns userId of authUserId returns -1 if the authUserId is not in the datastore.
+export function giveUid(authUserId: number) {
+  const userId = getData().users?.find(user => user.authUserId === authUserId)?.uId;
+  if (userId === undefined) return -1;
+  else return userId;
+}
+
+// helper function retunrs userId of given active token returns -1 if the userId does not exist.
+function tokenToUserId(token: string) {
+  const data = getData();
+  const userId = data.users?.find(user => user.tokens.find(tok => tok === token))?.uId;
+  if (userId === undefined) return -1;
+  else return userId;
 }

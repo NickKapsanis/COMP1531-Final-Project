@@ -4,11 +4,6 @@ import config from './config.json';
 import { getUId } from './other';
 import { dmList } from './dm';
 
-//note the testing here requires
-// /clear/v1
-// /auth/register/v2
-// /dm/create/v1
-
 const port = config.port;
 const hosturl = config.url;
 const url = hosturl + ':' + port;
@@ -169,109 +164,101 @@ describe('Testing dm/leave/v1', () => {
   });
   // dmID is valid but authUserId is not a member of the DM
   test('dmId is valid but authUserId is not a member', () => {
-    test('dmId is not valid', () => {
-      /// ////////////////////////////set up the datastore/////////////////////////////////////////
-      const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
-      const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
-      const user3 = registerUser('testingUser3@gmail.com', '1234567', 'FirstName3', 'LastName3');
-      const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
-      /// /////////////////////////////////////////////////////////////////////////////////////////
-      const res = request(
-        'POST',
-        url + '/dm/leave/v1',
-        {
-          body: JSON.stringify({
-            token: user3.token,
-            dmId: dm12.dmId,
-          }),
-          headers: {
-            'Content-type': 'application/json',
-          },
-        }
-      );
-      const bodyObj = JSON.parse(String(res.getBody()));
-      expect(bodyObj).toStrictEqual({ error: 'error' });
-      expect(res.statusCode).toStrictEqual(200);
-    });
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
+    const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const user3 = registerUser('testingUser3@gmail.com', '1234567', 'FirstName3', 'LastName3');
+    const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+    const res = request(
+      'POST',
+      url + '/dm/leave/v1',
+      {
+        body: JSON.stringify({
+          token: user3.token,
+          dmId: dm12.dmId,
+        }),
+        headers: {
+          'Content-type': 'application/json',
+        },
+      }
+    );
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(bodyObj).toStrictEqual({ error: 'error' });
+    expect(res.statusCode).toStrictEqual(200);
   });
   // token is not valid
   test('token is not valid', () => {
-    test('dmId is not valid', () => {
-      /// ////////////////////////////set up the datastore/////////////////////////////////////////
-      const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
-      const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
-      const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
-      const badtoken = 'thisisalmostcertainlynotatoken';
-      /// /////////////////////////////////////////////////////////////////////////////////////////
-      const res = request(
-        'POST',
-        url + '/dm/leave/v1',
-        {
-          body: JSON.stringify({
-            token: badtoken,
-            dmId: dm12.dmId,
-          }),
-          headers: {
-            'Content-type': 'application/json',
-          },
-        }
-      );
-      const bodyObj = JSON.parse(String(res.getBody()));
-      expect(bodyObj).toStrictEqual({ error: 'error' });
-      expect(res.statusCode).toStrictEqual(200);
-    });
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
+    const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
+    const badtoken = 'thisisalmostcertainlynotatoken';
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+    const res = request(
+      'POST',
+      url + '/dm/leave/v1',
+      {
+        body: JSON.stringify({
+          token: badtoken,
+          dmId: dm12.dmId,
+        }),
+        headers: {
+          'Content-type': 'application/json',
+        },
+      }
+    );
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(bodyObj).toStrictEqual({ error: 'error' });
+    expect(res.statusCode).toStrictEqual(200);
   });
   // all is correct
   test('testing sucessful call of non owner', () => {
-    test('dmId is not valid', () => {
-      /// ////////////////////////////set up the datastore/////////////////////////////////////////
-      const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
-      const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
-      const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
-      /// /////////////////////////////////////////////////////////////////////////////////////////
-      const res = request(
-        'POST',
-        url + '/dm/leave/v1',
-        {
-          body: JSON.stringify({
-            token: user2.token,
-            dmId: dm12.dmId,
-          }),
-          headers: {
-            'Content-type': 'application/json',
-          },
-        }
-      );
-      const bodyObj = JSON.parse(String(res.getBody()));
-      expect(res.statusCode).toStrictEqual(200);
-      expect(bodyObj).toEqual({});
-    });
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
+    const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+    const res = request(
+      'POST',
+      url + '/dm/leave/v1',
+      {
+        body: JSON.stringify({
+          token: user2.token,
+          dmId: dm12.dmId,
+        }),
+        headers: {
+          'Content-type': 'application/json',
+        },
+      }
+    );
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(res.statusCode).toStrictEqual(200);
+    expect(bodyObj).toEqual({});
   });
   // all is correct
   test('testing sucessful call of owner', () => {
-    test('dmId is not valid', () => {
-      /// ////////////////////////////set up the datastore/////////////////////////////////////////
-      const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
-      const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
-      const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
-      /// /////////////////////////////////////////////////////////////////////////////////////////
-      const res = request(
-        'POST',
-        url + '/dm/leave/v1',
-        {
-          body: JSON.stringify({
-            token: user1.token,
-            dmId: dm12.dmId,
-          }),
-          headers: {
-            'Content-type': 'application/json',
-          },
-        }
-      );
-      const bodyObj = JSON.parse(String(res.getBody()));
-      expect(res.statusCode).toStrictEqual(200);
-      expect(bodyObj).toEqual({});
-    });
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
+    const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+    const res = request(
+      'POST',
+      url + '/dm/leave/v1',
+      {
+        body: JSON.stringify({
+          token: user1.token,
+          dmId: dm12.dmId,
+        }),
+        headers: {
+          'Content-type': 'application/json',
+        },
+      }
+    );
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(res.statusCode).toStrictEqual(200);
+    expect(bodyObj).toEqual({});
   });
 });
 
@@ -488,7 +475,7 @@ describe('Testing dm/create/v1', () => {
     expect(output.dmId).toStrictEqual(expect.any(Number));
 
     const dmDetails = requestDmDetails(creator.token, output.dmId);
-    expect(dmDetails.name).toStrictEqual('creatoroftm, memberone, memberthree, membertwo');
+    expect(dmDetails.name).toStrictEqual('creatorofdm, memberone, memberthree, membertwo');
     expect(new Set(dmDetails.members)).toStrictEqual(new Set([
       requestUserProfile(creator.token, creatorUid),
       requestUserProfile(member1.token, member1UId),
@@ -637,18 +624,18 @@ function requestClear() {
 function requestAuthRegister(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
-      url + '/auth/register/v2',
-      {
-        body: JSON.stringify({
-          email: email,
-          password: password,
-          nameFirst: nameFirst,
-          nameLast: nameLast
-        }),
-        headers: {
-          'Content-type': 'application/json',
-        },
-      }
+    url + '/auth/register/v2',
+    {
+      body: JSON.stringify({
+        email: email,
+        password: password,
+        nameFirst: nameFirst,
+        nameLast: nameLast
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
   );
   expect(res.statusCode).toStrictEqual(200);
   return JSON.parse(String(res.getBody()));
@@ -657,16 +644,16 @@ function requestAuthRegister(email: string, password: string, nameFirst: string,
 function requestDmCreate(token: string, uIds: Array<number>) {
   const res = request(
     'POST',
-      url + '/dm/create/v1',
-      {
-        body: JSON.stringify({
-          token: token,
-          uIds: uIds,
-        }),
-        headers: {
-          'Content-type': 'application/json',
-        },
-      }
+    url + '/dm/create/v1',
+    {
+      body: JSON.stringify({
+        token: token,
+        uIds: uIds,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
   );
   expect(res.statusCode).toStrictEqual(200);
   return JSON.parse(String(res.getBody()));
@@ -675,12 +662,12 @@ function requestDmCreate(token: string, uIds: Array<number>) {
 function requestDmList(token: string) {
   const res = request(
     'GET',
-      url + '/dm/list/v1',
-      {
-        qs: {
-          token: token
-        }
+    url + '/dm/list/v1',
+    {
+      qs: {
+        token: token
       }
+    }
   );
   expect(res.statusCode).toStrictEqual(200);
   return JSON.parse(String(res.getBody()));
@@ -689,13 +676,13 @@ function requestDmList(token: string) {
 function requestDmRemove(token: string, dmId: number) {
   const res = request(
     'DELETE',
-        url + '/dm/remove/v1',
-        {
-          qs: {
-            token: token,
-            dmId: dmId
-          }
-        }
+    url + '/dm/remove/v1',
+    {
+      qs: {
+        token: token,
+        dmId: dmId
+      }
+    }
   );
   expect(res.statusCode).toStrictEqual(200);
   return JSON.parse(String(res.getBody()));
@@ -704,13 +691,13 @@ function requestDmRemove(token: string, dmId: number) {
 function requestDmDetails(token: string, dmId: number) {
   const res = request(
     'GET',
-      url + '/dm/details/v1',
-      {
-        qs: {
-          token: token,
-          dmId: dmId,
-        }
+    url + '/dm/details/v1',
+    {
+      qs: {
+        token: token,
+        dmId: dmId,
       }
+    }
   );
   expect(res.statusCode).toStrictEqual(200);
   return JSON.parse(String(res.getBody()));
@@ -718,13 +705,13 @@ function requestDmDetails(token: string, dmId: number) {
 function requestUserProfile(token: string, uId: number) {
   const res = request(
     'GET',
-      url + '/user/profile/v2',
-      {
-        qs: {
-          token: token,
-          uID: uId,
-        }
+    url + '/user/profile/v2',
+    {
+      qs: {
+        token: token,
+        uID: uId,
       }
+    }
   );
   expect(res.statusCode).toStrictEqual(200);
   return JSON.parse(String(res.getBody()));
