@@ -13,6 +13,55 @@ type dmOutput = {
 }
 
 /**
+* Given a valid messageId and message, the message with messageId is found
+* and replaced with new message.
+*
+* Arguments:
+*      token:      string     The user's unique identifier
+*      messageId:  number     The messages's unique identifier
+*      message:    string     The edited message
+*
+* Returns:
+*      { error: 'error' }     object     Error message when given invalid input
+*      { }                    object     Successful messageEdit
+*/
+export function messageEditV1(token: string, messageId: number, message: string) {
+  const data: dataStoreType = getData();
+  const mode = 'e';
+
+  // Token validation
+  if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
+    return { error: 'error' };
+  }
+
+  // Get user information
+  const user: user = data.users.find(user => user.tokens.find(tok => tok === token));
+  const userId = user.uId;
+  let isGlobalUser: boolean;
+  if (user.isGlobalOwner === 1) {
+    isGlobalUser = true;
+  } else {
+    isGlobalUser = false;
+  }
+
+  // Message validation
+  if (message.length > 1000) {
+    return { error: 'error' };
+  } else if (message.length === 0) {
+    return messageRemoveV1(token, messageId);
+  }
+
+  const firstDigit = String(messageId)[0];
+  if (firstDigit === '1') {
+    return editInChannel(mode, token, userId, isGlobalUser, messageId, message);
+  } else if (firstDigit === '2') {
+    return editInDm(mode, token, userId, messageId, message);
+  } else {
+    return { error: 'error' };
+  }
+}
+
+/**
  * Given a valid messageId, the message is removed from the channel or dm
  *
  * Arguments:
@@ -41,7 +90,6 @@ export function messageRemoveV1(token: string, messageId: number) {
   } else {
     isGlobalUser = false;
   }
-
   const firstDigit = String(messageId)[0];
   if (firstDigit === '1') {
     return editInChannel(mode, token, userId, isGlobalUser, messageId);
@@ -53,7 +101,7 @@ export function messageRemoveV1(token: string, messageId: number) {
 }
 
 /**
- * Helper function for messageEditV1 to edit messages in channels.
+ * Helper function for messageEditV1/messageRemoveV1 to edit/ remove messages in channels.
  *
  * Arguments:
  *      token:          string     The user's unique identifier
@@ -120,7 +168,7 @@ function editInChannel(mode: string, token: string, userId: number, isGlobalUser
 }
 
 /**
- * Helper function for messageEditV1 to edit messages in dms.
+ * Helper function for messageEditV1/messageRemoveV1 to edit/remove messages in dms.
  *
  * Arguments:
  *      token:          string     The user's unique identifier
