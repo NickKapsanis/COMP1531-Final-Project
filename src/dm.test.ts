@@ -4,7 +4,9 @@ import config from './config.json';
 import { dmList } from './dm';
 
 const port = config.port;
-const url = config.url;
+const hosturl = config.url;
+const url = hosturl + ':' + port;
+
 // note that response codes are tested in helper functions.
 /*
 ////////////////////////////////////////////////
@@ -211,14 +213,14 @@ describe('Testing dm/remove/v1', () => {
 function requestClear() {
   request(
     'DELETE',
-      `${url}:${port}/clear/v1`
+    url + '/clear/v1'
   );
 }
 
 function requestAuthRegister(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
-      `${url}:${port}/auth/register/v2`,
+      url + '/auth/register/v2',
       {
         body: JSON.stringify({
           email: email,
@@ -238,7 +240,7 @@ function requestAuthRegister(email: string, password: string, nameFirst: string,
 function requestDmCreate(token: string, uIds: Array<number>) {
   const res = request(
     'POST',
-      `${url}:${port}/dm/create/v1`,
+      url + '/dm/create/v1',
       {
         body: JSON.stringify({
           token: token,
@@ -256,7 +258,7 @@ function requestDmCreate(token: string, uIds: Array<number>) {
 function requestDmList(token: string) {
   const res = request(
     'GET',
-      `${url}:${port}/dm/list/v1`,
+      url + '/dm/list/v1',
       {
         qs: {
           token: token
@@ -270,7 +272,7 @@ function requestDmList(token: string) {
 function requestDmRemove(token: string, dmId: number) {
   const res = request(
     'DELETE',
-        `${url}:${port}/dm/remove/v1`,
+        url + '/dm/remove/v1',
         {
           qs: {
             token: token,
@@ -285,7 +287,7 @@ function requestDmRemove(token: string, dmId: number) {
 function requestDmDetails(token: string, dmId: number) {
   const res = request(
     'GET',
-      `${url}:${port}/dm/details/v1`,
+      url + '/dm/details/v1',
       {
         qs: {
           token: token,
@@ -299,7 +301,7 @@ function requestDmDetails(token: string, dmId: number) {
 function requestUserProfile(token: string, uId: number) {
   const res = request(
     'GET',
-      `${url}:${port}/user/profile/v2`,
+      url + '/user/profile/v2',
       {
         qs: {
           token: token,
