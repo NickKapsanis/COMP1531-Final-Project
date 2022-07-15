@@ -1,4 +1,5 @@
 import { getData, setData, channel } from './dataStore';
+import { checkValidToken } from './auth';
 
 export type channelsListItem = {
     channelId: number,
@@ -16,76 +17,80 @@ Arguments:
 Return Value:
     channelsArray: array    - an array of all channels user is in.
 */
-/*
-function channelsListV1(authUserId) {
-    const data = getData();
+function channelsListV2(token: string) {
+  if (!checkValidToken(token)) return { error: 'error' };
 
-    let user = data.users.find(i => i.authUserId === authUserId);
-    if (user === undefined) { return { error : 'error' } };
+  const data = getData();
 
-    let uId = getUId(authUserId);
-    let numChannels = 0;
-    let channelsArray = [];
+  const authUserId = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
 
-    //this loop searches for given user id within every channel.
-    for (let i = 0; i < data.channels.length; i++) {
-        for (let n = 0; n < data.channels[i].allMembers.length; n++) {
-            if (data.channels[i].allMembers[n] === uId) {
-                numChannels++;
+  const user = data.users.find(i => i.authUserId === authUserId);
+  if (user === undefined) { return { error: 'error' }; }
 
-                let channel = {
-                    channelId: data.channels[i].channelId,
-                    name: data.channels[i].name
-                }
-                channelsArray.push(channel);
-            }
-        }
+  let numChannels = 0;
+  const channelsArray = [];
+
+  // this loop searches for given user id within every channel.
+  for (let i = 0; i < data.channels.length; i++) {
+    for (let n = 0; n < data.channels[i].allMembers.length; n++) {
+      if (data.channels[i].allMembers[n] === user.uId) {
+        numChannels++;
+
+        const channel = {
+          channelId: data.channels[i].channelId,
+          name: data.channels[i].name
+        };
+        channelsArray.push(channel);
+      }
     }
+  }
 
-    //case with no channels
-    if (numChannels === 0) {
-        return { channels: [] };
-    }
+  // case with no channels
+  if (numChannels === 0) {
+    return { channels: [] };
+  }
 
-    return { channels: channelsArray };
+  return { channels: channelsArray };
 }
-*/
 
 /*
-this function gives an array of all channels
+  this function gives an array of all channels.
+  converted to typescript for v2.
 
-Arguments:
-    authUserId: integer    - the users unique identification number
+  Arguments:
+      authUserId: integer    - the users unique identification number
 
-Return Value:
-    allChannelsArray: array    - an array of all channels.
-*/
-/*
-function channelsListallV1(authUserId) {
-    const data = getData();
-    let allChannelsArray = [];
+  Return Value:
+      allChannelsArray: array    - an array of all channels.
+  */
+function channelsListallV2(token: string) {
+  if (!checkValidToken(token)) return { error: 'error' };
 
-    let user = data.users.find(i => i.authUserId === authUserId);
-    if (user === undefined) { return { error : 'error' } };
+  const data = getData();
 
-    //case with no channels
-    if (data.channels.length === 0) {
-        return { channels: [] };
-    }
+  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
 
-    //this loop finds all arrays, adds them to channelsArray
-    for (let j = 0; j < data.channels.length; j++) {
+  const user = data.users.find(i => i.authUserId === authUserId);
+  if (user === undefined) { return { error: 'error' }; }
 
-        let channel = {
-            channelId: data.channels[j].channelId,
-            name: data.channels[j].name
-        }
-        allChannelsArray.push(channel);
-    }
+  const allChannelsArray = [];
 
-    return { channels: allChannelsArray };
+  // case with no channels
+  if (data.channels.length === 0) {
+    return { channels: [] };
+  }
+
+  // this loop finds all arrays, adds them to channelsArray
+  for (let j = 0; j < data.channels.length; j++) {
+    const channel = {
+      channelId: data.channels[j].channelId,
+      name: data.channels[j].name
+    };
+    allChannelsArray.push(channel);
+  }
+
+  return { channels: allChannelsArray };
 }
-*/
 
 /*
 The function channelsCreateV1() creates a channel and adds it to
@@ -134,4 +139,4 @@ function channelsCreateV1(token: string, name: string, isPublic: boolean) {
   return { channelId: newChannelId };
 }
 
-export { channelsCreateV1 };
+export { channelsCreateV1, channelsListV2, channelsListallV2 };
