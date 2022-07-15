@@ -75,7 +75,7 @@ describe('Testing dm/create/v1', () => {
       requestUserProfile(member1.token, member1UId),
       requestUserProfile(member2.token, member2UId),
       requestUserProfile(member3.token, member3UId),
-    ]))
+    ]));
   });
 });
 
@@ -233,7 +233,6 @@ function requestAuthRegister(email: string, password: string, nameFirst: string,
   );
   expect(res.statusCode).toStrictEqual(200);
   return JSON.parse(String(res.getBody()));
-
 }
 
 function requestDmCreate(token: string, uIds: Array<number>) {
