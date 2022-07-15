@@ -106,18 +106,19 @@ describe('Testing userProfileV1()', () => {
 /////      Tests for userSetnameV1() 	     /////
 ////////////////////////////////////////////////
 test('Testing if changing nothing still returns same name.', () => {
-  clearV1();
+  request('DELETE', url + '/clear/v1');
   
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
-  const rufus = createUser('rufus@email.com', 'testPassword123', 'Rufus', 'James');
+  
+  console.log(alice);
 
   const res = request(
     'PUT',
     url + '/user/profile/setname/v1',
     {
       body: JSON.stringify({
-        token: alice.authUserId,
-        nameFirst: 'Alice',
+        token: alice.token,
+        nameFirst: 'Alicee',
         nameLast: 'Smith'
       }),
       headers: {
@@ -125,19 +126,20 @@ test('Testing if changing nothing still returns same name.', () => {
       },
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody()));
-  
+  const bodyObj = JSON.parse(res.body as string);
+
+  console.log(alice.nameFirst);
 
   expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({});
-  expect(bodyObj.nameFirst).toEqual( 'Alice' );
-  expect(bodyObj.nameLast).toEqual( 'Smith' );
+  expect(bodyObj).toStrictEqual( {} );
+  expect(alice.nameFirst).toEqual( 'Alice' );
+  expect(alice.nameLast).toEqual( 'Smith' );
 
 });
 
 test('Testing changing only first name.', () => {
 
-  clearV1();
+  request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
 
@@ -146,7 +148,7 @@ test('Testing changing only first name.', () => {
     url + '/user/profile/setname/v1',
     {
       body: JSON.stringify({
-        token: alice.authUserId,
+        token: alice.token,
         nameFirst: 'Alison',
         nameLast: 'Smith'
       }),
@@ -167,7 +169,7 @@ test('Testing changing only first name.', () => {
 
 test('Testing changing only last name.', () => {
 
-  clearV1();
+  request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const rufus = createUser('rufus@email.com', 'testPassword123', 'Rufus', 'James');
@@ -178,7 +180,7 @@ test('Testing changing only last name.', () => {
     url + '/user/profile/setname/v1',
     {
       body: JSON.stringify({
-        token: alice.authUserId,
+        token: alice.token,
         nameFirst: 'Alice',
         nameLast: 'Sithlord'
       }),
@@ -199,7 +201,7 @@ test('Testing changing only last name.', () => {
 
 test('Testing changing both names.', () => {
 
-  clearV1();
+  request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const rufus = createUser('rufus@email.com', 'testPassword123', 'Rufus', 'James');
@@ -209,7 +211,7 @@ test('Testing changing both names.', () => {
     url + '/user/profile/setname/v1',
     {
       body: JSON.stringify({
-        token: alice.authUserId,
+        token: alice.token,
         nameFirst: 'Alison',
         nameLast: 'Sithlord'
       }),
@@ -235,7 +237,7 @@ test('Testing changing both names.', () => {
 ////////////////////////////////////////////////
 test('Testing if changing nothing still returns same email.', () => {
 
-  clearV1();
+  request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
 
@@ -245,7 +247,7 @@ test('Testing if changing nothing still returns same email.', () => {
     url + '/user/profile/setemail/v1',
     {
       body: JSON.stringify({
-        token: alice.authUserId,
+        token: alice.token,
         email: 'alice@email.com',
       }),
       headers: {
@@ -261,7 +263,7 @@ test('Testing if changing nothing still returns same email.', () => {
 
 test('Testing changing email.', () => {
 
-  clearV1();
+  request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
 
@@ -271,7 +273,7 @@ test('Testing changing email.', () => {
     url + '/user/profile/setemail/v1',
     {
       body: JSON.stringify({
-        token: alice.authUserId,
+        token: alice.token,
         email: 'supercoolnew@email.com',
       }),
       headers: {
@@ -292,7 +294,7 @@ test('Testing changing email.', () => {
 ////////////////////////////////////////////////
 test('Testing if changing nothing still returns same handle.', () => {
 
-  clearV1();
+  request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
 
@@ -302,7 +304,7 @@ test('Testing if changing nothing still returns same handle.', () => {
     url + '/user/profile/sethandle/v1',
     {
       body: JSON.stringify({
-        token: alice.authUserId,
+        token: alice.token,
         handleStr: 'AliceSmith',
       }),
       headers: {
@@ -322,7 +324,7 @@ test('Testing if changing nothing still returns same handle.', () => {
 
 test('Testing changing handle.', () => {
 
-  clearV1();
+  request('DELETE', url + '/clear/v1');
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
 
@@ -331,7 +333,7 @@ test('Testing changing handle.', () => {
     url + '/user/profile/sethandle/v1',
     {
       body: JSON.stringify({
-        token: alice.authUserId,
+        token: alice.token,
         handleStr: 'AwesomeNewHandle',
       }),
       headers: {

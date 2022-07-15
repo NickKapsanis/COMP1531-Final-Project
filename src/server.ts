@@ -83,6 +83,7 @@ app.post('/channels/create/v2', (req, res) => {
 app.put('/user/profile/setname/v1', (req, res) => {
   const { token, nameFirst, nameLast } = req.body;
   res.json(userSetnameV1(token, nameFirst, nameLast));
+  //console.log(userSetnameV1(token, nameFirst, nameLast));
 });
 
 //userSetemailV1
