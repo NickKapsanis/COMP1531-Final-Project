@@ -1,5 +1,4 @@
-import {getData, setData, dm} from './dataStore';
-import {getUId} from './other';
+import { getData, setData, dm } from './dataStore';
 
 type dmIdObj = {
     dmId : number
@@ -7,105 +6,103 @@ type dmIdObj = {
 
 type uId = number;
 
-type uIds = number[];
+type uIds = uId[];
 
-type error = { 
-    error : 'error' 
+type error = {
+    error : 'error'
 }
 
-type dmsInfo = {
-    dmId: number,
-    name: string
+export type dmListItem = {
+  dmId: number,
+  dmName: string
 }
 
-type dms = dmsInfo[]
+export type dmList = dmListItem[];
 
-export function dmCreateV1(token : string, uIds : uIds) : dmIdObj | error  {
-    let data = getData();
-    let creator = data.users.find(user => user.tokens.find(t => t === token));
-    let duplicateUIds = uIds => uIds.filter((item, index) => uIds.indexOf(item) != index);
+export function dmCreateV1(token : string, uIds : uIds) : dmIdObj | error {
+  const data = getData();
+  const creator = data.users.find(user => user.tokens.find(t => t === token));
+  const duplicateUIds = uIds => uIds.filter((item, index) => uIds.indexOf(item) !== index);
 
-    // Error cases
-    if (creator === undefined) { return { error : 'error' } };
-    if (duplicateUIds(uIds).length > 0) { return { error : 'error' } };
+  // Error cases
+  if (creator === undefined) { return { error: 'error' }; }
+  if (duplicateUIds(uIds).length > 0) { return { error: 'error' }; }
 
-    const newDmId = data.dms.length + 1;
+  const newDmId = data.dms.length + 1;
 
-    const handleArray = [];
-    for (let x of uIds) {
-        let uIdUser = data.users.find(user => user.uId === x);
-        if (uIdUser === undefined) { return { error : 'error' } };
-        data.users = data.users.filter(i => i.authUserId !== uIdUser.uId);
-        uIdUser.dms.push(newDmId);
-        data.users.push(uIdUser);
-        handleArray.push(uIdUser.handleStr);
-    }
+  const handleArray = [];
+  for (const x of uIds) {
+    const uIdUser = data.users.find(user => user.uId === x);
+    if (uIdUser === undefined) { return { error: 'error' }; }
+    data.users = data.users.filter(i => i.authUserId !== uIdUser.uId);
+    uIdUser.dms.push(newDmId);
+    data.users.push(uIdUser);
+    handleArray.push(uIdUser.handleStr);
+  }
 
-    handleArray.sort();
-    const newDmName = handleArray.join(", ");
+  handleArray.sort();
+  const newDmName = handleArray.join(', ');
 
-    let newDm : dm = {
-        
-        dmId: newDmId,
-        name: newDmName,
-        allMembers : uIds,
-        owner : creator.uId, 
-        messages: []
-    }
+  const newDm : dm = {
 
-    data.dms.push(newDm);
-    data.users = data.users.filter(i => i.authUserId !== creator.authUserId);
-    creator.dms.push(newDmId);
-    data.users.push(creator);
+    dmId: newDmId,
+    name: newDmName,
+    allMembers: uIds,
+    owner: creator.uId,
+    messages: []
+  };
 
-    setData(data);
+  data.dms.push(newDm);
+  data.users = data.users.filter(i => i.authUserId !== creator.authUserId);
+  creator.dms.push(newDmId);
+  data.users.push(creator);
 
-    return { dmId: newDmId };
+  setData(data);
+
+  return { dmId: newDmId };
 }
 
 export function dmListV1(token: string) {
-    let data = getData();
-    let user = data.users.find(user => user.tokens.find(t => t === token));
+  const data = getData();
+  const user = data.users.find(user => user.tokens.find(t => t === token));
 
-    if (user === undefined) { return { error : 'error' } };
+  if (user === undefined) { return { error: 'error' }; }
 
-    let dms = [];
+  const dmsArray = [];
 
-    for (let x of user.dms) {
-        let dm = data.dms.find(dm => dm.dmId === x); 
-        let obj = {
-            dmId: dm.dmId,
-            name: dm.name
-        }
-        dms.push(obj);
-    }
+  for (const x of user.dms) {
+    const dm = data.dms.find(dm => dm.dmId === x);
+    const obj = {
+      dmId: dm.dmId,
+      name: dm.name
+    };
+    dmsArray.push(obj);
+  }
 
-    return dms;
-
+  return { 
+    dms: dmsArray 
+  };
 }
 
 export function dmRemoveV1(token: string, dmId: number) {
-    let data = getData();
-    let user = data.users.find(user => user.tokens.find(t => t === token));
-    let dm = data.dms.find(dm => dm.dmId === dmId);
+  const data = getData();
+  let user = data.users.find(user => user.tokens.find(t => t === token));
+  const dm = data.dms.find(dm => dm.dmId === dmId);
 
-    if (user === undefined || dm === undefined) { return { error : 'error' } };
-    if (user.uId !== dm.owner) { return { error : 'error' } };
+  if (user === undefined || dm === undefined) { return { error: 'error' }; }
+  if (user.uId !== dm.owner) { return { error: 'error' }; }
 
-    let users = dm.allMembers;
-    users.push(dm.owner);
+  const users = dm.allMembers;
+  users.push(dm.owner);
 
-    for (let x of users) {
-        user = data.users.find(i => i.uId === x);
-        data.users = data.users.filter(i => i.uId !== x);
-        user.dms = user.dms.filter(i=> i !== dmId);
-        data.users.push(user);
-    }
+  for (const x of users) {
+    user = data.users.find(i => i.uId === x);
+    data.users = data.users.filter(i => i.uId !== x);
+    user.dms = user.dms.filter(i => i !== dmId);
+    data.users.push(user);
+  }
 
-    data.dms = data.dms.filter(i => i.dmId !== dmId);
-    setData(data);
-    return {};
- 
+  data.dms = data.dms.filter(i => i.dmId !== dmId);
+  setData(data);
+  return {};
 }
-
-
