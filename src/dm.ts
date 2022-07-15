@@ -9,6 +9,25 @@ export type dmListItem = {
 
 export type dmList = { dms: dmListItem[]};
 
+/*
+dmCreateV1
+Given an active token and array of valid userIds create a DM containing the auth user and the users in the array,
+The creator is the owner of the DM. name should be automatically generated based on the users that are in this DM.
+The name should be an alphabetically-sorted, comma-and-space-separated array of user handles,
+e.g. 'ahandle1, bhandle2, chandle3'.
+
+Arguments:
+    token (string)      - token of the user calling the function
+    uIds (array of numbers)  - array of the users the DM is sent to, not including the owner/authUser
+
+Return Value:
+    Returns { error : 'error' } on
+        -token is invalid
+        - and uID in uIDs is invalid
+        -any uID in uIds is duplicated
+
+    Returns { dmID } on sucess
+*/
 export function dmCreateV1(token: string, uIds: number[]) {
   const data: dataStoreType = getData();
   // Input checking 3 possible failures
@@ -54,13 +73,24 @@ export function dmCreateV1(token: string, uIds: number[]) {
 
   return { dmId: newDmId };
 }
+/*
+dmListV1
+Given an active token return an array of DMs the user is a member of.
 
+Arguments:
+    token (string)      - token of the user calling the function
+
+Return Value:
+    Returns { error : 'error' } on
+        -token is invalid
+
+    Returns { dms } on sucess where dms: array of objects, each contains {dmId, name}
+*/
 export function dmListV1(token: string) {
   const data = getData();
+  // token is invalid
+  if (!checkValidToken(token)) return { error: 'error' };
   const user = data.users.find(user => user.tokens.find(t => t === token));
-
-  if (user === undefined) { return { error: 'error' }; }
-
   const dmsArray = [];
 
   for (const x of user.dms) {
@@ -74,9 +104,24 @@ export function dmListV1(token: string) {
 
   return { dms: dmsArray };
 }
+/*
+dmRemoveV1
+Given an active token and a valid dmId, remove the user from the DM. both in user and dm data.
 
+Arguments:
+    token (string)      - token of the user calling the function
+    dmId  - ID of the DM to remove user from, number
+
+Return Value:
+    Returns { error : 'error' } on
+        -token is invalid
+        -dmId is invalid
+
+    Returns {} on sucess
+*/
 export function dmRemoveV1(token: string, dmId: number) {
   const data = getData();
+
   let user = data.users.find(user => user.tokens.find(t => t === token));
   const dm = data.dms.find(dm => dm.dmId === dmId);
 
