@@ -1,8 +1,17 @@
 
 import request from 'sync-request';
+<<<<<<< HEAD
 import { PORT, HOST } from './server';
 
 const url = 'http://' + HOST + ':' + PORT;
+=======
+// import { PORT, HOST } from './server';
+import config from './config.json';
+
+const port = config.port;
+const hosturl = config.url;
+const url = hosturl + ':' + port;
+>>>>>>> 9ac7ed9eb60cd8391341df015a23910753f7adfb
 
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
@@ -28,7 +37,11 @@ describe('Testing authRegisterV1 for input Error', () => {
       nameFirst: 'James',
       nameLast: 'Bond012345678901234567890123456789012345678901234567890'
     },
+<<<<<<< HEAD
 
+=======
+    // {email: 'email123@gmail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond'},
+>>>>>>> 9ac7ed9eb60cd8391341df015a23910753f7adfb
   ])('authRegisterV1($email , $password, $nameFirst, $nameLast)', (
     {
       email,
@@ -64,6 +77,10 @@ describe('Testing authRegisterV1 for input Error', () => {
 
 describe('testing registration for sucess', () => {
   test('registration correct parameters', () => {
+<<<<<<< HEAD
+=======
+    request('DELETE', url + '/clear/v1');
+>>>>>>> 9ac7ed9eb60cd8391341df015a23910753f7adfb
     const res = request(
       'POST',
       url + '/auth/register/v2',
@@ -80,7 +97,10 @@ describe('testing registration for sucess', () => {
       }
     );
     const bodyObj = JSON.parse(String(res.getBody()));
+<<<<<<< HEAD
     console.log(bodyObj);
+=======
+>>>>>>> 9ac7ed9eb60cd8391341df015a23910753f7adfb
     expect(bodyObj).toEqual(
       expect.objectContaining({
         token: expect.any(String),
@@ -90,6 +110,10 @@ describe('testing registration for sucess', () => {
     expect(res.statusCode).toStrictEqual(200);
   });
 });
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9ac7ed9eb60cd8391341df015a23910753f7adfb
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
@@ -175,6 +199,10 @@ describe('testing authLoginV1 for input errors', () => {
 describe('testing auth/logout/v1', () => {
   test('given an active token log out', () => {
     // register and log in
+<<<<<<< HEAD
+=======
+  //  request('DELETE', url + '/clear/v1');
+>>>>>>> 9ac7ed9eb60cd8391341df015a23910753f7adfb
     const res1 = request(
       'POST',
       url + '/auth/register/v2',

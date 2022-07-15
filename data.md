@@ -17,12 +17,14 @@ dataStore = {
         {
             'uId': 71,
             'authUserId' : 1000,
+            'tokens' : [1, 2, 3 ...],
             'nameFirst': 'SampleFirstName',
             'nameLast': 'SampleLastName',
             'email': 'sampleemail@email.com',
             'password' : 'P@$$1234',
             'handleStr': 'sampleUser11',
             'channels': [10],
+            'dms' : [1, 2, 3],
             'isGlobalOwner': 1 || 2, //1 or 2 for global owner or not global owner respectivly
         },
         
@@ -44,5 +46,22 @@ dataStore = {
             ]
         },
     ],
+    dms : [
+        {
+            'dmId': 10,
+            'name': 'sampleChannel',
+            'allMembers' : [71],
+            'owner' : 2, //user Id
+            'messages': [
+                {
+                'messageId' : 10,
+                'uId' : 90,
+                'timeSent' : 1332049834, //unix timestamp
+                'message' : 'Hello World'
+                },
+            ]
+    }
+    ]
 }
+
 ```
