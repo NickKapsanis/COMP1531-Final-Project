@@ -1,6 +1,5 @@
 import request from 'sync-request';
 import config from './config.json';
-import { channel } from './dataStore';
 
 const port = config.port;
 const hosturl = config.url;
@@ -61,7 +60,7 @@ test('testing when token doesn\'t exist', () => {
       }
     }
   );
-  const bodyObj = JSON.parse(res.body as string);
+  const bodyObj = JSON.parse(res.getBody() as string);
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toEqual({ error: 'error' });
@@ -70,10 +69,7 @@ test('testing when token doesn\'t exist', () => {
 test('testing when user is not in any channel', () => {
   request('DELETE', url + '/clear/v1');
 
-
   const jamesToken = createUser('james@email.com', 'testPassword123', 'James', 'James').token;
-  //console.log(jamesToken);
-
 
   const res = request(
     'GET',
@@ -84,7 +80,7 @@ test('testing when user is not in any channel', () => {
       }
     }
   );
-  const bodyObj = JSON.parse(res.body as string);
+  const bodyObj = JSON.parse(res.getBody() as string);
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj.channels).toEqual([]);
@@ -110,7 +106,7 @@ test('tests if all correct channels are listed in channel list', () => {
       }
     }
   );
-  const bodyObj: channelsListBodyObj = JSON.parse(String(res.getBody));
+  const bodyObj: channelsListBodyObj = JSON.parse(String(res.getBody()));
 
   const findC1 = bodyObj.channels.find(channel => channel.channelId === firstCreatedChannel);
   const findC2 = bodyObj.channels.find(channel => channel.channelId === secondCreatedChannel);
@@ -148,7 +144,7 @@ test('tests when no channel exists', () => {
       }
     }
   );
-  const bodyObj = JSON.parse(res.body as string);
+  const bodyObj = JSON.parse(res.getBody() as string);
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj.channels).toEqual([]);
@@ -166,10 +162,10 @@ test('tests when token isnt valid', () => {
       }
     }
   );
-  //console.log('blahh');
-  //console.log(JSON.parse(res.body as string));
+  // console.log('blahh');
+  // console.log(JSON.parse(res.body as string));
 
-  const bodyObj = JSON.parse(res.body as string);
+  const bodyObj = JSON.parse(res.getBody() as string);
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toEqual({ error: 'error' });
@@ -195,7 +191,7 @@ test('tests if all correct channels are listed in channel list', () => {
       }
     }
   );
-  const bodyObj: channelsListBodyObj = JSON.parse(String(res.getBody));
+  const bodyObj: channelsListBodyObj = JSON.parse(String(res.getBody()));
 
   const findC1 = bodyObj.channels.find(channel => channel.channelId === firstCreatedChannel);
   const findC2 = bodyObj.channels.find(channel => channel.channelId === secondCreatedChannel);
@@ -203,8 +199,8 @@ test('tests if all correct channels are listed in channel list', () => {
   const findC4 = bodyObj.channels.find(channel => channel.channelId === fourthCreatedChannel);
 
   expect(res.statusCode).toBe(200);
-  expect(findC1.name).toEqual(firstCreatedChannel);
-  expect(findC2.name).toEqual(secondCreatedChannel);
-  expect(findC3.name).toEqual(thirdCreatedChannel);
-  expect(findC4.name).toEqual(fourthCreatedChannel);
+  expect(findC1.channelId).toEqual(firstCreatedChannel);
+  expect(findC2.channelId).toEqual(secondCreatedChannel);
+  expect(findC3.channelId).toEqual(thirdCreatedChannel);
+  expect(findC4.channelId).toEqual(fourthCreatedChannel);
 });

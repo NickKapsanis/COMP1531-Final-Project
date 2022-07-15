@@ -11,8 +11,7 @@ Return Value:
     channelsArray: array    - an array of all channels user is in.
 */
 function channelsListV2(token: string) {
-
-  if (!checkValidToken(token)) return {error: 'error'}
+  if (!checkValidToken(token)) return { error: 'error' };
 
   const data = getData();
 
@@ -30,7 +29,7 @@ function channelsListV2(token: string) {
       if (data.channels[i].allMembers[n] === user.uId) {
         numChannels++;
 
-        let channel = {
+        const channel = {
           channelId: data.channels[i].channelId,
           name: data.channels[i].name
         };
@@ -48,18 +47,17 @@ function channelsListV2(token: string) {
 }
 
 /*
-this function gives an array of all channels.
-converted to typescript for v2.
+  this function gives an array of all channels.
+  converted to typescript for v2.
 
-Arguments:
-    authUserId: integer    - the users unique identification number
+  Arguments:
+      authUserId: integer    - the users unique identification number
 
-Return Value:
-    allChannelsArray: array    - an array of all channels.
-*/
+  Return Value:
+      allChannelsArray: array    - an array of all channels.
+  */
 function channelsListallV2(token: string) {
-
-  if (!checkValidToken(token)) return {error: 'error'}
+  if (!checkValidToken(token)) return { error: 'error' };
 
   const data = getData();
 
@@ -69,7 +67,6 @@ function channelsListallV2(token: string) {
   if (user === undefined) { return { error: 'error' }; }
 
   const allChannelsArray = [];
-
 
   // case with no channels
   if (data.channels.length === 0) {
@@ -84,7 +81,7 @@ function channelsListallV2(token: string) {
     };
     allChannelsArray.push(channel);
   }
-  
+
   return { channels: allChannelsArray };
 }
 
@@ -105,7 +102,7 @@ Returns the unique channelId for the created channel.
     (2)
     channelId - (integer)
 */
-function channelsCreateV2(token: string, name: string, isPublic: boolean) {
+function channelsCreateV1(token: string, name: string, isPublic: boolean) {
   const data = getData();
   const creator = data.users.find(user => user.tokens.find(t => t === token));
 
@@ -135,4 +132,4 @@ function channelsCreateV2(token: string, name: string, isPublic: boolean) {
   return { channelId: newChannelId };
 }
 
-export { channelsListV2, channelsListallV2, channelsCreateV2 };
+export { channelsCreateV1, channelsListV2, channelsListallV2 };
