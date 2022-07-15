@@ -7,10 +7,13 @@ import { channelsLeaveV1, channelJoinV2 } from './channel';
 import { clearV1 } from './other';
 import { usersAllV1 } from './users';
 import { channelsCreateV2, channelsListV2 } from './channels';
+import cors from 'cors';
 
 // Set up web app, use JSON
 const app = express();
 app.use(express.json());
+// Use middleware that allows for access from other domains
+app.use(cors());
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
@@ -47,23 +50,7 @@ app.post('/channel/join/v2', (req, res) => {
   const data = req.body;
   res.json(channelJoinV2(data.token, data.channelId));
 });
-/*
-// channelInvite
-app.post('/channel/invite/v2', (req, res) => {
-  const data = req.body;
-  res.json(channelInviteV2(data.token, data.channelId, data.uId));
-});
-// addChannelOwner
-app.post('/channel/addowner/v1', (req, res) => {
-  const data = req.body;
-  res.json(addChannelOwnerV1(data.token, data.channelId, data.uId));
-});
-// removeChannelOwner
-app.post('/channel/removeowner/v1', (req, res) => {
-  const data = req.body;
-  res.json(removeChannelOwnerV1(data.token, data.channelId, data.uId));
-});
-*/
+
 // clear
 app.delete('/clear/v1', (req, res) => {
   res.json(clearV1());
@@ -92,6 +79,10 @@ app.post('/channel/leave/v1', (req, res) => {
 app.get('/channels/list/v2', (req, res) => {
   const data = req.query.token as string;
   res.json(channelsListV2(data));
+});
+// clearV1()
+app.delete('/clear/v1', (req, res) => {
+  res.json(clearV1());
 });
 
 // for logging errors

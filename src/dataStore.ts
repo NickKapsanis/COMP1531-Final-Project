@@ -20,11 +20,11 @@ type message = {
   message : string;
 }
 type dm = {
-    dmId: number;
-    name: string;
-    allMembers : number[]; // array of all memebrs user Id's
-    owner : number; // array of all owners user Id's
-    messages?: message[];
+  dmId: number;
+  name: string;
+  allMembers : number[]; // array of all memebrs user Id's
+  owner : number; // array of all owners user Id's
+  messages?: message[];
 }
 type channel = {
   channelId: number;
