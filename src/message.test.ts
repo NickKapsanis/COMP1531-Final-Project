@@ -58,15 +58,15 @@ describe('Tests for message/remove/V1', () => {
   });
 
   test('Case 3: messageId refers to message in a channel user not member of ', () => {
-    const res = requestMessageRemoveV1(token3, messageId3);
+    const res = requestMessageRemoveV1(token3, messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
     expect(bodyObj).toStrictEqual({ error: 'error' });
   });
 
-  test('Case 4: message not sent by user', () => {
-    const res = requestMessageRemoveV1(token1, messageId2);
+  test('Case 4: message not sent by user and not global owner', () => {
+    const res = requestMessageRemoveV1(token3, messageId2);
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
@@ -74,7 +74,7 @@ describe('Tests for message/remove/V1', () => {
   });
 
   test('Case 5: user does not have owner permissions', () => {
-    const res = requestMessageRemoveV1(token2, messageId2);
+    const res = requestMessageRemoveV1(token3, messageId3);
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
@@ -83,7 +83,7 @@ describe('Tests for message/remove/V1', () => {
 
   test('Case 6: successful message remove', () => {
     const res = requestMessageRemoveV1(token1, messageId1);
-    const messages: Array<message> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
     const removedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -96,7 +96,7 @@ describe('Tests for message/remove/V1', () => {
 function requestMessageRemoveV1(token: string, messageId: number) {
   return request(
     'DELETE',
-    `${url}:${port}/message/edit/v1`,
+    `${url}:${port}/message/remove/v1`,
     {
       qs: {
         token: token,
@@ -162,10 +162,10 @@ function requestChannelInviteV2(token: string, channelId: number, uId: number) {
 
 function requestChannelMessageV2(token: string, channelId: number, start: number) {
   const res = request(
-    'POST',
+    'GET',
     `${url}:${port}/channel/messages/v2`,
     {
-      json: {
+      qs: {
         token: token,
         channelId: channelId,
         start: start,
