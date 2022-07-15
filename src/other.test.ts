@@ -5,6 +5,7 @@ import { clearV1, getUId } from './other.js';
 /// //          Tests for clearV1()         /////
 /// /////////////////////////////////////////////
 
+/*
 describe('Testing clear()', () => {
   test('', () => {
     const testAuthId = authRegisterV1('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName').authUserId;
@@ -12,11 +13,13 @@ describe('Testing clear()', () => {
     expect(authLoginV1('testemail@email.com', 'testPassword123')).toStrictEqual({ error: 'error' });
   });
 });
+*/
 
 /// /////////////////////////////////////////////
-/// //          Tests for getUId()     	   /////
+/// ////          Tests for getUId()     	   ////
 /// /////////////////////////////////////////////
 
+/*
 describe('Testing getUID()', () => {
   test('Testing getUId for correct input', () => {
     clearV1();
@@ -29,3 +32,4 @@ describe('Testing getUID()', () => {
     expect(getUId(-1)).toStrictEqual({ error: 'error' });
   });
 });
+*/

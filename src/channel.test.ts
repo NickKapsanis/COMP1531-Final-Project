@@ -1,8 +1,22 @@
-import { getUId } from './other';
 import request from 'sync-request';
-import { PORT, HOST } from './server';
+import config from './config.json';
 
-const url = 'http://' + HOST + ':' + PORT;
+const port = config.port;
+const hosturl = config.url;
+const url = hosturl + ':' + port;
+
+const getUID = (authUserId: number) => {
+  const res = request(
+    'POST', url + '/other/getUID/v1',
+    {
+      body: JSON.stringify({ authUserId: authUserId }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  return JSON.parse(String(res.getBody()));
+};
 
 // helper function - calls auth register through the server
 const createUser = (emails: string, passwords: string, name: string, surname: string) => {
@@ -209,12 +223,18 @@ describe('Testing channelMessagesV1', () => {
 });
 */
 
+type userType = {
+    token? : string;
+    authUserId? : number;
+  }
+
 /// /////////////////////////////////////////////
 /// //     Tests for channelJoinV2()        /////
 /// /////////////////////////////////////////////
 
 describe('Testing channelJoinV2', () => {
-  let james, rufus, publicChannel, privateChannel, rufusPrivateChannel;
+  let james: userType, rufus: userType;
+  let publicChannel: { channelId: number }, privateChannel: { channelId: number }, rufusPrivateChannel: { channelId: number };
 
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
@@ -248,13 +268,13 @@ describe('Testing channelJoinV2', () => {
 /// /////////////////////////////////////////////
 
 describe('Testing channelInviteV2', () => {
-  let tom, ralph, alex, general, ralphChannel, ralphuId;
+  let tom: userType, ralph: userType, alex: userType, general: { channelId: number }, ralphChannel: { channelId: number }, ralphuId: number;
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
 
     tom = createUser('tom@gmail.com', 'testPassword123', 'tom', 'Brown');
     ralph = createUser('ralph@gmail.com', 'testPassword123', 'ralph', 'Hayes');
-    ralphuId = getUId(ralph.authUserId);
+    ralphuId = getUID(ralph.authUserId);
     alex = createUser('alex@gmail.com', 'testPassword123', 'Alex', 'King');
     general = createChannel(tom.token, 'testChannel1', true);
     ralphChannel = createChannel(ralph.token, 'testChannel2', true);
@@ -267,7 +287,7 @@ describe('Testing channelInviteV2', () => {
     expect(channelInvite(tom.token, general.channelId, -100)).toEqual({ error: 'error' });
   });
   test('trying to invite existing channel member', () => {
-    channelJoin(alex.token, ralphChannel);
+    channelJoin(alex.token, ralphChannel.channelId);
     expect(channelInvite(alex.token, general.channelId, ralphuId)).toEqual({ error: 'error' });
   });
   test('user inviting is not a member of the channel', () => {
@@ -283,7 +303,7 @@ describe('Testing channelInviteV2', () => {
 /// /////////////////////////////////////////////
 
 describe('Testing addChannelOwnerV1', () => {
-  let steven, richard, lily, lilyuId, richardChannel, publicChannel;
+  let steven: userType, richard: userType, lily: userType, lilyuId: number, richardChannel: { channelId: number }, publicChannel: { channelId: number };
 
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
@@ -291,7 +311,7 @@ describe('Testing addChannelOwnerV1', () => {
     steven = createUser('steven@gmail.com', 'testPassword123', 'steven', 'Brown');
     richard = createUser('richard@gmail.com', 'testPassword123', 'richard', 'Hayes');
     lily = createUser('lily@gmail.com', 'testPassword123', 'lily', 'King');
-    lilyuId = getUId(lily.authUserId);
+    lilyuId = getUID(lily.authUserId);
 
     publicChannel = createChannel(steven.token, 'testChannel1', true);
     richardChannel = createChannel(richard.token, 'testChannel2', true);
@@ -322,7 +342,7 @@ describe('Testing addChannelOwnerV1', () => {
 /// /////////////////////////////////////////////
 
 describe('Testing removeChannelOwnerV1', () => {
-  let homer, bart, marge, bartuId, margeuId, bartChannel;
+  let homer: userType, bart: userType, marge: userType, bartuId: number, margeuId: number, bartChannel: { channelId: number };
 
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
@@ -330,8 +350,8 @@ describe('Testing removeChannelOwnerV1', () => {
     homer = createUser('homer@gmail.com', 'testPassword123', 'homer', 'Brown');
     bart = createUser('bart@gmail.com', 'testPassword123', 'bart', 'Hayes');
     marge = createUser('marge@gmail.com', 'testPassword123', 'marge', 'King');
-    bartuId = getUId(bart.authUserId);
-    margeuId = getUId(marge.authUserId);
+    bartuId = getUID(bart.authUserId);
+    margeuId = getUID(marge.authUserId);
 
     bartChannel = createChannel(bart.token, 'testChannel2', true);
     channelJoin(marge.token, bartChannel.channelId);
@@ -361,4 +381,4 @@ describe('Testing removeChannelOwnerV1', () => {
 
 // assumption - both global and channel owners can add and remove themselves as channel owners
 
-export { createChannel, createUser, channelJoin };
+export { createChannel, createUser, channelJoin, getUID };

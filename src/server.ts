@@ -4,7 +4,7 @@ import morgan from 'morgan';
 import config from './config.json';
 import { authRegisterV1, authLoginV1, authLogoutV1 } from './auth';
 import { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1 } from './channel';
-import { clearV1 } from './other';
+import { clearV1, getUId } from './other';
 import { usersAllV1 } from './users';
 import { channelsCreateV2 } from './channels';
 
@@ -30,6 +30,11 @@ app.get('/echo', (req, res, next) => {
 app.post('/auth/register/v2', (req, res) => {
   const data = req.body;
   res.json(authRegisterV1(data.email, data.password, data.nameFirst, data.nameLast));
+});
+// getUId
+app.post('/other/getUId/v1', (req, res) => {
+  const data = req.body;
+  res.json(getUId(data.authUserId));
 });
 // authLogin
 app.post('/auth/login/v2', (req, res) => {

@@ -1,14 +1,15 @@
-import { createChannel, createUser, channelJoin } from './channel.test';
-import { getUId } from './other';
+import { createChannel, createUser, channelJoin, getUID } from './channel.test';
 
 import request from 'sync-request';
-import { PORT, HOST } from './server';
+import config from './config.json';
 
-const url = 'http://' + HOST + ':' + PORT;
+const port = config.port;
+const hosturl = config.url;
+const url = hosturl + ':' + port;
 
-/// /////////////////////////////////////////////
-/// ///      Tests for userProfileV1() 	     ////
-/// /////////////////////////////////////////////
+/// ////////////////////////////////////////////
+/// ///      Tests for userProfileV1()       ///
+/// ////////////////////////////////////////////
 
 /*
 describe('Testing userProfileV1()', () => {
@@ -68,23 +69,29 @@ describe('Testing userProfileV1()', () => {
 */
 
 /// /////////////////////////////////////////////
-/// ///      Tests for usersAllV1() 	        ///
+/// ///        Tests for usersAllV1()         ///
 /// /////////////////////////////////////////////
 
+type userType = {
+  token? : string;
+  authUserId? : number;
+}
+
 describe('Testing usersAllV1 - should all work if other functions work', () => {
-  let james, rufus, alex, rufusChannel, alexUId, rufusUId, jamesUId;
+  let james: userType, rufus: userType, alex: userType;
+  let rufusChannel: { channelId: number }, alexUId: { channelId: number }, rufusUId: number, jamesUId: number;
 
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
 
     james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
-    jamesUId = getUId(james.authUserId);
+    jamesUId = getUID(james.authUserId);
 
     rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Hayes');
-    rufusUId = getUId(rufus.authUserId);
+    rufusUId = getUID(rufus.authUserId);
 
     alex = createUser('alex@gmail.com', 'testPassword123', 'Alex', 'King');
-    alexUId = getUId(alex.authUserId);
+    alexUId = getUID(alex.authUserId);
 
     rufusChannel = createChannel(rufus.token, 'testChannel2', true);
     channelJoin(alex.token, rufusChannel.channelId);

@@ -54,7 +54,7 @@ changes the user details according to what was inputted.
   (2) nothing
     {}
 */
-function userSetnameV1(authUserId, nameFirst, nameLast) {
+function userSetnameV1(authUserId: number, nameFirst: string, nameLast: string) {
   // does all the error checking
   if (nameFirst.length > 50 || nameFirst.length < 1 ||
     nameLast.length > 50 || nameLast.length < 1) {
@@ -87,7 +87,7 @@ changes the user details according to what was inputted.
   (2) nothing
     {}
 */
-function userSetemailV1(authUserId, email) {
+function userSetemailV1(authUserId: number, email: string) {
   // does all the error checking
   if (!isEmail(email)) {
     return { error: 'error' };
@@ -119,7 +119,7 @@ changes the user details according to what was inputted.
   (2) nothing
     {}
 */
-function userSethandlelV1(authUserId, handleStr) {
+function userSethandlelV1(authUserId: number, handleStr: string) {
   // finds person from the data, and changes their firstname.
   const data = getData();
   const user = data.users.find(i => i.authUserId === authUserId);

@@ -1,6 +1,4 @@
 import { dataStoreType, getData, setData, user, channel } from './dataStore';
-import { userProfileV1 } from './users';
-import { channelsListV1 } from './channels';
 
 /*
  * Returns the basic details about the channel (such as its name, public status,
@@ -18,7 +16,7 @@ import { channelsListV1 } from './channels';
  *        allMembers
  *      }
  */
-
+/*
 function channelDetailsV1(authUserId: number, channelId: number) {
   const store : dataStoreType = getData();
 
@@ -81,7 +79,7 @@ function channelDetailsV1(authUserId: number, channelId: number) {
  *                                      where messages is an array of objects,
  *                                      start and end are integers.
  */
-
+/*
 function channelMessagesV1(authUserId, channelId, start) {
   const store = getData();
 
@@ -121,7 +119,7 @@ function channelMessagesV1(authUserId, channelId, start) {
 
   return messageDetails;
 }
-
+*/
 // helper function to reduce reptition
 function getChannel(channelId: number, channelsArray: channel[]) {
   let channel: channel;
@@ -346,4 +344,4 @@ function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
   return {};
 }
 
-export { channelDetailsV1, channelJoinV2, channelInviteV2, channelMessagesV1, addChannelOwnerV1, removeChannelOwnerV1, getChannel };
+export { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, getChannel };
