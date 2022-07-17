@@ -1,0 +1,5 @@
+
+> start
+> ts-node src/server.ts
+
+⚡️ Server listening on port 48237 at localhost

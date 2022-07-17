@@ -1,0 +1,49 @@
+
+> start
+> ts-node src/server.ts
+
+⚡️ Server listening on port 48237 at localhost
+TypeError: Cannot read properties of undefined (reading 'authUserId')
+    at addChannelOwnerV1 (/import/kamen/3/cs1531/project-automarking/tempstore/src/channel.ts:271:93)
+    at /import/kamen/3/cs1531/project-automarking/tempstore/src/server.ts:125:29
+    at Layer.handle [as handle_request] (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/layer.js:95:5)
+    at next (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/route.js:144:13)
+    at Route.dispatch (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/route.js:114:3)
+    at Layer.handle [as handle_request] (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/layer.js:95:5)
+    at /import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/index.js:346:12)
+    at next (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/index.js:280:10)
+    at cors (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/cors/lib/index.js:188:7)
+TypeError: Cannot read properties of undefined (reading 'authUserId')
+    at channelInviteV2 (/import/kamen/3/cs1531/project-automarking/tempstore/src/channel.ts:220:93)
+    at /import/kamen/3/cs1531/project-automarking/tempstore/src/server.ts:120:27
+    at Layer.handle [as handle_request] (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/layer.js:95:5)
+    at next (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/route.js:144:13)
+    at Route.dispatch (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/route.js:114:3)
+    at Layer.handle [as handle_request] (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/layer.js:95:5)
+    at /import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/index.js:346:12)
+    at next (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/index.js:280:10)
+    at cors (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/cors/lib/index.js:188:7)
+TypeError: Cannot read properties of undefined (reading 'authUserId')
+    at channelJoinV2 (/import/kamen/3/cs1531/project-automarking/tempstore/src/channel.ts:170:93)
+    at /import/kamen/3/cs1531/project-automarking/tempstore/src/server.ts:115:25
+    at Layer.handle [as handle_request] (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/layer.js:95:5)
+    at next (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/route.js:144:13)
+    at Route.dispatch (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/route.js:114:3)
+    at Layer.handle [as handle_request] (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/layer.js:95:5)
+    at /import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/index.js:346:12)
+    at next (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/index.js:280:10)
+    at cors (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/cors/lib/index.js:188:7)
+TypeError: Cannot read properties of undefined (reading 'authUserId')
+    at removeChannelOwnerV1 (/import/kamen/3/cs1531/project-automarking/tempstore/src/channel.ts:326:93)
+    at /import/kamen/3/cs1531/project-automarking/tempstore/src/server.ts:130:32
+    at Layer.handle [as handle_request] (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/layer.js:95:5)
+    at next (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/route.js:144:13)
+    at Route.dispatch (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/route.js:114:3)
+    at Layer.handle [as handle_request] (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/layer.js:95:5)
+    at /import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/index.js:346:12)
+    at next (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/express/lib/router/index.js:280:10)
+    at cors (/import/kamen/3/cs1531/project-automarking/tempstore/node_modules/cors/lib/index.js:188:7)
