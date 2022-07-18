@@ -13,6 +13,7 @@ import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
 import { channelDetailsV2, channelMessagesV2 } from './channel';
+import errorHandler from 'middleware-http-errors';
 
 // Set up web app, use JSON
 const app = express();
@@ -243,6 +244,9 @@ app.put('/message/edit/v1', (req, res) => {
   const { token, messageId, message } = req.body;
   res.json(messageEditV1(token, messageId, message));
 });
+
+// handles errors nicely
+app.use(errorHandler());
 
 // for logging errors
 app.use(morgan('dev'));
