@@ -14,12 +14,16 @@ const OK = 200;
 
 // Testing for channelDetailsV1
 describe('Testing channelDetailsV1', () => {
-  let token: string;
-  let channelId: number;
+  let token1: string;
+  let token2: string;
+  let channelId1: number;
+  let channelId2: number; 
 
   beforeEach(() => {
-    token = createUser('example123@email.com', 'password', 'John', 'Smith').token;
-    channelId = createChannel(token, 'Channel 1', true).channelId;
+    token1 = createUser('example123@email.com', 'password1', 'John', 'Smith').token;
+    token2 = createUser('example456@email.com', 'password2', 'Jane', 'Citizen').token;
+    channelId1 = createChannel(token1, 'Channel 1', true).channelId;
+    channelId2 = createChannel(token2, 'Channel 2', true).channelId;
   });
 
   afterEach(() => {
@@ -28,7 +32,7 @@ describe('Testing channelDetailsV1', () => {
 
   test('Case 1: channelId does not refer to valid channel', () => {
     // Finding an invalid channelId to pass in
-    const allChannels = requestChannelsListallV2(token).channels;
+    const allChannels = requestChannelsListallV2(token1).channels;
     let invalidId = 199;
     for (const i in allChannels) {
       if (invalidId === allChannels[i].channelId) {
@@ -36,23 +40,15 @@ describe('Testing channelDetailsV1', () => {
       }
     }
 
-    const res = requestChannelDetailsV2(token, invalidId);
+    const res = requestChannelDetailsV2(token1, invalidId);
     const bodyObj = JSON.parse(String(res.getBody()));
 
     expect(res.statusCode).toBe(OK);
     expect(bodyObj).toStrictEqual({ error: 'error' });
   });
 
-  test('Case 2: authorised user is not a member of channel', () => {
-    const memberOf = requestChannelsListV2(token).channels;
-    let notMemberId = 199;
-    for (const i in memberOf) {
-      if (notMemberId === memberOf[i].channelId) {
-        notMemberId = notMemberId + 100;
-      }
-    }
-
-    const res = requestChannelDetailsV2(token, notMemberId);
+  test('Case 2: user is not a member of channel', () => {
+    const res = requestChannelDetailsV2(token1, channelId2);
     const bodyObj = JSON.parse(String(res.getBody()));
 
     expect(res.statusCode).toBe(OK);
@@ -60,7 +56,7 @@ describe('Testing channelDetailsV1', () => {
   });
 
   test('Case 3: Deals with all valid arguments', () => {
-    const res = requestChannelDetailsV2(token, channelId);
+    const res = requestChannelDetailsV2(token1, channelId1);
     const bodyObj = JSON.parse(String(res.getBody()));
 
     expect(res.statusCode).toBe(OK);
@@ -72,10 +68,12 @@ describe('Testing channelDetailsV1', () => {
     });
   });
 
-  // test('Case 4: Deals with invalid/undefined inputs', () => {
-  //     const details = channelDetailsV1('', '');
-  //     expect(details).toStrictEqual({ error: 'error' });
-  // });
+  test('Case 4: Deals with invalid token', () => {
+      const res = requestChannelDetailsV2('invalid-token', channelId1);
+      const bodyObj = JSON.parse(String(res.getBody()));
+      expect(res.statusCode).toBe(OK);
+      expect(bodyObj).toStrictEqual({ error: 'error' });
+  });
 });
 
 // Helper function for HTTP calls for channelDetailsV2
