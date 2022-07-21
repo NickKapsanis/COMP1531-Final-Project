@@ -160,7 +160,7 @@ describe('Testing channelMessagesV1', () => {
 
   test('Case 5: Deals with 50+ messages', () => {
     for (let i = 0; i < 55; i++) {
-      requestMessageSendV1(token1, channelId1, `${i}`); 
+      requestMessageSendV1(token1, channelId1, `${i}`);
     }
     const start = 0;
     const res = requestChannelMessagesV2(token1, channelId1, start);
