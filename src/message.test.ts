@@ -271,7 +271,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 6: successful message edit (in channels)', () => {
     const res = requestMessageEditV1(token1, messageId1, 'Edited Message 1.1');
-    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV3(token1, channelId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -282,7 +282,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 7: successful message edit (empty message string)', () => {
     const res = requestMessageEditV1(token1, messageId1, '');
-    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV3(token1, channelId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -293,7 +293,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 8: successful message edit (with global permissions)', () => {
     const res = requestMessageEditV1(token1, messageId3, 'Edited Message 2.1');
-    const messages: Array<message | undefined> = requestChannelMessageV2(token2, channelId2, 0); // Assumption: global owner cannot access channelMessagesV2
+    const messages: Array<message | undefined> = requestChannelMessageV3(token2, channelId2, 0); // Assumption: global owner cannot access channelMessagesV3
     const editedMessage: message = messages.find(message => message.messageId === messageId3);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -404,7 +404,7 @@ describe('Tests for message/remove/V1', () => {
 
   test('Case 6: successful message remove', () => {
     const res = requestMessageRemoveV1(token1, messageId1);
-    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV3(token1, channelId1, 0);
     const removedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -496,10 +496,10 @@ function requestChannelInviteV2(token: string, channelId: number, uId: number) {
   return JSON.parse(String(res.getBody()));
 }
 
-function requestChannelMessageV2(token: string, channelId: number, start: number) {
+function requestChannelMessageV3(token: string, channelId: number, start: number) {
   const res = request(
     'GET',
-    `${url}:${port}/channel/messages/v2`,
+    `${url}:${port}/channel/messages/v3`,
     {
       qs: {
         token: token,
