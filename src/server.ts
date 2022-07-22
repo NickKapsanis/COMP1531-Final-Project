@@ -12,7 +12,7 @@ import { usersAllV1, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
-import { channelDetailsV2, channelMessagesV2 } from './channel';
+import { channelDetailsV3, channelMessagesV2 } from './channel';
 import errorHandler from 'middleware-http-errors';
 
 // Set up web app, use JSON
@@ -199,10 +199,10 @@ app.get('/channels/listall/v2', (req, res) => {
 });
 
 // channelDetailsV2
-app.get('/channel/details/v2', (req, res) => {
+app.get('/channel/details/v3', (req, res) => {
   const token = String(req.query.token);
   const channelId = Number(req.query.channelId);
-  res.json(channelDetailsV2(token, channelId));
+  res.json(channelDetailsV3(token, channelId));
 });
 
 // channelMessagesV2
