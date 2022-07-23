@@ -10,7 +10,12 @@ type message = {
   uId : number;
   timeSent : number;
   message : string;
+  reacts: Array<react>; 
+  isPinned: boolean; 
 }
+
+const FORBID = 403;
+const BAD_REQ = 400;
 
 // Tests for message/send/v1
 describe('Tests for message/send/V1', () => {
@@ -422,6 +427,203 @@ function requestMessageRemoveV1(token: string, messageId: number) {
     {
       qs: {
         token: token,
+        messageId: messageId,
+      }
+    }
+  );
+}
+
+// Tests for message/pin/v1 
+describe('Tests for message/pin/v1', () => {
+  let token1: string;
+  let token2: string;
+  let token3: string;
+  let channelId1: number;
+  let channelId2: number;
+  let dmId1: number; 
+  let messageId1: number;
+  let messageId2: number;
+  let messageId3: number;
+
+  beforeEach(() => {
+    //  channelId1: [owners: 1][members: 1,2] channelId2: [owners: 1, 2][members: 2, 3] (because token1 is a global owner)
+    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
+    channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
+    channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
+    dmId1 = requestDmCreateV1(token2, [2, 3]);
+
+    // Invite token2 into Channel 1 and token3 into Channel 2
+    requestChannelInviteV2(token1, channelId1, 2);
+    requestChannelInviteV2(token2, channelId2, 3);
+    
+    messageId1 = requestMessageSendV1(token1, channelId1, 'Message C1.1');
+    messageId2 = requestMessageSendV1(token3, channelId2, 'Message C2.1');
+    messageId3 = requestMessageSendV1(token2, dmId1, 'Message D1.1');
+  });
+
+  afterEach(() => {
+    requestClear();
+  });
+
+  test('Case 1: messageId refers to message in a channel user not member of', () => {
+    // Token3 is pinning messageId1 which is in different channel 
+    const res = requestMessagePinV1(messageId1); 
+    expect(res.statusCode).toBe(BAD_REQ);
+  }); 
+
+  test('Case 2: messageId is already pinned', () => {
+    // Token1 is pinning messageId1 in channel1
+    requestMessagePinV1(messageId1);
+
+    // Token1 is pinning messageId1 again 
+    const res = requestMessagePinV1(messageId1); 
+    expect(res.statusCode).toBe(BAD_REQ);
+  }); 
+
+  test('Case 3: user no owner permissions in channel', () => {
+    // Token 3 (not owner) pins messageId2
+    const res = requestMessagePinV1(messageId2); 
+    expect(res.statusCode).toBe(FORBID); 
+  });
+
+  test('Case 4: user no owner permissions in dm', () => {
+    // Token 3 (not owner) pins messageId3 
+    const res = requestMessagePinV1(messageId3); 
+    expect(res.statusCode).toBe(FORBID); 
+  });
+
+  test('Case 5: sucessful pin, user global owner (channel)', () => {
+    // Token 1 (global owner) pins messageId2
+    const res = requestMessagePinV1(messageId2); 
+    expect(res.statusCode).toBe(OK); 
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(bodyObj).toStrictEqual({});
+  });
+
+  test('Case 6: sucessful pin, (dm)', () => {
+    // Token 2 (owner of dm) pins messageId3
+    const res = requestMessagePinV1(messageId3); 
+    expect(res.statusCode).toBe(OK); 
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(bodyObj).toStrictEqual({});
+  });
+
+  // test('Case 7: invalid token', () => {
+  // 
+  // });
+});
+
+// Helper function for message/pin/v1 HTTP requests
+function requestMessagePinV1(messageId: number) {
+  return request(
+    'POST',
+    `${url}:${port}/message/pin/v1`,
+    {
+      json: {
+        messageId: messageId,
+      }
+    }
+  );
+}
+
+// Tests for message/pin/v1 
+describe('Tests for message/pin/v1', () => {
+  let token1: string;
+  let token2: string;
+  let token3: string;
+  let channelId1: number;
+  let channelId2: number;
+  let dmId1: number; 
+  let messageId1: number;
+  let messageId2: number;
+  let messageId3: number;
+
+  beforeEach(() => {
+    //  channelId1: [owners: 1][members: 1,2] channelId2: [owners: 1, 2][members: 2, 3] (because token1 is a global owner)
+    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
+    channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
+    channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
+    dmId1 = requestDmCreateV1(token2, [2, 3]);
+
+    // Invite token2 into Channel 1 and token3 into Channel 2
+    requestChannelInviteV2(token1, channelId1, 2);
+    requestChannelInviteV2(token2, channelId2, 3);
+    
+    messageId1 = requestMessageSendV1(token1, channelId1, 'Message C1.1');
+    messageId2 = requestMessageSendV1(token3, channelId2, 'Message C2.1');
+    messageId3 = requestMessageSendV1(token2, dmId1, 'Message D1.1');
+    requestMessagePinV1(messageId1); 
+    requestMessagePinV1(messageId2);
+    requestMessagePinV1(messageId3);
+  });
+
+  afterEach(() => {
+    requestClear();
+  });
+
+  test('Case 1: messageId refers to message in a channel user not member of', () => {
+    // Token3 is unpinning messageId1 which is in different channel 
+    const res = requestMessageUnPinV1(messageId1); 
+    expect(res.statusCode).toBe(BAD_REQ);
+  }); 
+
+  test('Case 2: messageId is already pinned', () => {
+    // Token1 is unpinning messageId1 in channel1
+    requestMessageUnPinV1(messageId1);
+
+    // Token1 is unpinning messageId1 again 
+    const res = requestMessageUnPinV1(messageId1); 
+    expect(res.statusCode).toBe(BAD_REQ);
+  }); 
+
+  test('Case 3: user no owner permissions in channel', () => {
+    // Token 3 (not owner) unpins messageId2
+    const res = requestMessageUnPinV1(messageId2); 
+    expect(res.statusCode).toBe(FORBID); 
+  });
+
+  test('Case 4: user no owner permissions in dm', () => {
+    // Token 3 (not owner) unpins messageId3 
+    const res = requestMessageUnPinV1(messageId3); 
+    expect(res.statusCode).toBe(FORBID); 
+  });
+
+  test('Case 5: sucessful pin, user global owner (channel)', () => {
+    // Token 1 (global owner) unpins messageId2
+    const res = requestMessageUnPinV1(messageId2); 
+    expect(res.statusCode).toBe(OK); 
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(bodyObj).toStrictEqual({});
+  });
+
+  test('Case 6: sucessful pin, (dm)', () => {
+    // Token 2 (owner of dm) unpins messageId3
+    const res = requestMessageUnPinV1(messageId3); 
+    expect(res.statusCode).toBe(OK); 
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(bodyObj).toStrictEqual({});
+  });
+
+  // test('Case 7: invalid token', () => {
+  // 
+  // });
+});
+
+// Helper function for message/pin/v1 HTTP requests
+function requestMessageUnPinV1(messageId: number) {
+  return request(
+    'POST',
+    `${url}:${port}/message/unpin/v1`,
+    {
+      json: {
         messageId: messageId,
       }
     }
