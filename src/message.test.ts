@@ -428,6 +428,94 @@ function requestMessageRemoveV1(token: string, messageId: number) {
   );
 }
 
+describe('Tests for message/sendlaterdm/v1', () => {
+  let dmId1: number; 
+  let token1: string; 
+  let token2: string; 
+
+  beforeEach(() => {
+    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
+    dmId1 = requestDmCreateV1(token1, [1, 2]);
+    dmId2 = requestDmCreateV1(token2, [2]); 
+  });
+
+  afterEach(() => {
+    requestClear();
+  });
+
+  test('Case 1: dmId does not refer to valid dm', () => {
+    // NOTE: cannot use method as did before as cannot list all DMs in dataStore without referring to it
+    const invalidId = Math.floor((Math.random() * 1000) + 1000);
+
+    const timeSent = Math.floor(Date.now() / 1000) + 5; 
+    const res = requestMessageSendLaterV1(invalidId, 'Message 1', timeSent);
+    expect(res.statusCode).toBe(BAD_REQ);
+  }); 
+
+  test('Case 2: length of message is less than 1 or more than 1000 characters', () => {
+    // Generate 1000+ character message
+    const testMessage100 = 'dlXqa8qv6YSWfOcAO7Vf9gAjigjRXGjHygJahreDg0yKUIpKRKhQWpruNwESu7nKdwtJU0zGsM34tgCm9CaWyPkV4hhVClmFfQNM';
+    let testMessage1000 = '';
+    for (let i = 0; i < 11; i++) {
+      testMessage1000 = testMessage1000 + testMessage100;
+    }
+
+    const timeSent = Math.floor(Date.now() / 1000) + 5; 
+    const res1 = requestMessageSendLaterV1(dmId1, '', timeSent);
+    const res2 = requestMessageSendLaterV1(dmId1, testMessage1000, timeSent);
+
+    expect(res1.statusCode).toBe(BAD_REQ);
+    expect(res2.statusCode).toBe(BAD_REQ);
+  });
+
+  test('Case 3: timeSent is in the past', () => {
+    // Token 1 attempt to send message to channel1
+    const timeSent = Math.floor(Date.now() / 1000) - 5; 
+    const res = requestMessageSendLaterV1(dmId1, 'Message 1', timeSent);
+    expect(res.statusCode).toBe(BAD_REQ);
+  });
+
+  test('Case 4: dmID refers to dm user not member of', () => {
+    // Token 1 attempt to send message to channel1 (5 seconds later)
+    const timeSent = Math.floor(Date.now() / 1000) + 5; 
+    const res = requestMessageSendLaterV1(dmId2, 'Message 1', timeSent);
+    expect(res.statusCode).toBe(FORBID);
+  });
+
+  test('Case 5: successful send later', () => {
+    // Token 1 send message 5 seconds later to channel1
+    const timeSent = Math.floor(Date.now() / 1000) + 5; 
+    const res = requestMessageSendLaterV1(dmId1, 'Message 1', timeSent);
+    expect(res.statusCode).toBe(OK);
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(bodyObj.messageId).toStrictEqual(expect.any(Number));
+  });
+
+  // test('Case 6: DM is removed before the message has sent', () => {
+  // question: will it still return the messageId? 
+  // });
+
+  // test('Case 7: invalid token', () => {
+
+  // }); 
+});
+
+function requestMessageSendLaterDmV1(dmId: number, message: string, timeSent: number) {
+  return request(
+    'POST',
+    `${url}:${port}/message/sendlaterdm/v1`,
+    {
+      json: {
+        dmId: dmId,
+        message: message, 
+        timeSent: timeSent, 
+      }
+    }
+  );
+}
+
 /// /////////////////////////////////////////////////////////////////////////////
 /// /////////////////////////////////////////////////////////////////////////////
 /// /////////////////////        Helper Functions       /////////////////////////
