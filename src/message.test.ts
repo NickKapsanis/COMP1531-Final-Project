@@ -12,6 +12,9 @@ type message = {
   message : string;
 }
 
+const BAD_REQ = 400; 
+const FORBID = 403; 
+
 // Tests for message/send/v1
 describe('Tests for message/send/V1', () => {
   let token1: string;
@@ -423,6 +426,94 @@ function requestMessageRemoveV1(token: string, messageId: number) {
       qs: {
         token: token,
         messageId: messageId,
+      }
+    }
+  );
+}
+
+describe('Tests for message/sendlater/v1', () => {
+  let channelId1; 
+  let token1; 
+  let token2; 
+
+  beforeEach(() => {
+    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
+    channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
+  });
+
+  afterEach(() => {
+    requestClear();
+  });
+
+  test('Case 1: channelId does not refer to valid channel', () => {
+    const allChannels = requestChannelsListallV2(token1);
+    let invalidId = 199;
+    for (const i in allChannels) {
+      if (invalidId === allChannels[i].channelId) {
+        invalidId = invalidId + 100;
+      }
+    }
+
+    const timeSent = Math.floor(Date.now() / 1000) + 5; 
+    const res = requestMessageSendLaterV1(channelId1, 'Message 1', timeSent);
+    expect(res.statusCode).toBe(BAD_REQ);
+  }); 
+
+  test('Case 2: length of message is less than 1 or more than 1000 characters', () => {
+    // Generate 1000+ character message
+    const testMessage100 = 'dlXqa8qv6YSWfOcAO7Vf9gAjigjRXGjHygJahreDg0yKUIpKRKhQWpruNwESu7nKdwtJU0zGsM34tgCm9CaWyPkV4hhVClmFfQNM';
+    let testMessage1000 = '';
+    for (let i = 0; i < 11; i++) {
+      testMessage1000 = testMessage1000 + testMessage100;
+    }
+
+    const timeSent = Math.floor(Date.now() / 1000) + 5; 
+    const res1 = requestMessageSendLaterV1(channelId1, '', timeSent);
+    const res2 = requestMessageSendLaterV1(channelId1, testMessage1000, timeSent);
+
+    expect(res1.statusCode).toBe(BAD_REQ);
+    expect(res2.statusCode).toBe(BAD_REQ);
+  });
+
+  test('Case 3: timeSent is in the past', () => {
+    // Token 1 attempt to send message to channel1
+    const timeSent = Math.floor(Date.now() / 1000) - 5; 
+    const res = requestMessageSendLaterV1(channelId1, 'Message 1', timeSent);
+    expect(res.statusCode).toBe(BAD_REQ);
+  });
+
+  test('Case 4: channelId refers to channel user not member of', () => {
+    // Token 2 attempt to send message to channel1 (5 seconds later)
+    const timeSent = Math.floor(Date.now() / 1000) + 5; 
+    const res = requestMessageSendLaterV1(channelId1, 'Message 1', timeSent);
+    expect(res.statusCode).toBe(FORBID);
+  });
+
+  test('Case 5: successful send later', () => {
+    // Token 1 send message 5 seconds later to channel1
+    const timeSent = Math.floor(Date.now() / 1000) + 5; 
+    const res = requestMessageSendLaterV1(channelId1, 'Message 1', timeSent);
+    expect(res.statusCode).toBe(OK);
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(bodyObj.messageId).toStrictEqual(expect.any(Number));
+  });
+
+  // test('Case 6: invalid token', () => {
+
+  // }); 
+});
+
+function requestMessageSendLaterV1(channelId: number, message: string, timeSent: number) {
+  return request(
+    'POST',
+    `${url}:${port}/message/sendlater/v1`,
+    {
+      json: {
+        channelId: channelId,
+        message: message, 
+        timeSent: timeSent, 
       }
     }
   );
