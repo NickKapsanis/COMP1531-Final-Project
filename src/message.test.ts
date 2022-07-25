@@ -12,6 +12,9 @@ type message = {
   message : string;
 }
 
+const FORBID = 403;
+const BAD_REQ = 400;
+
 // Tests for message/send/v1
 describe('Tests for message/send/V1', () => {
   let token1: string;
@@ -108,8 +111,8 @@ function testRequestMessageSendV1(token: string, channelId: number, message: str
   );
 }
 
-// Tests for message/senddm/v1
-describe('Tests for message/senddm/V1', () => {
+// Tests for message/senddm/v2
+describe('Tests for message/senddm/v2', () => {
   let token1: string;
   let token2: string;
   let token3: string;
@@ -131,22 +134,16 @@ describe('Tests for message/senddm/V1', () => {
   });
 
   test('Case 1: token is invalid', () => {
-    const res = testRequestMessageSendDmV1('invalid-token', dmId1, 'Message 1');
-
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = testRequestMessageSendDmV2('invalid-token', dmId1, 'Message 1');
+    expect(res.statusCode).toBe(FORBID);
   });
 
   test('Case 2: dmId does not refer to valid DM', () => {
     // NOTE: cannot use method as did before as cannot list all DMs in dataStore without referring to it
     const invalidId = Math.floor((Math.random() * 1000) + 1000);
 
-    const res = testRequestMessageSendDmV1(token3, invalidId, 'Message 1');
-
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = testRequestMessageSendDmV2(token3, invalidId, 'Message 1');
+    expect(res.statusCode).toBe(BAD_REQ);
   });
 
   test('Case 3: length of message is less than 1 or more than 1000 characters', () => {
@@ -157,28 +154,20 @@ describe('Tests for message/senddm/V1', () => {
       testMessage1000 = testMessage1000 + testMessage100;
     }
 
-    const res1 = testRequestMessageSendDmV1(token1, dmId1, '');
-    const res2 = testRequestMessageSendDmV1(token1, dmId1, testMessage1000);
+    const res1 = testRequestMessageSendDmV2(token1, dmId1, '');
+    const res2 = testRequestMessageSendDmV2(token1, dmId1, testMessage1000);
 
-    expect(res1.statusCode).toBe(OK);
-    expect(res2.statusCode).toBe(OK);
-    const bodyObj1 = JSON.parse(String(res1.getBody()));
-    const bodyObj2 = JSON.parse(String(res2.getBody()));
-
-    expect(bodyObj1).toStrictEqual({ error: 'error' });
-    expect(bodyObj2).toStrictEqual({ error: 'error' });
+    expect(res1.statusCode).toBe(BAD_REQ);
+    expect(res2.statusCode).toBe(BAD_REQ);
   });
 
   test('Case 4: user not member of DM', () => {
-    const res = testRequestMessageSendDmV1(token1, dmId2, 'Message 1');
-
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = testRequestMessageSendDmV2(token1, dmId2, 'Message 1');
+    expect(res.statusCode).toBe(FORBID);
   });
 
   test('Case 5: successful message senddm', () => {
-    const res = testRequestMessageSendDmV1(token1, dmId1, 'Message 1');
+    const res = testRequestMessageSendDmV2(token1, dmId1, 'Message 1');
     const bodyObj = JSON.parse(String(res.getBody())).messageId;
     expect(res.statusCode).toBe(OK);
     expect(bodyObj).toStrictEqual(expect.any(Number)); // To change once format of ids finalised.
@@ -186,10 +175,10 @@ describe('Tests for message/senddm/V1', () => {
 });
 
 // Helper function for message/senddm/v1 HTTP calls
-function testRequestMessageSendDmV1(token: string, dmId: number, message: string) {
+function testRequestMessageSendDmV2(token: string, dmId: number, message: string) {
   return request(
     'POST',
-        `${url}:${port}/message/senddm/v1`,
+        `${url}:${port}/message/senddm/v2`,
         {
           json: {
             token: token,
@@ -333,7 +322,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 11: successful message edit (with dms)', () => {
     const dmId1: number = requestDmCreateV1(token1, [1, 3]);
-    const messageId5: number = requestMessageSendDmV1(token1, dmId1, 'Message Dm 1.1');
+    const messageId5: number = requestMessageSendDmV2(token1, dmId1, 'Message Dm 1.1');
 
     const res = requestMessageEditV1(token1, messageId5, 'Edited Message Dm 1.1');
     const messages: Array<message | undefined> = requestDmMessageV1(token1, dmId1, 0);
@@ -466,10 +455,10 @@ describe('Tests for message/remove/v1 (for dms)', () => {
     dmId1 = requestDmCreateV1(token1, [1, 2]);
     dmId2 = requestDmCreateV1(token2, [2, 3]);
 
-    messageId1 = requestMessageSendDmV1(token1, dmId1, 'Message 1.1');
-    messageId2 = requestMessageSendDmV1(token2, dmId1, 'Message 1.2');
-    messageId3 = requestMessageSendDmV1(token2, dmId2, 'Message 2.1');
-    messageId4 = requestMessageSendDmV1(token3, dmId2, 'Message 2.2');
+    messageId1 = requestMessageSendDmV2(token1, dmId1, 'Message 1.1');
+    messageId2 = requestMessageSendDmV2(token2, dmId1, 'Message 1.2');
+    messageId3 = requestMessageSendDmV2(token2, dmId2, 'Message 2.1');
+    messageId4 = requestMessageSendDmV2(token3, dmId2, 'Message 2.2');
   });
 
   afterEach(() => {
@@ -698,10 +687,10 @@ function requestDmMessageV1(token: string, dmId: number, start: number) {
   return JSON.parse(String(res.getBody())).messages;
 }
 
-function requestMessageSendDmV1(token: string, dmId: number, message: string) {
+function requestMessageSendDmV2(token: string, dmId: number, message: string) {
   const res = request(
     'POST',
-        `${url}:${port}/message/senddm/v1`,
+        `${url}:${port}/message/senddm/v2`,
         {
           json: {
             token: token,
