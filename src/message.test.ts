@@ -639,8 +639,8 @@ function requestMessagePinV1(messageId: number) {
   );
 }
 
-// Tests for message/pin/v1 
-describe('Tests for message/pin/v1', () => {
+// Tests for message/unpin/v1 
+describe('Tests for message/unpin/v1', () => {
   let token1: string;
   let token2: string;
   let token3: string;
