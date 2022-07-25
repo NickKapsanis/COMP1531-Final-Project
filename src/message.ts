@@ -1,6 +1,7 @@
 import { getData, setData, dataStoreType, user, channel, message, dm } from './dataStore';
 import { channelsListV2 } from './channels';
 import { dmListV1 } from './dm';
+import HTTPError from 'http-errors';
 
 type channelOutput = {
   channelId: number;
@@ -11,6 +12,12 @@ type dmOutput = {
   dmId: number;
   name: string;
 }
+
+const REMOVE = 'r';
+const EDIT = 'e';
+
+const FORBID = 403;
+const BAD_REQ = 400;
 
 /**
  * Given a valid inputs, sends message from user to specified channel and
@@ -152,16 +159,15 @@ function generateId(mode: string) {
 *      message:    string     The edited message
 *
 * Returns:
-*      { error: 'error' }     object     Error message when given invalid input
 *      { }                    object     Successful messageEdit
 */
-export function messageEditV1(token: string, messageId: number, message: string) {
+export function messageEditV2(token: string, messageId: number, message: string) {
   const data: dataStoreType = getData();
-  const mode = 'e';
+  const mode = EDIT;
 
   // Token validation
   if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Invalid token');
   }
 
   // Get user information
@@ -176,9 +182,9 @@ export function messageEditV1(token: string, messageId: number, message: string)
 
   // Message validation
   if (message.length > 1000) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid message length');
   } else if (message.length === 0) {
-    return messageRemoveV1(token, messageId);
+    return messageRemoveV2(token, messageId);
   }
 
   const firstDigit = String(messageId)[0];
@@ -200,13 +206,13 @@ export function messageEditV1(token: string, messageId: number, message: string)
  *      { error: 'error' }      object     Error message (given invalid input)
  *      { }                     object     Successful message remove
  */
-export function messageRemoveV1(token: string, messageId: number) {
+export function messageRemoveV2(token: string, messageId: number) {
   const data: dataStoreType = getData();
-  const mode = 'r';
+  const mode = REMOVE;
 
   // Token validation
   if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Invalid token');
   }
 
   // Get user information
@@ -218,6 +224,7 @@ export function messageRemoveV1(token: string, messageId: number) {
   } else {
     isGlobalUser = false;
   }
+
   const firstDigit = String(messageId)[0];
   if (firstDigit === '1') {
     return editInChannel(mode, token, userId, isGlobalUser, messageId);
@@ -255,7 +262,7 @@ function editInChannel(mode: string, token: string, userId: number, isGlobalUser
   });
 
   if (isMessageValid === true) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid messageId');
   }
 
   let isMember: boolean;
@@ -272,12 +279,12 @@ function editInChannel(mode: string, token: string, userId: number, isGlobalUser
   if (isGlobalUser === false) {
     // Checks if user is not owner of channel (who can edit messages), otherwise check further:
     if (channelGiven.ownerMembers.find(owner => owner === userId) === undefined) {
-      // Checks if the user is the one wrote message
-      if (messageGiven.uId !== userId) {
-        return { error: 'error' };
-        // Checks if user wrote it and is still part of the channel (i.e. did not leave channel)
-      } else if (messageGiven.uId === userId && isMember === false) {
-        return { error: 'error' };
+      // Checks if user is part of the channel (i.e. did not leave channel)
+      if (isMember === false) {
+        throw HTTPError(BAD_REQ, 'Invalid user accessing valid message');
+        // Checks if the user (who is a member of channel) is the one wrote message
+      } else if (messageGiven.uId !== userId) {
+        throw HTTPError(FORBID, 'Invalid user accessing message');
       }
     }
   }
@@ -285,9 +292,9 @@ function editInChannel(mode: string, token: string, userId: number, isGlobalUser
   const messageGivenIndex: number = channelGiven.messages.findIndex(message => message.messageId === messageId);
   const channelGivenIndex: number = data.channels.findIndex(channel => channel.channelId === channelGiven.channelId);
 
-  if (mode === 'e') {
+  if (mode === EDIT) {
     data.channels[channelGivenIndex].messages[messageGivenIndex].message = message;
-  } else if (mode === 'r') {
+  } else if (mode === REMOVE) {
     const removedMessage: Array<message> = channelGiven.messages.filter(message => message.messageId !== messageId);
     data.channels[channelGivenIndex].messages = removedMessage;
   }
@@ -324,7 +331,7 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
   });
 
   if (isMessageValid === true) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid messageId');
   }
 
   let isMember: boolean;
@@ -339,19 +346,19 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
 
   // If user is not owner of channel: If user is not the person who wrote it then return error
   if (dmGiven.owner !== userId) {
-    if (messageGiven.uId !== userId) {
-      return { error: 'error' };
-    } else if (messageGiven.uId === userId && isMember === false) {
-      return { error: 'error' };
+    if (isMember === false) {
+      throw HTTPError(BAD_REQ, 'Invalid user accessing valid message');
+    } else if (messageGiven.uId !== userId) {
+      throw HTTPError(FORBID, 'Invalid user accessing message');
     }
   }
 
   const messageGivenIndex: number = dmGiven.messages.findIndex(message => message.messageId === messageId);
   const dmGivenIndex: number = data.dms.findIndex(dm => dm.dmId === dmGiven.dmId);
 
-  if (mode === 'e') {
+  if (mode === EDIT) {
     data.dms[dmGivenIndex].messages[messageGivenIndex].message = message;
-  } else if (mode === 'r') {
+  } else if (mode === REMOVE) {
     const removedMessage: Array<message> = dmGiven.messages.filter(message => message.messageId !== messageId);
     data.dms[dmGivenIndex].messages = removedMessage;
   }
