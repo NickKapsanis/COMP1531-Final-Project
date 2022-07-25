@@ -112,6 +112,7 @@ function testRequestMessageSendV1(token: string, channelId: number, message: str
 describe('Tests for message/senddm/V1', () => {
   let token1: string;
   let token2: string;
+  let token3: string;
   let dmId1: number;
   let dmId2: number;
 
@@ -120,6 +121,7 @@ describe('Tests for message/senddm/V1', () => {
     // TODO: find uIDs of token1 and token2 to pass in
     token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adams');
     dmId1 = requestDmCreateV1(token1, [1, 2]);
     dmId2 = requestDmCreateV1(token2, [2, 3]);
   });
@@ -140,7 +142,7 @@ describe('Tests for message/senddm/V1', () => {
     // NOTE: cannot use method as did before as cannot list all DMs in dataStore without referring to it
     const invalidId = Math.floor((Math.random() * 1000) + 1000);
 
-    const res = testRequestMessageSendDmV1(token1, invalidId, 'Message 1');
+    const res = testRequestMessageSendDmV1(token3, invalidId, 'Message 1');
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
@@ -206,23 +208,27 @@ describe('Tests for message/edit/V1', () => {
   let channelId1: number;
   let channelId2: number;
   let messageId1: number;
-  // let messageId2: number;
+  let messageId2: number;
   let messageId3: number;
+  let messageId4: number;
 
   beforeEach(() => {
-    //  channelMembers1: [1,2], channelOwners1: [1], channelMembers2: [2, 3], channelOwners2: [1, 2] (because token1 is a global owner)
+    //  channelId1: [owners: 1][members: 1,2] channelId2: [owners: 1, 2][members: 2, 3] (because token1 is a global owner)
     token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
     token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
+
     channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
-    // Invite token2 into Channel 1
-    requestChannelInviteV2(token1, channelId1, 2); // TODO: change uID... getUId helper function?
-    // Invite token3 into Channel 2
-    requestChannelInviteV2(token2, channelId2, 3);
     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
+
+    // Invite token2 into Channel 1 and token3 into Channel 2
+    requestChannelInviteV2(token1, channelId1, 2); // TODO: change uID... getUId helper function?
+    requestChannelInviteV2(token2, channelId2, 3);
+
     messageId1 = requestMessageSendV1(token1, channelId1, 'Message 1.1');
-    // messageId2 = requestMessageSendV1(token2, channelId1, 'Message 1.2');
+    messageId2 = requestMessageSendV1(token2, channelId1, 'Message 1.2');
     messageId3 = requestMessageSendV1(token2, channelId2, 'Message 2.1');
+    messageId4 = requestMessageSendV1(token3, channelId2, 'Message 2.2');
   });
 
   afterEach(() => {
@@ -238,14 +244,28 @@ describe('Tests for message/edit/V1', () => {
   });
 
   test('Case 2: invalid messageId given', () => {
-    const res = requestMessageEditV1(token1, -1, 'Edited Message 1.1');
+    const res = requestMessageEditV1(token1, 11, 'Edited Message 1.1');
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
     expect(bodyObj).toStrictEqual({ error: 'error' });
   });
 
-  test('Case 3: messageId refers to message in a channel the user not member of ', () => {
+  test('Case 3: invalid message (1000+)', () => {
+    const testMessage100 = 'dlXqa8qv6YSWfOcAO7Vf9gAjigjRXGjHygJahreDg0yKUIpKRKhQWpruNwESu7nKdwtJU0zGsM34tgCm9CaWyPkV4hhVClmFfQNM';
+    let testMessage1000 = '';
+    for (let i = 0; i < 11; i++) {
+      testMessage1000 = testMessage1000 + testMessage100;
+    }
+
+    const res = requestMessageEditV1(token1, messageId1, testMessage1000);
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(res.statusCode).toBe(OK);
+    expect(bodyObj).toStrictEqual({ error: 'error' });
+  });
+
+  test('Case 4: not global, messageId refers to message in a channel the user not member/owner of ', () => {
     const res = requestMessageEditV1(token3, messageId1, 'Edited Message 1.1');
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -253,15 +273,15 @@ describe('Tests for message/edit/V1', () => {
     expect(bodyObj).toStrictEqual({ error: 'error' });
   });
 
-  test('Case 4: message not sent by user', () => {
-    const res = requestMessageEditV1(token2, messageId1, 'Edited Message 1.1');
+  test('Case 5: successful edit: not global, owner of channel, message not sent by user', () => {
+    const res = requestMessageEditV1(token2, messageId4, 'Edited Message 2.2');
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    expect(bodyObj).toStrictEqual({});
   });
 
-  test('Case 5: user does not have owner permissions', () => {
+  test('Case 6: not global, not owner, member, message not sent by user', () => {
     const res = requestMessageEditV1(token3, messageId3, 'Edited Message 2.1');
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -269,7 +289,16 @@ describe('Tests for message/edit/V1', () => {
     expect(bodyObj).toStrictEqual({ error: 'error' });
   });
 
-  test('Case 6: successful message edit (in channels)', () => {
+  test('Case 7: not global, not owner, message sent by user but left channel', () => {
+    requestChannelLeaveV2(token2, channelId1);
+    const res = requestMessageEditV1(token2, messageId2, 'Edited Message 1.2');
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(res.statusCode).toBe(OK);
+    expect(bodyObj).toStrictEqual({ error: 'error' });
+  });
+
+  test('Case 8: successful message edit (in channels)', () => {
     const res = requestMessageEditV1(token1, messageId1, 'Edited Message 1.1');
     const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId1);
@@ -280,7 +309,7 @@ describe('Tests for message/edit/V1', () => {
     expect(editedMessage.message).toStrictEqual('Edited Message 1.1');
   });
 
-  test('Case 7: successful message edit (empty message string)', () => {
+  test('Case 9: successful message edit (empty message string)', () => {
     const res = requestMessageEditV1(token1, messageId1, '');
     const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId1);
@@ -291,7 +320,7 @@ describe('Tests for message/edit/V1', () => {
     expect(editedMessage).toStrictEqual(undefined);
   });
 
-  test('Case 8: successful message edit (with global permissions)', () => {
+  test('Case 10: successful message edit (with global permissions)', () => {
     const res = requestMessageEditV1(token1, messageId3, 'Edited Message 2.1');
     const messages: Array<message | undefined> = requestChannelMessageV2(token2, channelId2, 0); // Assumption: global owner cannot access channelMessagesV2
     const editedMessage: message = messages.find(message => message.messageId === messageId3);
@@ -302,7 +331,7 @@ describe('Tests for message/edit/V1', () => {
     expect(editedMessage.message).toStrictEqual('Edited Message 2.1');
   });
 
-  test('Case 9: successful message edit (with dms)', () => {
+  test('Case 11: successful message edit (with dms)', () => {
     const dmId1: number = requestDmCreateV1(token1, [1, 3]);
     const messageId5: number = requestMessageSendDmV1(token1, dmId1, 'Message Dm 1.1');
 
@@ -333,7 +362,7 @@ function requestMessageEditV1(token: string, messageId: number, message: string)
 }
 
 // Tests for message/remove/v1
-describe('Tests for message/remove/V1', () => {
+describe('Tests for message/remove/V1 (for input and channels)', () => {
   let token1: string;
   let token2: string;
   let token3: string;
@@ -344,15 +373,18 @@ describe('Tests for message/remove/V1', () => {
   let messageId3: number;
 
   beforeEach(() => {
-    //  channelMembers1: [1,2], channelOwners1: [1], channelMembers2: [2, 3], channelOwners2: [1, 2] //because 1 is a global owner
+    //  channelId1: [owners: 1][members: 1,2] channelId2: [owners: 1, 2][members: 2, 3] (because token1 is a global owner)
     token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
     token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
+
     channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
+    channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
+
     // Invite token2 into Channel 1
     requestChannelInviteV2(token1, channelId1, 2);
     requestChannelInviteV2(token2, channelId2, 3); // TODO: change uID
-    channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
+
     messageId1 = requestMessageSendV1(token1, channelId1, 'Message 1.1');
     messageId2 = requestMessageSendV1(token2, channelId1, 'Message 1.2');
     messageId3 = requestMessageSendV1(token2, channelId2, 'Message 2.1');
@@ -371,7 +403,7 @@ describe('Tests for message/remove/V1', () => {
   });
 
   test('Case 2: invalid messageId given', () => {
-    const res = requestMessageRemoveV1(token1, -1);
+    const res = requestMessageRemoveV1(token1, 11);
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(OK);
@@ -402,9 +434,86 @@ describe('Tests for message/remove/V1', () => {
     expect(bodyObj).toStrictEqual({ error: 'error' });
   });
 
-  test('Case 6: successful message remove', () => {
+  test('Case 6: successful message remove (channel)', () => {
     const res = requestMessageRemoveV1(token1, messageId1);
     const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
+    const removedMessage: message = messages.find(message => message.messageId === messageId1);
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(res.statusCode).toBe(OK);
+    expect(bodyObj).toStrictEqual({});
+    expect(removedMessage).toStrictEqual(undefined);
+  });
+});
+
+describe('Tests for message/remove/v1 (for dms)', () => {
+  let token1: string;
+  let token2: string;
+  let token3: string;
+  let dmId1: number;
+  let dmId2: number;
+  let messageId1: number;
+  let messageId2: number;
+  let messageId3: number;
+  let messageId4: number;
+
+  beforeEach(() => {
+    //  dmId1: [owner: 1][members: 1, 2] dmId2: [owner: 2][members: 2, 3]
+    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
+
+    dmId1 = requestDmCreateV1(token1, [1, 2]);
+    dmId2 = requestDmCreateV1(token2, [2, 3]);
+
+    messageId1 = requestMessageSendDmV1(token1, dmId1, 'Message 1.1');
+    messageId2 = requestMessageSendDmV1(token2, dmId1, 'Message 1.2');
+    messageId3 = requestMessageSendDmV1(token2, dmId2, 'Message 2.1');
+    messageId4 = requestMessageSendDmV1(token3, dmId2, 'Message 2.2');
+  });
+
+  afterEach(() => {
+    requestClear();
+  });
+
+  test('Case 1: invalid messageId given', () => {
+    const res = requestMessageRemoveV1(token1, 21);
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(res.statusCode).toBe(OK);
+    expect(bodyObj).toStrictEqual({ error: 'error' });
+  });
+
+  test('Case 2: user did not sent message, not owner of channel', () => {
+    const res = requestMessageRemoveV1(token3, messageId3);
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(res.statusCode).toBe(OK);
+    expect(bodyObj).toStrictEqual({ error: 'error' });
+  });
+
+  test('Case 3: user sent message, not member of channel (i.e left channel)', () => {
+    requestDmLeaveV2(token3, dmId2);
+    const res = requestMessageRemoveV1(token3, messageId4);
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(res.statusCode).toBe(OK);
+    expect(bodyObj).toStrictEqual({ error: 'error' });
+  });
+
+  test('Case 4: success remove: user is owner, did not send message', () => {
+    const res = requestMessageRemoveV1(token1, messageId2);
+    const messages: Array<message | undefined> = requestDmMessageV1(token1, dmId1, 0);
+    const removedMessage: message = messages.find(message => message.messageId === messageId2);
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(res.statusCode).toBe(OK);
+    expect(bodyObj).toStrictEqual({});
+    expect(removedMessage).toStrictEqual(undefined);
+  });
+
+  test('Case 5: successful message remove', () => {
+    const res = requestMessageRemoveV1(token1, messageId1);
+    const messages: Array<message | undefined> = requestDmMessageV1(token1, dmId1, 0);
     const removedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -489,6 +598,36 @@ function requestChannelInviteV2(token: string, channelId: number, uId: number) {
         token: token,
         channelId: channelId,
         uId: uId,
+      }
+    }
+  );
+
+  return JSON.parse(String(res.getBody()));
+}
+
+function requestChannelLeaveV2(token: string, channelId: number) {
+  const res = request(
+    'POST',
+    `${url}:${port}/channel/leave/v1`,
+    {
+      json: {
+        token: token,
+        channelId: channelId,
+      }
+    }
+  );
+
+  return JSON.parse(String(res.getBody()));
+}
+
+function requestDmLeaveV2(token: string, dmId: number) {
+  const res = request(
+    'POST',
+    `${url}:${port}/dm/leave/v1`,
+    {
+      json: {
+        token: token,
+        dmId: dmId,
       }
     }
   );

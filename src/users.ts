@@ -132,6 +132,15 @@ function userSetemailV1(token: string, email: string) {
     return { error: 'error' };
   }
 
+  // if given name is current name, do nothing.
+  if (data.users[userIndex].email === email) {
+    return {};
+  }
+  // if given email is somebody else's email, return error.
+  if (data.users.find(i => i.email === email) !== undefined) {
+    return { error: 'error' };
+  }
+
   // changes users email.
   data.users[userIndex].email = email;
 
@@ -173,7 +182,7 @@ function userSethandlelV1(token: string, handleStr: string) {
   }
   // does error checking
   if (handleStr.length > 20 || handleStr.length < 3 || !(handleStr.match(/^[0-9a-zA-Z]+$/))) {
-    return { error: 'error3' };
+    return { error: 'error' };
   }
   if (user === undefined) {
     return { error: 'error' };
