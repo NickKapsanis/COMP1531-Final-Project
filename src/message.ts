@@ -1,6 +1,7 @@
 import { getData, setData, dataStoreType, user, channel, message, dm } from './dataStore';
 import { channelsListV2 } from './channels';
 import { dmListV1 } from './dm';
+import HTTPError from 'http-errors';
 
 type channelOutput = {
   channelId: number;
@@ -12,6 +13,9 @@ type dmOutput = {
   name: string;
 }
 
+const FORBID = 403;
+const BAD_REQ = 400;
+
 /**
  * Given a valid inputs, sends message from user to specified channel and
  * returns a unique message id.
@@ -22,15 +26,14 @@ type dmOutput = {
  *      message:    string     The message
  *
  * Returns:
- *      { error: 'error' }      object     Error message (given invalid input)
  *      { messageId: <number> } object     Successful message send
  */
-export function messageSendV1(token: string, channelId: number, message: string) {
+export function messageSendV2(token: string, channelId: number, message: string) {
   const data: dataStoreType = getData();
 
   // Token validation
   if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Invalid token');
   }
 
   const userId: number = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
@@ -39,16 +42,16 @@ export function messageSendV1(token: string, channelId: number, message: string)
   // Checking if valid channelIds were given
   // Validating if authorised user is a member of the channel
   if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid channelId');
   } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Not a member of channel');
   }
 
   const channelGivenIndex: number = data.channels.findIndex(channel => channel.channelId === channelId);
 
   // Message validation
   if (message.length < 1 || message.length > 1000) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid start');
   }
 
   const newMessageId: number = generateId('c');

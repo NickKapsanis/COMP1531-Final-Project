@@ -11,7 +11,7 @@ import cors from 'cors';
 import { usersAllV1, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
-import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
+import { messageSendV2, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
 import { channelDetailsV2, channelMessagesV2 } from './channel';
 import errorHandler from 'middleware-http-errors';
 
@@ -221,9 +221,9 @@ app.post('/channel/leave/v1', (req, res) => {
 });
 
 // messegeSendV1
-app.post('/message/send/v1', (req, res) => {
+app.post('/message/send/v2', (req, res) => {
   const { token, channelId, message } = req.body;
-  res.json(messageSendV1(token, channelId, message));
+  res.json(messageSendV2(token, channelId, message));
 });
 
 // messegeSendDmV1

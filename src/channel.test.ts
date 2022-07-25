@@ -160,7 +160,7 @@ describe('Testing channelMessagesV1', () => {
 
   test('Case 5: Deals with 50+ messages', () => {
     for (let i = 0; i < 55; i++) {
-      requestMessageSendV1(token1, channelId1, `${i}`);
+      requestMessageSendV2(token1, channelId1, `${i}`);
     }
     const start = 0;
     const res = requestChannelMessagesV2(token1, channelId1, start);
@@ -502,10 +502,10 @@ function requestChannelsListallV2(token: string) {
   return JSON.parse(String(res.getBody()));
 }
 
-function requestMessageSendV1(token: string, channelId: number, message: string) {
+function requestMessageSendV2(token: string, channelId: number, message: string) {
   const res = request(
     'POST',
-    `${hosturl}:${port}/message/send/v1`,
+    `${hosturl}:${port}/message/send/v2`,
     {
       json: {
         token: token,

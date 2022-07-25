@@ -12,8 +12,11 @@ type message = {
   message : string;
 }
 
-// Tests for message/send/v1
-describe('Tests for message/send/V1', () => {
+const BAD_REQ = 400;
+const FORBID = 403;
+
+// Tests for message/send/v2
+describe('Tests for message/send/v2', () => {
   let token1: string;
   let token2: string;
   let channelId1: number;
@@ -32,16 +35,13 @@ describe('Tests for message/send/V1', () => {
   });
 
   test('Case 1: token is invalid', () => {
-    const res = testRequestMessageSendV1('invalid-token', channelId1, 'Message 1');
-
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = testRequestMessageSendV2('invalid-token', channelId1, 'Message 1');
+    expect(res.statusCode).toBe(FORBID);
   });
 
   test('Case 2: channelId does not refer to valid channel', () => {
     // Get all channels token is a part of
-    const allChannels = requestChannelsListallV2(token1);
+    const allChannels = requestChannelsListallV3(token1);
     let invalidId = 199;
     for (const i in allChannels) {
       if (invalidId === allChannels[i].channelId) {
@@ -49,11 +49,8 @@ describe('Tests for message/send/V1', () => {
       }
     }
 
-    const res = testRequestMessageSendV1(token1, invalidId, 'Message 1');
-
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = testRequestMessageSendV2(token1, invalidId, 'Message 1');
+    expect(res.statusCode).toBe(BAD_REQ);
   });
 
   test('Case 3: length of message is less than 1 or more than 1000 characters', () => {
@@ -64,40 +61,32 @@ describe('Tests for message/send/V1', () => {
       testMessage1000 = testMessage1000 + testMessage100;
     }
 
-    const res1 = testRequestMessageSendV1(token1, channelId1, '');
-    const res2 = testRequestMessageSendV1(token1, channelId1, testMessage1000);
+    const res1 = testRequestMessageSendV2(token1, channelId1, '');
+    const res2 = testRequestMessageSendV2(token1, channelId1, testMessage1000);
 
-    expect(res1.statusCode).toBe(OK);
-    expect(res2.statusCode).toBe(OK);
-    const bodyObj1 = JSON.parse(String(res1.getBody()));
-    const bodyObj2 = JSON.parse(String(res2.getBody()));
-
-    expect(bodyObj1).toStrictEqual({ error: 'error' });
-    expect(bodyObj2).toStrictEqual({ error: 'error' });
+    expect(res1.statusCode).toBe(BAD_REQ);
+    expect(res2.statusCode).toBe(BAD_REQ);
   });
 
   test('Case 4: user not member of channel', () => {
-    const res = testRequestMessageSendV1(token1, channelId2, 'Message 1');
-
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = testRequestMessageSendV2(token1, channelId2, 'Message 1');
+    expect(res.statusCode).toBe(FORBID);
   });
 
   test('Case 5: successful message send', () => {
-    const res = testRequestMessageSendV1(token1, channelId1, 'Message 1');
+    const res = testRequestMessageSendV2(token1, channelId1, 'Message 1');
 
     const bodyObj = JSON.parse(String(res.getBody())).messageId;
     expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual(expect.any(Number)); // TODO: check if working
+    expect(bodyObj).toStrictEqual(expect.any(Number));
   });
 });
 
 // Helper function for message/send/v1 HTTP calls
-function testRequestMessageSendV1(token: string, channelId: number, message: string) {
+function testRequestMessageSendV2(token: string, channelId: number, message: string) {
   return request(
     'POST',
-    `${url}:${port}/message/send/v1`,
+    `${url}:${port}/message/send/v2`,
     {
       json: {
         token: token,
@@ -225,10 +214,10 @@ describe('Tests for message/edit/V1', () => {
     requestChannelInviteV2(token1, channelId1, 2); // TODO: change uID... getUId helper function?
     requestChannelInviteV2(token2, channelId2, 3);
 
-    messageId1 = requestMessageSendV1(token1, channelId1, 'Message 1.1');
-    messageId2 = requestMessageSendV1(token2, channelId1, 'Message 1.2');
-    messageId3 = requestMessageSendV1(token2, channelId2, 'Message 2.1');
-    messageId4 = requestMessageSendV1(token3, channelId2, 'Message 2.2');
+    messageId1 = requestMessageSendV2(token1, channelId1, 'Message 1.1');
+    messageId2 = requestMessageSendV2(token2, channelId1, 'Message 1.2');
+    messageId3 = requestMessageSendV2(token2, channelId2, 'Message 2.1');
+    messageId4 = requestMessageSendV2(token3, channelId2, 'Message 2.2');
   });
 
   afterEach(() => {
@@ -385,9 +374,9 @@ describe('Tests for message/remove/V1 (for input and channels)', () => {
     requestChannelInviteV2(token1, channelId1, 2);
     requestChannelInviteV2(token2, channelId2, 3); // TODO: change uID
 
-    messageId1 = requestMessageSendV1(token1, channelId1, 'Message 1.1');
-    messageId2 = requestMessageSendV1(token2, channelId1, 'Message 1.2');
-    messageId3 = requestMessageSendV1(token2, channelId2, 'Message 2.1');
+    messageId1 = requestMessageSendV2(token1, channelId1, 'Message 1.1');
+    messageId2 = requestMessageSendV2(token2, channelId1, 'Message 1.2');
+    messageId3 = requestMessageSendV2(token2, channelId2, 'Message 2.1');
   });
 
   afterEach(() => {
@@ -575,7 +564,7 @@ function requestChannelsCreateV2(token: string, name: string, isPublic: boolean)
   return JSON.parse(String(res.getBody())).channelId;
 }
 
-function requestChannelsListallV2(token: string) {
+function requestChannelsListallV3(token: string) {
   const res = request(
     'GET',
     `${url}:${port}/channels/listall/v2`,
@@ -651,10 +640,10 @@ function requestChannelMessageV2(token: string, channelId: number, start: number
   return JSON.parse(String(res.getBody())).messages;
 }
 
-function requestMessageSendV1(token: string, channelId: number, message: string) {
+function requestMessageSendV2(token: string, channelId: number, message: string) {
   const res = request(
     'POST',
-    `${url}:${port}/message/send/v1`,
+    `${url}:${port}/message/send/v2`,
     {
       json: {
         token: token,
