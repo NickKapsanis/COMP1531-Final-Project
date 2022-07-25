@@ -1326,7 +1326,7 @@ For errors to be appropriately raised on the frontend, they must be thrown as fo
 
 ```javascript
 if (true) { // condition here
-    throw new HTTPError(403, "description")
+    throw HTTPError(403, "description")
 }
 ```
 

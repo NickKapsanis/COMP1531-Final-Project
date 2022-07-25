@@ -13,14 +13,13 @@ type dmOutput = {
 }
 
 /**
-<<<<<<< HEAD
  * Given a valid inputs, sends message from user to specified channel and
  * returns a unique message id.
  *
  * Arguments:
  *      token:      string     The user's unique identifier
  *      channelId:  number     The channel's unique identifier
- *      message:    string     The edited message
+ *      message:    string     The message
  *
  * Returns:
  *      { error: 'error' }      object     Error message (given invalid input)
@@ -187,8 +186,6 @@ export function messageEditV1(token: string, messageId: number, message: string)
     return editInChannel(mode, token, userId, isGlobalUser, messageId, message);
   } else if (firstDigit === '2') {
     return editInDm(mode, token, userId, messageId, message);
-  } else {
-    return { error: 'error' };
   }
 }
 
@@ -226,8 +223,6 @@ export function messageRemoveV1(token: string, messageId: number) {
     return editInChannel(mode, token, userId, isGlobalUser, messageId);
   } else if (firstDigit === '2') {
     return editInDm(mode, token, userId, messageId);
-  } else {
-    return { error: 'error' };
   }
 }
 
@@ -273,11 +268,14 @@ function editInChannel(mode: string, token: string, userId: number, isGlobalUser
 
   const messageGiven: message = channelGiven.messages.find(message => message.messageId === messageId);
 
-  // If user is not global owner: If user is not owner of channel: If user is not the person who wrote it then return error
+  // Checks if user is global owner (who can edit messages), otherwise check further:
   if (isGlobalUser === false) {
+    // Checks if user is not owner of channel (who can edit messages), otherwise check further:
     if (channelGiven.ownerMembers.find(owner => owner === userId) === undefined) {
+      // Checks if the user is the one wrote message
       if (messageGiven.uId !== userId) {
         return { error: 'error' };
+        // Checks if user wrote it and is still part of the channel (i.e. did not leave channel)
       } else if (messageGiven.uId === userId && isMember === false) {
         return { error: 'error' };
       }
