@@ -78,9 +78,11 @@ function requestChannelDetailsV3(token: string, channelId: number) {
     `${hosturl}:${port}/channel/details/v3`,
     {
       qs: {
-        token: token,
         channelId: channelId,
-      }
+      }, 
+      headers: {
+        'token': token, 
+      }, 
     }
   );
 }
