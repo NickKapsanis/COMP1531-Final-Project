@@ -234,14 +234,15 @@ app.post('/message/senddm/v1', (req, res) => {
 
 // messageRemoveV1
 app.delete('/message/remove/v2', (req, res) => {
-  const token = String(req.query.token);
+  const token = String(req.header('token'));
   const messageId = Number(req.query.messageId);
   res.json(messageRemoveV2(token, messageId));
 });
 
 // messageEditV1
 app.put('/message/edit/v2', (req, res) => {
-  const { token, messageId, message } = req.body;
+  const token = String(req.header('token'));
+  const { messageId, message } = req.body;
   res.json(messageEditV2(token, messageId, message));
 });
 
