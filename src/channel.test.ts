@@ -510,7 +510,7 @@ function requestMessageSendV2(token: string, channelId: number, message: string)
       json: {
         channelId: channelId,
         message: message,
-      }, 
+      },
       headers: {
         token: token,
       }
