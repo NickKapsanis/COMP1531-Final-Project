@@ -89,9 +89,11 @@ function testRequestMessageSendV2(token: string, channelId: number, message: str
     `${url}:${port}/message/send/v2`,
     {
       json: {
-        token: token,
         channelId: channelId,
         message: message,
+      }, 
+      headers: {
+        token: token,
       }
     }
   );
@@ -646,9 +648,11 @@ function requestMessageSendV2(token: string, channelId: number, message: string)
     `${url}:${port}/message/send/v2`,
     {
       json: {
-        token: token,
         channelId: channelId,
         message: message,
+      },
+      headers: {
+        token: token,
       }
     }
   );

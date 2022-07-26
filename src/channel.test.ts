@@ -508,9 +508,11 @@ function requestMessageSendV2(token: string, channelId: number, message: string)
     `${hosturl}:${port}/message/send/v2`,
     {
       json: {
-        token: token,
         channelId: channelId,
         message: message,
+      }, 
+      headers: {
+        token: token,
       }
     }
   );
