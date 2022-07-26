@@ -180,10 +180,12 @@ function requestChannelMessagesV3(token: string, channelId: number, start: numbe
     `${hosturl}:${port}/channel/messages/v3`,
     {
       qs: {
-        token: token,
         channelId: channelId,
         start: start,
-      }
+      },
+      headers: {
+        token: token,
+      },
     }
   );
 }
