@@ -338,9 +338,11 @@ function requestMessageEditV2(token: string, messageId: number, message: string)
     `${url}:${port}/message/edit/v2`,
     {
       json: {
-        token: token,
         messageId: messageId,
         message: message,
+      },
+      headers: {
+        token: token,
       }
     }
   );
@@ -492,8 +494,10 @@ function requestMessageRemoveV2(token: string, messageId: number) {
     `${url}:${port}/message/remove/v2`,
     {
       qs: {
-        token: token,
         messageId: messageId,
+      },
+      headers: {
+        token: token,
       }
     }
   );
