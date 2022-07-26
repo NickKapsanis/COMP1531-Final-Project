@@ -222,7 +222,8 @@ app.post('/channel/leave/v1', (req, res) => {
 
 // messegeSendV1
 app.post('/message/send/v2', (req, res) => {
-  const { token, channelId, message } = req.body;
+  const token = req.header('token'); 
+  const { channelId, message } = req.body;
   res.json(messageSendV2(token, channelId, message));
 });
 
