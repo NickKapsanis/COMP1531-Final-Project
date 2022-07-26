@@ -207,7 +207,7 @@ app.get('/channel/details/v2', (req, res) => {
 
 // channelMessagesV2
 app.get('/channel/messages/v3', (req, res) => {
-  const token = String(req.query.token);
+  const token = String(req.header('token'));
   const channelId = Number(req.query.channelId);
   const start = Number(req.query.start);
 
