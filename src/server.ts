@@ -228,7 +228,8 @@ app.post('/message/send/v1', (req, res) => {
 
 // messegeSendDmV2
 app.post('/message/senddm/v2', (req, res) => {
-  const { token, dmId, message } = req.body;
+  const token = String(req.header('token'));
+  const { dmId, message } = req.body;
   res.json(messageSendDmV2(token, dmId, message));
 });
 
