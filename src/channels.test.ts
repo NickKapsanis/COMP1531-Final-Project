@@ -285,9 +285,9 @@ function requestChannelDetailsV3(token: string, channelId: number) {
     {
       qs: {
         channelId: channelId,
-      }, 
+      },
       headers: {
-        'token': token, 
+        token: token,
       },
     }
   );
