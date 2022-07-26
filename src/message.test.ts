@@ -579,23 +579,23 @@ describe('Tests for message/share/v1', () => {
 
   test('Case 1: Both channelId and dmId are invalid', () => {
     // Token 2 is sharing messageId to invalid channel/dm
-    const res = requestMessageShareV1(messageId1, 'Attach message', 11, 21); 
+    const res = requestMessageShareV1(token2, messageId1, 'Attach message', 11, 21); 
     expect(res.statusCode).toBe(BAD_REQ);
   });
 
   test('Case 2: Neither channelId nor dmId are -1', () => {
     // Token 2 is sharing messageId to channel2 and dm1 but not -1  
-    const res1 = requestMessageShareV1(messageId1, 'Attach message', channelId1, -100); 
-    const res2 = requestMessageShareV1(messageId1, 'Attach message', -100, dmId1);
+    const res1 = requestMessageShareV1(token2, messageId1, 'Attach message', channelId1, -100); 
+    const res2 = requestMessageShareV1(token2, messageId1, 'Attach message', -100, dmId1);
     expect(res1.statusCode).toBe(BAD_REQ);
     expect(res2.statusCode).toBe(BAD_REQ);
   });
 
   test('Case 3: ogMessageId refers to message in a channel/dm user not member of', () => {
     // Token 3 is not a member of channel1, attempting to share to dm1
-    const res1 = requestMessageShareV1(messageId2, 'Attach message', -1, dmId1);
+    const res1 = requestMessageShareV1(token3, messageId2, 'Attach message', -1, dmId1);
     // Token 1 is not a member of dm1, attempting to share to dm2 
-    const res2 = requestMessageShareV1(messageId4, 'Attach message', -1, dmId2);
+    const res2 = requestMessageShareV1(token1, messageId4, 'Attach message', -1, dmId2);
     expect(res1.statusCode).toBe(BAD_REQ);
     expect(res2.statusCode).toBe(BAD_REQ);
   });
@@ -609,22 +609,22 @@ describe('Tests for message/share/v1', () => {
       testMessage1000 = testMessage1000 + testMessage100;
     }
 
-    const res = requestMessageShareV1(messageId1, testMessage1000, channelId2, -1);
+    const res = requestMessageShareV1(token2, messageId1, testMessage1000, channelId2, -1);
     expect(res.statusCode).toBe(BAD_REQ);
   });
 
   test('Case 5: user not joined channel/DM trying to message share to', () => {
     // Token 3 attempting to share message from channel2 to channel1
-    const res1 = requestMessageShareV1(messageId3, 'Attach message', channelId1, -1);
+    const res1 = requestMessageShareV1(token3, messageId3, 'Attach message', channelId1, -1);
     // Token 1 attempting to share message from channel1 to dm1
-    const res2 = requestMessageShareV1(messageId1, 'Attach message', -1, dmId1);
+    const res2 = requestMessageShareV1(token1, messageId1, 'Attach message', -1, dmId1);
     expect(res1.statusCode).toBe(FORBID);
     expect(res2.statusCode).toBe(FORBID);
   });
 
   test('Case 6: (channel) successful message share with attached message', () => {
     // Token 2 share message from channel1 to channel2 
-    const res = requestMessageShareV1(messageId2, 'Attach message', channelId2, -1);
+    const res = requestMessageShareV1(token2, messageId2, 'Attach message', channelId2, -1);
     expect(res.statusCode).toBe(OK);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -637,7 +637,7 @@ describe('Tests for message/share/v1', () => {
 
   test('Case 7: (dm) successful message share with no attached message', () => {
     // Token 2 share message from dm1 to dm2 
-    const res = requestMessageShareV1(messageId4, '', -1, dmId2);
+    const res = requestMessageShareV1(token2, messageId4, '', -1, dmId2);
     expect(res.statusCode).toBe(OK);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -648,15 +648,15 @@ describe('Tests for message/share/v1', () => {
     expect(sharedMessage.includes('Attach message')).toStrictEqual(false); 
   });
 
-  // test('Case 8: invalid token', () => {
-  //   Token 2 share message from channel1 to channel2 
-  //   const res = requestMessageShareV1(messageId2, 'Attach message', channelId2, -1);
-  //   expect(res.statusCode).toBe(FORBID);
-  // });
+  test('Case 8: invalid token', () => {
+    // Invalid token shares message from channel1 to channel2 
+    const res = requestMessageShareV1('invalid-token', messageId2, 'Attach message', channelId2, -1);
+    expect(res.statusCode).toBe(FORBID);
+  });
 
 });
 
-function requestMessageShareV1(ogMessageId: number, message: string, channelId: number, dmId: number) {
+function requestMessageShareV1(token: string, ogMessageId: number, message: string, channelId: number, dmId: number) {
   return request(
     'POST',
     `${url}:${port}/message/share/v1`,
@@ -666,6 +666,9 @@ function requestMessageShareV1(ogMessageId: number, message: string, channelId: 
         message: message,
         channelId: channelId, 
         dmId: dmId, 
+      }, 
+      headers: {
+        token: token, 
       }
     }
   );
