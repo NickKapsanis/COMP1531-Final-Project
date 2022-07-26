@@ -200,7 +200,7 @@ app.get('/channels/listall/v2', (req, res) => {
 
 // channelDetailsV2
 app.get('/channel/details/v3', (req, res) => {
-  const token = String(req.query.token);
+  const token = String(req.header('token'));
   const channelId = Number(req.query.channelId);
   res.json(channelDetailsV3(token, channelId));
 });
