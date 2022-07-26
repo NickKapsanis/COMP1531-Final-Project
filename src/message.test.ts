@@ -181,9 +181,11 @@ function testRequestMessageSendDmV2(token: string, dmId: number, message: string
         `${url}:${port}/message/senddm/v2`,
         {
           json: {
-            token: token,
             dmId: dmId,
             message: message,
+          },
+          headers: {
+            token: token,
           }
         }
   );
@@ -693,9 +695,11 @@ function requestMessageSendDmV2(token: string, dmId: number, message: string) {
         `${url}:${port}/message/senddm/v2`,
         {
           json: {
-            token: token,
             dmId: dmId,
             message: message,
+          },
+          headers: {
+            token: token,
           }
         }
   );
