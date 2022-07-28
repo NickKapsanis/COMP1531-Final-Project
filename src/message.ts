@@ -1,6 +1,7 @@
 import { getData, setData, dataStoreType, user, channel, message, dm } from './dataStore';
 import { channelsListV2 } from './channels';
 import { dmListV1 } from './dm';
+import HTTPError from 'http-errors';
 
 type channelOutput = {
   channelId: number;
@@ -11,6 +12,9 @@ type dmOutput = {
   dmId: number;
   name: string;
 }
+
+const FORBID = 403;
+const BAD_REQ = 400;
 
 /**
  * Given a valid inputs, sends message from user to specified channel and
@@ -51,17 +55,19 @@ export function messageSendV1(token: string, channelId: number, message: string)
     return { error: 'error' };
   }
 
-  const newMessageId: number = generateId('c');
+  // const newMessageId: number = generateId('c');
 
-  const newMessage: message = {
-    messageId: newMessageId,
-    uId: userId,
-    timeSent: Math.floor(Date.now() / 1000),
-    message: message,
-  };
+  // const newMessage: message = {
+  //   messageId: newMessageId,
+  //   uId: userId,
+  //   timeSent: Math.floor(Date.now() / 1000),
+  //   message: message,
+  // };
 
-  data.channels[channelGivenIndex].messages.unshift(newMessage);
-  setData(data);
+  // data.channels[channelGivenIndex].messages.unshift(newMessage);
+  // setData(data);
+
+  const newMessageId = sendMessage('c', userId, message, channelGivenIndex);
 
   return { messageId: newMessageId };
 }
@@ -105,17 +111,19 @@ export function messageSendDmV1(token: string, dmId: number, message: string) {
     return { error: 'error' };
   }
 
-  const newMessageId: number = generateId('d');
+  // const newMessageId: number = generateId('d');
 
-  const newMessage: message = {
-    messageId: newMessageId,
-    uId: userId,
-    timeSent: Math.floor(Date.now() / 1000),
-    message: message,
-  };
+  // const newMessage: message = {
+  //   messageId: newMessageId,
+  //   uId: userId,
+  //   timeSent: Math.floor(Date.now() / 1000),
+  //   message: message,
+  // };
 
-  data.dms[dmGivenIndex].messages.unshift(newMessage);
-  setData(data);
+  // data.dms[dmGivenIndex].messages.unshift(newMessage);
+  // setData(data);
+
+  const newMessageId = sendMessage('d', userId, message, dmGivenIndex);
 
   return { messageId: newMessageId };
 }
@@ -358,4 +366,209 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
 
   setData(data);
   return {};
+}
+
+/**
+ * Given a valid ogMessageId, an optional message is attached and sent to the
+ * specified channel or dm, and returns the a messageId.
+ *
+ * Arguments:
+ *      token:              string     The user's unique identifier
+ *      ogMessageId:        number     The message's unique identifier
+ *      message:            string     The message
+ *      channelId:          number     The channel's unique identifier or -1
+ *      dmId:               number     The dm's unique identifier or -1
+ *
+ * Returns:
+ *      sharedMessageId:    number     The message's unique identifier
+ */
+export function messageShareV1(token: string, ogMessageId: number, message: string, channelId: number, dmId: number) {
+  const data: dataStoreType = getData();
+
+  // Token validation
+  if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
+    throw HTTPError(FORBID, 'Invalid token');
+  }
+
+  const user: user = data.users.find(user => user.tokens.find(tok => tok === token));
+  const userId = user.uId;
+
+  // Checking valid id pairs given
+  if (channelId > 0 && dmId !== -1) {
+    throw HTTPError(BAD_REQ, 'Invalid id pair');
+  } else if (dmId > 0 && channelId !== -1) {
+    throw HTTPError(BAD_REQ, 'Invalid id pair');
+  }
+
+  // Checking validity of message length
+  if (message.length > 1000) {
+    throw HTTPError(BAD_REQ, 'Invalid message length');
+  }
+
+  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
+  const dmsMemberOf: Array<dmOutput> = dmListV1(token).dms;
+
+  // Checking if ogMessageId is valid and if user is part of the channel/dm
+  let ogChannel: channel;
+  let ogDm: dm;
+  let ogMessage: message;
+  const firstDigit = String(ogMessageId)[0];
+  if (firstDigit === '1') {
+    ogChannel = isMessageValidChannel(ogMessageId);
+
+    if (channelsMemberOf.find(channel => channel.channelId === ogChannel.channelId) === undefined) {
+      throw HTTPError(BAD_REQ, 'Invalid access to ogChannel');
+    }
+
+    ogMessage = ogChannel.messages.find(message => message.messageId === ogMessageId);
+  } else if (firstDigit === '2') {
+    ogDm = isMessageValidDm(ogMessageId);
+
+    if (dmsMemberOf.find(dm => dm.dmId === ogDm.dmId) === undefined) {
+      throw HTTPError(BAD_REQ, 'Invalid access to ogDm');
+    }
+
+    ogMessage = ogDm.messages.find(message => message.messageId === ogMessageId);
+  }
+
+  // Checking validity of channelId or dmId
+  let sharedMessageId;
+  if (dmId === -1) {
+    const channelGivenIndex = data.channels.findIndex(channel => channel.channelId === channelId);
+    if (channelGivenIndex === -1) {
+      throw HTTPError(BAD_REQ, 'Invalid channelId');
+    }
+
+    if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
+      throw HTTPError(FORBID, 'Invalid access to channel');
+    }
+
+    sharedMessageId = sendMessage('c', userId, message, channelGivenIndex, ogMessage.message);
+    return { sharedMessageId: sharedMessageId };
+  } else if (channelId === -1) {
+    const dmGivenIndex = data.dms.findIndex(dm => dm.dmId === dmId);
+    if (dmGivenIndex === -1) {
+      throw HTTPError(BAD_REQ, 'Invalid dmId');
+    }
+
+    if (dmsMemberOf.find(dm => dm.dmId === dmId) === undefined) {
+      throw HTTPError(FORBID, 'Invalid access to dm');
+    }
+
+    sharedMessageId = sendMessage('d', userId, message, dmGivenIndex, ogMessage.message);
+    return { sharedMessageId: sharedMessageId };
+  }
+}
+
+/// Helper Functions ///
+
+/**
+ * Helper function for messageSend, messageSendDm and messageShare
+ * Creates a new message, sends it to desired channel/dm and returns id.
+ *
+ * Arguments:
+ *      message:            string     The message
+ *      index:              number     The channel/dm's index in the dataStore
+ *      membersOf:          object[]   An array of channels/dms user is member of
+ *
+ * Returns:
+ *      sharedMessageId:    number     The message's unique identifier
+ */
+function sendMessage(mode: string, userId: number, message: string, index: number, ogMessage?: string) {
+  const data: dataStoreType = getData();
+
+  if (ogMessage !== undefined) {
+    // Concat new message
+    if (message.length > 0) {
+      message = ogMessage.concat(' ', message);
+    } else {
+      message = ogMessage;
+    }
+  }
+
+  let newMessageId: number;
+  if (mode === 'c') {
+    newMessageId = generateId(mode);
+  } else if (mode === 'd') {
+    newMessageId = generateId(mode);
+  }
+
+  const newMessage: message = {
+    messageId: newMessageId,
+    uId: userId,
+    timeSent: Math.floor(Date.now() / 1000),
+    message: message,
+  };
+
+  if (mode === 'c') {
+    data.channels[index].messages.unshift(newMessage);
+  } else if (mode === 'd') {
+    data.dms[index].messages.unshift(newMessage);
+  }
+
+  setData(data);
+
+  return newMessageId;
+}
+
+/**
+ * Helper function to check if messageId is valid and returns the channel
+ * the message is in if valid
+ *
+ * Arguments:
+ *      messageId:      number     The message's unique identifier
+ *
+ * Returns:
+ *      channelGiven:   object     The message's corresponding channel
+ */
+function isMessageValidChannel(messageId: number) {
+  const data: dataStoreType = getData();
+
+  let channelGiven: channel;
+  const isValid: boolean = data.channels.every((channel) => {
+    // If messageId exists in channel returns false, else returns true
+    if (channel.messages.find(message => message.messageId === messageId) !== undefined) {
+      channelGiven = channel;
+      return false;
+    }
+
+    return true;
+  });
+
+  if (isValid === true) {
+    throw HTTPError(BAD_REQ, 'Invalid messageId');
+  }
+
+  return channelGiven;
+}
+
+/**
+ * Helper function to check if messageId is valid and returns the DM
+ * the message is in if valid
+ *
+ * Arguments:
+ *      messageId:      number     The message's unique identifier
+ *
+ * Returns:
+ *      dmGiven:        object     The message's corresponding DM
+ */
+function isMessageValidDm(messageId: number) {
+  const data: dataStoreType = getData();
+
+  let dmGiven: dm;
+  const isValid: boolean = data.dms.every((dm) => {
+    // If messageId exists in dm returns false, else returns true
+    if (dm.messages.find(message => message.messageId === messageId) !== undefined) {
+      dmGiven = dm;
+      return false;
+    }
+
+    return true;
+  });
+
+  if (isValid === true) {
+    throw HTTPError(BAD_REQ, 'Invalid messageId');
+  }
+
+  return dmGiven;
 }
