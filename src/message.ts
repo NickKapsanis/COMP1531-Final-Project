@@ -55,20 +55,7 @@ export function messageSendV1(token: string, channelId: number, message: string)
     return { error: 'error' };
   }
 
-  // const newMessageId: number = generateId('c');
-
-  // const newMessage: message = {
-  //   messageId: newMessageId,
-  //   uId: userId,
-  //   timeSent: Math.floor(Date.now() / 1000),
-  //   message: message,
-  // };
-
-  // data.channels[channelGivenIndex].messages.unshift(newMessage);
-  // setData(data);
-
   const newMessageId = sendMessage('c', userId, message, channelGivenIndex);
-
   return { messageId: newMessageId };
 }
 
@@ -111,20 +98,7 @@ export function messageSendDmV1(token: string, dmId: number, message: string) {
     return { error: 'error' };
   }
 
-  // const newMessageId: number = generateId('d');
-
-  // const newMessage: message = {
-  //   messageId: newMessageId,
-  //   uId: userId,
-  //   timeSent: Math.floor(Date.now() / 1000),
-  //   message: message,
-  // };
-
-  // data.dms[dmGivenIndex].messages.unshift(newMessage);
-  // setData(data);
-
   const newMessageId = sendMessage('d', userId, message, dmGivenIndex);
-
   return { messageId: newMessageId };
 }
 
