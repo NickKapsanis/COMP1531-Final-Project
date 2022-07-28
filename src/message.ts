@@ -406,30 +406,19 @@ function pinMessage(mode: string, token: string, messageId: number) {
   const user: user = data.users.find(user => user.tokens.find(tok => tok === token));
   const userId: number = user.uId;
 
-  let messageGiven: message;
+  // Finding the channels and dms the user is a member of
   const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
   const dmsMemberOf: Array<dmOutput> = dmListV1(token).dms;
 
   let channelGiven: channel;
   let dmGiven: dm;
+  let messageGiven: message;
   const firstDigit = String(messageId)[0];
   if (firstDigit === '1') {
-    // TODO: move into helper function
+    // Checking if messageId is valid
+    channelGiven = isMessageValidChannel(messageId);
 
-    const isMessageValid: boolean = data.channels.every((channel) => {
-      // If messageId exists in channel returns false, else returns true
-      if (channel.messages.find(message => message.messageId === messageId) !== undefined) {
-        channelGiven = channel;
-        return false;
-      }
-
-      return true;
-    });
-
-    if (isMessageValid === true) {
-      throw HTTPError(BAD_REQ, 'Invalid messageId');
-    }
-
+    // Checking if user is global owner, otherwise check if member/owner of the message's channel
     if (user.isGlobalOwner === 2) {
       if (channelsMemberOf.find(channel => channel.channelId === channelGiven.channelId) === undefined) {
         throw HTTPError(BAD_REQ, 'Invalid access to message');
@@ -440,21 +429,10 @@ function pinMessage(mode: string, token: string, messageId: number) {
 
     messageGiven = channelGiven.messages.find(message => message.messageId === messageId);
   } else if (firstDigit === '2') {
-    // TODO: move into helper function
-    const isMessageValid: boolean = data.dms.every((dm) => {
-      // If messageId exists in channel returns false, else returns true
-      if (dm.messages.find(message => message.messageId === messageId) !== undefined) {
-        dmGiven = dm;
-        return false;
-      }
+    // Checking if messageId is valid
+    dmGiven = isMessageValidDm(messageId);
 
-      return true;
-    });
-
-    if (isMessageValid === true) {
-      throw HTTPError(BAD_REQ, 'Invalid messageId');
-    }
-
+    // Checking if member/owner of the message's channel
     if (dmsMemberOf.find(dm => dm.dmId === dmGiven.dmId) === undefined) {
       throw HTTPError(BAD_REQ, 'Invalid access to message');
     } else if (dmGiven.owner !== userId) {
@@ -485,4 +463,66 @@ function pinMessage(mode: string, token: string, messageId: number) {
 
   setData(data);
   return {};
+}
+
+/**
+ * Helper function to check if messageId is valid and returns the channel
+ * the message is in if valid
+ *
+ * Arguments:
+ *      messageId:      number     The message's unique identifier
+ *
+ * Returns:
+ *      channelGiven:   object     The message's corresponding channel
+ */
+function isMessageValidChannel(messageId: number) {
+  const data: dataStoreType = getData();
+
+  let channelGiven: channel;
+  const isValid: boolean = data.channels.every((channel) => {
+    // If messageId exists in channel returns false, else returns true
+    if (channel.messages.find(message => message.messageId === messageId) !== undefined) {
+      channelGiven = channel;
+      return false;
+    }
+
+    return true;
+  });
+
+  if (isValid === true) {
+    throw HTTPError(BAD_REQ, 'Invalid messageId');
+  }
+
+  return channelGiven;
+}
+
+/**
+ * Helper function to check if messageId is valid and returns the DM
+ * the message is in if valid
+ *
+ * Arguments:
+ *      messageId:      number     The message's unique identifier
+ *
+ * Returns:
+ *      dmGiven:        object     The message's corresponding DM
+ */
+function isMessageValidDm(messageId: number) {
+  const data: dataStoreType = getData();
+
+  let dmGiven: dm;
+  const isValid: boolean = data.dms.every((dm) => {
+    // If messageId exists in dm returns false, else returns true
+    if (dm.messages.find(message => message.messageId === messageId) !== undefined) {
+      dmGiven = dm;
+      return false;
+    }
+
+    return true;
+  });
+
+  if (isValid === true) {
+    throw HTTPError(BAD_REQ, 'Invalid messageId');
+  }
+
+  return dmGiven;
 }
