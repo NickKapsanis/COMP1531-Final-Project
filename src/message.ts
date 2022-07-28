@@ -1,6 +1,7 @@
 import { getData, setData, dataStoreType, user, channel, message, dm } from './dataStore';
 import { channelsListV2 } from './channels';
 import { dmListV1 } from './dm';
+import HTTPError from 'http-errors';
 
 type channelOutput = {
   channelId: number;
@@ -11,6 +12,9 @@ type dmOutput = {
   dmId: number;
   name: string;
 }
+
+const FORBID = 403;
+const BAD_REQ = 400;
 
 /**
  * Given a valid inputs, sends message from user to specified channel and
@@ -58,6 +62,7 @@ export function messageSendV1(token: string, channelId: number, message: string)
     uId: userId,
     timeSent: Math.floor(Date.now() / 1000),
     message: message,
+    isPinned: false,
   };
 
   data.channels[channelGivenIndex].messages.unshift(newMessage);
@@ -112,6 +117,7 @@ export function messageSendDmV1(token: string, dmId: number, message: string) {
     uId: userId,
     timeSent: Math.floor(Date.now() / 1000),
     message: message,
+    isPinned: false,
   };
 
   data.dms[dmGivenIndex].messages.unshift(newMessage);
@@ -354,6 +360,127 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
   } else if (mode === 'r') {
     const removedMessage: Array<message> = dmGiven.messages.filter(message => message.messageId !== messageId);
     data.dms[dmGivenIndex].messages = removedMessage;
+  }
+
+  setData(data);
+  return {};
+}
+
+/**
+ * Given a valid messageId, the message is marked as pinned.
+ *
+ * Arguments:
+ *      token:      string     The user's unique identifier
+ *      messageId:  number     The message's unique identifier
+ *
+ * Returns:
+ *      { }         object     Successful message pin
+ */
+export function messagePinV1(token: string, messageId: number) {
+  return pinMessage('p', token, messageId);
+}
+
+/**
+ * Given a valid messageId, the message is marked as pinned.
+ *
+ * Arguments:
+ *      token:      string     The user's unique identifier
+ *      messageId:  number     The message's unique identifier
+ *
+ * Returns:
+ *      { }         object     Successful message unpin
+ */
+export function messageUnPinV1(token: string, messageId: number) {
+  return pinMessage('u', token, messageId);
+}
+
+function pinMessage(mode: string, token: string, messageId: number) {
+  const data: dataStoreType = getData();
+
+  // Token validation
+  if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
+    throw HTTPError(FORBID, 'Invalid token');
+  }
+
+  // Finding userId
+  const user: user = data.users.find(user => user.tokens.find(tok => tok === token));
+  const userId: number = user.uId;
+
+  let messageGiven: message;
+  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
+  const dmsMemberOf: Array<dmOutput> = dmListV1(token).dms;
+
+  let channelGiven: channel;
+  let dmGiven: dm;
+  const firstDigit = String(messageId)[0];
+  if (firstDigit === '1') {
+    // TODO: move into helper function
+
+    const isMessageValid: boolean = data.channels.every((channel) => {
+      // If messageId exists in channel returns false, else returns true
+      if (channel.messages.find(message => message.messageId === messageId) !== undefined) {
+        channelGiven = channel;
+        return false;
+      }
+
+      return true;
+    });
+
+    if (isMessageValid === true) {
+      throw HTTPError(BAD_REQ, 'Invalid messageId');
+    }
+
+    if (user.isGlobalOwner === 2) {
+      if (channelsMemberOf.find(channel => channel.channelId === channelGiven.channelId) === undefined) {
+        throw HTTPError(BAD_REQ, 'Invalid access to message');
+      } else if (channelGiven.ownerMembers.find(user => user === userId) === undefined) {
+        throw HTTPError(FORBID, 'Invalid access to pinning message');
+      }
+    }
+
+    messageGiven = channelGiven.messages.find(message => message.messageId === messageId);
+  } else if (firstDigit === '2') {
+    // TODO: move into helper function
+    const isMessageValid: boolean = data.dms.every((dm) => {
+      // If messageId exists in channel returns false, else returns true
+      if (dm.messages.find(message => message.messageId === messageId) !== undefined) {
+        dmGiven = dm;
+        return false;
+      }
+
+      return true;
+    });
+
+    if (isMessageValid === true) {
+      throw HTTPError(BAD_REQ, 'Invalid messageId');
+    }
+
+    if (dmsMemberOf.find(dm => dm.dmId === dmGiven.dmId) === undefined) {
+      throw HTTPError(BAD_REQ, 'Invalid access to message');
+    } else if (dmGiven.owner !== userId) {
+      throw HTTPError(FORBID, 'Invalid access to pinning message');
+    }
+
+    messageGiven = dmGiven.messages.find(message => message.messageId === messageId);
+  }
+
+  if (mode === 'p' && messageGiven.isPinned === true) {
+    throw HTTPError(BAD_REQ, 'Message already pinned');
+  } else if (mode === 'u' && messageGiven.isPinned === false) {
+    throw HTTPError(BAD_REQ, 'Message already unpinned');
+  }
+
+  let messageGivenIndex: number;
+  if (firstDigit === '1') {
+    const channelGivenIndex = data.channels.findIndex(channel => channel.channelId === channelGiven.channelId);
+    messageGivenIndex = channelGiven.messages.findIndex(message => message.messageId === messageId);
+
+    data.channels[channelGivenIndex].messages[messageGivenIndex].isPinned = !messageGiven.isPinned;
+  } else if (firstDigit === '2') {
+    const dmGivenIndex = data.dms.findIndex(dm => dm.dmId === dmGiven.dmId);
+    messageGivenIndex = dmGiven.messages.findIndex(message => message.messageId === messageId);
+
+    data.dms[dmGivenIndex].messages[messageGivenIndex].isPinned = !messageGiven.isPinned;
   }
 
   setData(data);
