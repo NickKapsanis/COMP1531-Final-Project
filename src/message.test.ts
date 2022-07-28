@@ -540,7 +540,7 @@ function requestMessageRemoveV1(token: string, messageId: number) {
   );
 }
 
-// Tests for message/share/v1 
+// Tests for message/share/v1
 describe('Tests for message/share/v1', () => {
   let token1: string;
   let token2: string;
@@ -548,7 +548,7 @@ describe('Tests for message/share/v1', () => {
   let channelId1: number;
   let channelId2: number;
   let dmId1: number;
-  let dmId2: number; 
+  let dmId2: number;
   let messageId1: number;
   let messageId2: number;
   let messageId3: number;
@@ -562,7 +562,7 @@ describe('Tests for message/share/v1', () => {
     channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
     dmId1 = requestDmCreateV1(token2, [2, 3]);
-    dmId2= requestDmCreateV1(token1, [1, 2]);
+    dmId2 = requestDmCreateV1(token1, [1, 2]);
 
     // Invite token2 into Channel 1
     requestChannelInviteV2(token1, channelId1, 2);
@@ -577,15 +577,20 @@ describe('Tests for message/share/v1', () => {
     requestClear();
   });
 
-  test('Case 1: Both channelId and dmId are invalid', () => {
+  test('Case 1: channelId and/or dmId are invalid', () => {
     // Token 2 is sharing messageId to invalid channel/dm
-    const res = requestMessageShareV1(token2, messageId1, 'Attach message', 11, 21); 
-    expect(res.statusCode).toBe(BAD_REQ);
+    const res1 = requestMessageShareV1(token2, messageId1, 'Attach message', 11, 21);
+    const res2 = requestMessageShareV1(token2, messageId1, 'Attach message', 11, -1);
+    const res3 = requestMessageShareV1(token2, messageId1, 'Attach message', -1, 21);
+
+    expect(res1.statusCode).toBe(BAD_REQ);
+    expect(res2.statusCode).toBe(BAD_REQ);
+    expect(res3.statusCode).toBe(BAD_REQ);
   });
 
   test('Case 2: Neither channelId nor dmId are -1', () => {
-    // Token 2 is sharing messageId to channel2 and dm1 but not -1  
-    const res1 = requestMessageShareV1(token2, messageId1, 'Attach message', channelId1, -100); 
+    // Token 2 is sharing messageId to channel2 and dm1 but not -1
+    const res1 = requestMessageShareV1(token2, messageId1, 'Attach message', channelId1, -100);
     const res2 = requestMessageShareV1(token2, messageId1, 'Attach message', -100, dmId1);
     expect(res1.statusCode).toBe(BAD_REQ);
     expect(res2.statusCode).toBe(BAD_REQ);
@@ -594,14 +599,14 @@ describe('Tests for message/share/v1', () => {
   test('Case 3: ogMessageId refers to message in a channel/dm user not member of', () => {
     // Token 3 is not a member of channel1, attempting to share to dm1
     const res1 = requestMessageShareV1(token3, messageId2, 'Attach message', -1, dmId1);
-    // Token 1 is not a member of dm1, attempting to share to dm2 
+    // Token 1 is not a member of dm1, attempting to share to dm2
     const res2 = requestMessageShareV1(token1, messageId4, 'Attach message', -1, dmId2);
     expect(res1.statusCode).toBe(BAD_REQ);
     expect(res2.statusCode).toBe(BAD_REQ);
   });
 
   test('Case 4: length of message is 1000+', () => {
-    // Token 2 is sharing message in channel1, to channel 2 
+    // Token 2 is sharing message in channel1, to channel 2
     // Generate 1000+ character message
     const testMessage100 = 'dlXqa8qv6YSWfOcAO7Vf9gAjigjRXGjHygJahreDg0yKUIpKRKhQWpruNwESu7nKdwtJU0zGsM34tgCm9CaWyPkV4hhVClmFfQNM';
     let testMessage1000 = '';
@@ -623,7 +628,7 @@ describe('Tests for message/share/v1', () => {
   });
 
   test('Case 6: (channel) successful message share with attached message', () => {
-    // Token 2 share message from channel1 to channel2 
+    // Token 2 share message from channel1 to channel2
     const res = requestMessageShareV1(token2, messageId2, 'Attach message', channelId2, -1);
     expect(res.statusCode).toBe(OK);
 
@@ -632,11 +637,11 @@ describe('Tests for message/share/v1', () => {
 
     const messages: Array<message | undefined> = requestChannelMessageV2(token2, channelId2, 0);
     const sharedMessage: message = messages.find(message => message.messageId === bodyObj.sharedMessageId);
-    expect(sharedMessage.includes('Attach message')).toStrictEqual(true); 
+    expect(sharedMessage.message.includes('Attach message')).toStrictEqual(true);
   });
 
   test('Case 7: (dm) successful message share with no attached message', () => {
-    // Token 2 share message from dm1 to dm2 
+    // Token 2 share message from dm1 to dm2
     const res = requestMessageShareV1(token2, messageId4, '', -1, dmId2);
     expect(res.statusCode).toBe(OK);
 
@@ -645,15 +650,24 @@ describe('Tests for message/share/v1', () => {
 
     const messages: Array<message | undefined> = requestDmMessageV1(token2, dmId2, 0);
     const sharedMessage: message = messages.find(message => message.messageId === bodyObj.sharedMessageId);
-    expect(sharedMessage.includes('Attach message')).toStrictEqual(false); 
+    expect(sharedMessage.message.includes('Attach message')).toStrictEqual(false);
   });
 
   test('Case 8: invalid token', () => {
-    // Invalid token shares message from channel1 to channel2 
+    // Invalid token shares message from channel1 to channel2
     const res = requestMessageShareV1('invalid-token', messageId2, 'Attach message', channelId2, -1);
     expect(res.statusCode).toBe(FORBID);
   });
 
+  test('Case 9: invalid ogMessageId (from channel) given', () => {
+    const res = requestMessageShareV1(token2, 11, 'Attach message', channelId2, -1);
+    expect(res.statusCode).toBe(BAD_REQ);
+  });
+
+  test('Case 10: invalid ogMessageId (from dm) given', () => {
+    const res = requestMessageShareV1(token2, 21, 'Attach message', channelId2, -1);
+    expect(res.statusCode).toBe(BAD_REQ);
+  });
 });
 
 function requestMessageShareV1(token: string, ogMessageId: number, message: string, channelId: number, dmId: number) {
@@ -664,11 +678,11 @@ function requestMessageShareV1(token: string, ogMessageId: number, message: stri
       json: {
         ogMessageId: ogMessageId,
         message: message,
-        channelId: channelId, 
-        dmId: dmId, 
-      }, 
+        channelId: channelId,
+        dmId: dmId,
+      },
       headers: {
-        token: token, 
+        token: token,
       }
     }
   );
