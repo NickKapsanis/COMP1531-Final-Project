@@ -245,7 +245,7 @@ app.put('/message/edit/v1', (req, res) => {
   res.json(messageEditV1(token, messageId, message));
 });
 
-// messageEditV1
+// messageSendLaterV1
 app.post('/message/sendlater/v1', (req, res) => {
   const token = String(req.header('token'));
   const { channelId, message, timeSent } = req.body;
