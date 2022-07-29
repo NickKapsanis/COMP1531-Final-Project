@@ -358,7 +358,9 @@ test('Testing if handle already being used by another user', () => {
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const bob = createUser('bob@email.com', 'testPassword123', 'Bob', 'James');
   const aliceUid = Number(getUId(alice.authUserId));
+  const bobUid = Number(getUId(bob.authUserId));
   let aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+  const bobHandle = requestUserProfileV2(bob.token, bobUid).user.handleStr;
 
   const res = request(
     'PUT',
@@ -380,6 +382,7 @@ test('Testing if handle already being used by another user', () => {
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toStrictEqual({ error: 'error' });
   expect(aliceHandle).toEqual('alicesmith');
+  expect(bobHandle).toEqual('bobjames');
 });
 
 /*
