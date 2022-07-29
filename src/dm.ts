@@ -32,7 +32,7 @@ export function dmDetailsV1(token: string, dmId: number) {
   // if all if's above are not triggered, return details
   const data = getData();
   const members: user[] = [];
-  const memberuId = data.users?.filter(user => user.dms.includes(dmId));
+  const memberuId = data.users.filter(user => user.dms.includes(dmId));
   for (const user of memberuId) {
     const tempuser: user = {
       uId: user.uId,
@@ -44,7 +44,7 @@ export function dmDetailsV1(token: string, dmId: number) {
     members.push(tempuser);
   }
   return {
-    name: data.dms?.find(dm => dm.dmId === dmId)?.name,
+    name: data.dms.find(dm => dm.dmId === dmId).name,
     members: members,
   };
 }
@@ -70,16 +70,12 @@ export function dmLeaveV1(token: string, dmId: number) {
   // if all if statements were passed over, remove the user from the dm
   const data = getData();
   const userId = tokenToUserId(token);
-  // need to remove user from dm all members in data
-  const dmUserIndex = data.dms?.find(dm => dm.dmId === dmId)?.allMembers.findIndex(member => member === userId);
-  if (dmUserIndex !== undefined) {
-    data.dms?.find(dm => dm.dmId === dmId)?.allMembers.splice(dmUserIndex, 1);
-  }
+  // need to remove user from the DM's allMembers array as the user exists and the dm exists no need to safe index with '?.'
+  const dmUserIndex = data.dms.find(dm => dm.dmId === dmId).allMembers.findIndex(member => member === userId);
+  data.dms.find(dm => dm.dmId === dmId).allMembers.splice(dmUserIndex, 1);
   // need to remove dmId from user.dms
-  const dmIndex = data.users?.find(user => user.uId === userId)?.dms.findIndex(dm => dm === dmId);
-  if (dmIndex !== undefined) {
-    data.users?.find(user => user.uId === userId)?.dms.splice(dmIndex, 1);
-  }
+  const dmIndex = data.users.find(user => user.uId === userId).dms.findIndex(dm => dm === dmId);
+  data.users.find(user => user.uId === userId).dms.splice(dmIndex, 1);
   // now set the modified data
   setData(data);
   return {};
@@ -106,7 +102,7 @@ export function dmMessagesV1(token: string, dmId: number, start: number) {
   if (!checkValidDmId(dmId)) return { error: 'error' };
   if (!isMemberOf(dmId, token)) return { error: 'error' };
   const data = getData();
-  const dmObjMessages = data.dms?.find(dm => dm.dmId === dmId)?.messages;
+  const dmObjMessages = data.dms.find(dm => dm.dmId === dmId).messages;
   if (dmObjMessages === undefined || dmObjMessages.length < start) return { error: 'error' };
   // if all if statements were passed over, paginate the messages.
   // start by setting the end of the current block to send
@@ -160,10 +156,9 @@ export function dmCreateV1(token: string, uIds: number[]) {
 
   const handleArray = [];
   // push the handle of the user who calls the creation of the DM
-  handleArray.push(data.users?.find(user => user.uId === tokenToUserId(token)).handleStr);
+  handleArray.push(data.users.find(user => user.uId === tokenToUserId(token)).handleStr);
   for (const x of uIds) {
     const uIdUser = data.users.find(user => user.uId === x);
-    if (uIdUser === undefined) { return { error: 'error' }; }
     data.users = data.users.filter(i => i.authUserId !== uIdUser.uId);
     uIdUser.dms.push(newDmId);
     data.users.push(uIdUser);
