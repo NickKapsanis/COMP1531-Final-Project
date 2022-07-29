@@ -1,6 +1,7 @@
 import { getData, setData, dataStoreType, user, channel, message, dm } from './dataStore';
 import { channelsListV2 } from './channels';
 import { dmListV1 } from './dm';
+import HTTPError from 'http-errors';
 
 type channelOutput = {
   channelId: number;
@@ -11,6 +12,9 @@ type dmOutput = {
   dmId: number;
   name: string;
 }
+
+const FORBID = 403;
+const BAD_REQ = 400;
 
 /**
  * Given a valid inputs, sends message from user to specified channel and
@@ -358,4 +362,62 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
 
   setData(data);
   return {};
+}
+
+export async function messageSendLaterV1(token: string, channelId: number, message: string, timeSent: number) {
+  const timeRemain: number = Math.ceil(timeSent - Math.floor(Date.now() / 1000));
+  if (timeRemain < 0) {
+    throw HTTPError(BAD_REQ, 'Invalid time');
+  }
+
+  const data: dataStoreType = getData();
+
+  // Token validation
+  if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
+    throw HTTPError(FORBID, 'Invalid token');
+  }
+
+  const userId: number = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
+  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
+
+  // Checking if valid channelIds were given
+  // Validating if authorised user is a member of the channel
+  if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
+    throw HTTPError(BAD_REQ, 'Invalid channelId');
+  } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
+    throw HTTPError(FORBID, 'Invalid access to channel');
+  }
+
+  const channelGivenIndex: number = data.channels.findIndex(channel => channel.channelId === channelId);
+
+  // Message validation
+  if (message.length < 1 || message.length > 1000) {
+    throw HTTPError(BAD_REQ, 'Invalid message');
+  }
+
+  await sleep(timeRemain * 1000);
+  const newMessageId: number = sendMessage(userId, channelGivenIndex, message);
+
+  return { messageId: newMessageId };
+}
+
+function sleep(timeRemain: number) {
+  return new Promise(resolve => setTimeout(resolve, timeRemain));
+}
+
+function sendMessage(userId: number, index: number, message: string) {
+  const data: dataStoreType = getData();
+  const newMessageId: number = generateId('c');
+
+  const newMessage: message = {
+    messageId: newMessageId,
+    uId: userId,
+    timeSent: Math.floor(Date.now() / 1000),
+    message: message,
+  };
+
+  data.channels[index].messages.unshift(newMessage);
+  setData(data);
+
+  return newMessageId;
 }
