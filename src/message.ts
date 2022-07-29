@@ -29,7 +29,7 @@ const BAD_REQ = 400;
  *      { error: 'error' }      object     Error message (given invalid input)
  *      { messageId: <number> } object     Successful message send
  */
-export function messageSendV1(token: string, channelId: number, message: string) {
+function messageSendV1(token: string, channelId: number, message: string) {
   const data: dataStoreType = getData();
 
   // Token validation
@@ -83,7 +83,7 @@ export function messageSendV1(token: string, channelId: number, message: string)
  *      { error: 'error' }      object     Error message (given invalid input)
  *      { messageId: <number> } object     Successful message send
  */
-export function messageSendDmV1(token: string, dmId: number, message: string) {
+function messageSendDmV1(token: string, dmId: number, message: string) {
   const data: dataStoreType = getData();
 
   // Token validation
@@ -159,7 +159,7 @@ function generateId(mode: string) {
 *      { error: 'error' }     object     Error message when given invalid input
 *      { }                    object     Successful messageEdit
 */
-export function messageEditV1(token: string, messageId: number, message: string) {
+function messageEditV1(token: string, messageId: number, message: string) {
   const data: dataStoreType = getData();
   const mode = 'e';
 
@@ -204,7 +204,7 @@ export function messageEditV1(token: string, messageId: number, message: string)
  *      { error: 'error' }      object     Error message (given invalid input)
  *      { }                     object     Successful message remove
  */
-export function messageRemoveV1(token: string, messageId: number) {
+function messageRemoveV1(token: string, messageId: number) {
   const data: dataStoreType = getData();
   const mode = 'r';
 
@@ -364,7 +364,7 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
   return {};
 }
 
-export async function messageSendLaterV1(token: string, channelId: number, message: string, timeSent: number) {
+function messageSendLaterV1(token: string, channelId: number, message: string, timeSent: number) {
   const timeRemain: number = Math.ceil(timeSent - Math.floor(Date.now() / 1000));
   if (timeRemain < 0) {
     throw HTTPError(BAD_REQ, 'Invalid time');
@@ -395,14 +395,18 @@ export async function messageSendLaterV1(token: string, channelId: number, messa
     throw HTTPError(BAD_REQ, 'Invalid message');
   }
 
-  await sleep(timeRemain * 1000);
-  const newMessageId: number = sendMessage(userId, channelGivenIndex, message);
+  let newMessageId: number; 
+  const newMessageId = sleepMessage(userId, channelGivenIndex, message, timeRemain).then((messageId) => {
+    return messageId; 
+  }); 
 
+  console.log(newMessageId); 
   return { messageId: newMessageId };
 }
 
-function sleep(timeRemain: number) {
-  return new Promise(resolve => setTimeout(resolve, timeRemain));
+async function sleepMessage(userId: number, index: number, message: string, timeRemain: number) {
+  await new Promise(resolve => setTimeout(resolve, timeRemain));
+  return sendMessage(userId, index, message); 
 }
 
 function sendMessage(userId: number, index: number, message: string) {
@@ -421,3 +425,5 @@ function sendMessage(userId: number, index: number, message: string) {
 
   return newMessageId;
 }
+
+export { messageSendLaterV1, messageRemoveV1, messageEditV1, messageSendDmV1, messageSendV1 }; 
