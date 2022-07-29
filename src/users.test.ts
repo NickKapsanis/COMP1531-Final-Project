@@ -323,6 +323,65 @@ test('Testing changing handle.', () => {
   expect(aliceHandle).toEqual('AwesomeNewHandle');
 });
 
+test('Testing invalid new handle name', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+
+  const res = request(
+    'PUT',
+    url + '/user/profile/sethandle/v1',
+    {
+      body: JSON.stringify({
+        token: alice.token,
+        handleStr: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res.getBody()));
+
+  aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(aliceHandle).toEqual('alicesmith');
+});
+
+test('Testing if handle already being used by another user', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
+  const bob = createUser('bob@email.com', 'testPassword123', 'Bob', 'James');
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+
+  const res = request(
+    'PUT',
+    url + '/user/profile/sethandle/v1',
+    {
+      body: JSON.stringify({
+        token: alice.token,
+        handleStr: 'bobjames',
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res.getBody()));
+
+  aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(aliceHandle).toEqual('alicesmith');
+});
+
 /*
 ////////////////////////////////////////////////
 Helper Functions
