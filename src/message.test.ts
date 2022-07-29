@@ -564,8 +564,8 @@ describe('Tests for message/sendlater/v1', () => {
       }
     }
 
-    const timeSent = Math.floor(Date.now() / 1000) + 1;
-    const res = requestMessageSendLaterV1(token1, channelId1, 'Message 1', timeSent);
+    const timeSent = Math.floor(Date.now() / 1000) + 5;
+    const res = requestMessageSendLaterV1(token1, invalidId, 'Message 1', timeSent);
     expect(res.statusCode).toBe(BAD_REQ);
   });
 
@@ -577,7 +577,7 @@ describe('Tests for message/sendlater/v1', () => {
       testMessage1000 = testMessage1000 + testMessage100;
     }
 
-    const timeSent = Math.floor(Date.now() / 1000) + 1;
+    const timeSent = Math.floor(Date.now() / 1000) + 5;
     const res1 = requestMessageSendLaterV1(token1, channelId1, '', timeSent);
     const res2 = requestMessageSendLaterV1(token1, channelId1, testMessage1000, timeSent);
 
@@ -594,15 +594,15 @@ describe('Tests for message/sendlater/v1', () => {
 
   test('Case 4: channelId refers to channel user not member of', () => {
     // Token 2 attempt to send message to channel1 (1 second later)
-    const timeSent = Math.floor(Date.now() / 1000) + 1;
+    const timeSent = Math.floor(Date.now() / 1000) + 5;
     const res = requestMessageSendLaterV1(token2, channelId1, 'Message 1', timeSent);
     expect(res.statusCode).toBe(FORBID);
   });
 
-  test('Case 5: successful send later', () => {
+  test('Case 5: successful send later', async() => {
     // Token 1 send message 1 second later to channel1
-    const timeSent = Math.floor(Date.now() / 1000) + 1;
-    const res = requestMessageSendLaterV1(token1, channelId1, 'Message 1', timeSent);
+    const timeSent = Math.floor(Date.now() / 1000) + 20;
+    const res = await requestMessageSendLaterV1(token1, channelId1, 'Message 1', timeSent);
     expect(res.statusCode).toBe(OK);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -611,7 +611,7 @@ describe('Tests for message/sendlater/v1', () => {
 
   test('Case 6: invalid token', () => {
     // Invalid token send message 1 second later to channel1
-    const timeSent = Math.floor(Date.now() / 1000) + 1;
+    const timeSent = Math.floor(Date.now() / 1000) + 5;
     const res = requestMessageSendLaterV1('invalid-token', channelId1, 'Message 1', timeSent);
     expect(res.statusCode).toBe(FORBID);
   });
