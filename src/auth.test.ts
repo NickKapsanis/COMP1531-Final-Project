@@ -17,7 +17,7 @@ const OKAY = 200;
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
 
-describe('Testing authRegisterV1 for input Error', () => {
+describe('Testing authRegisterV3 for input Error', () => {
   test.each([
     { email: 'notanemail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond', resExpect: BAD_REQ},
     { email: 'ThisisAnEmail@gmail.com', password: 'sub6', nameFirst: 'James', nameLast: 'Bond', resExpect: BAD_REQ},
@@ -38,7 +38,7 @@ describe('Testing authRegisterV1 for input Error', () => {
       resExpect: BAD_REQ
     },
     // {email: 'email123@gmail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond'},
-  ])('authRegisterV1($email , $password, $nameFirst, $nameLast)', (
+  ])('authRegisterV3($email , $password, $nameFirst, $nameLast)', (
     {
       email,
       password,
@@ -75,7 +75,7 @@ describe('testing registration for sucess', () => {
     request('DELETE', url + '/clear/v1');
     const res = request(
       'POST',
-      url + '/auth/register/v2',
+      url + '/auth/register/v3',
       {
         body: JSON.stringify({
           email: 'james.bond@gmail.com',
