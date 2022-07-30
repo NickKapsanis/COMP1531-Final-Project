@@ -7,6 +7,10 @@ const port = config.port;
 const hosturl = config.url;
 const url = hosturl + ':' + port;
 
+const FORBID = 403;
+const BAD_REQ = 400;
+const OKAY = 200;
+
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
@@ -15,21 +19,23 @@ const url = hosturl + ':' + port;
 
 describe('Testing authRegisterV1 for input Error', () => {
   test.each([
-    { email: 'notanemail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond' },
-    { email: 'ThisisAnEmail@gmail.com', password: 'sub6', nameFirst: 'James', nameLast: 'Bond' },
-    { email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: '', nameLast: 'Bond' },
-    { email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: 'James', nameLast: '' },
+    { email: 'notanemail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond', resExpect: BAD_REQ},
+    { email: 'ThisisAnEmail@gmail.com', password: 'sub6', nameFirst: 'James', nameLast: 'Bond', resExpect: BAD_REQ},
+    { email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: '', nameLast: 'Bond', resExpect: BAD_REQ},
+    { email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: 'James', nameLast: '', resExpect: BAD_REQ},
     {
       email: 'ThisisAnEmail@gmail.com',
       password: '1234567',
       nameFirst: 'James012345678901234567890123456789012345678901234567890',
-      nameLast: 'Bond'
+      nameLast: 'Bond',
+      resExpect: BAD_REQ
     },
     {
       email: 'ThisisAnEmail@gmail.com',
       password: '1234567',
       nameFirst: 'James',
-      nameLast: 'Bond012345678901234567890123456789012345678901234567890'
+      nameLast: 'Bond012345678901234567890123456789012345678901234567890',
+      resExpect: BAD_REQ
     },
     // {email: 'email123@gmail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond'},
   ])('authRegisterV1($email , $password, $nameFirst, $nameLast)', (
@@ -38,11 +44,12 @@ describe('Testing authRegisterV1 for input Error', () => {
       password,
       nameFirst,
       nameLast,
+      resExpect,
     }
   ) => {
     const res = request(
       'POST',
-      url + '/auth/register/v2',
+      url + '/auth/register/v3',
       {
         body: JSON.stringify({
           email: email,
@@ -55,9 +62,7 @@ describe('Testing authRegisterV1 for input Error', () => {
         },
       }
     );
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(bodyObj).toStrictEqual({ error: 'error' });
-    expect(res.statusCode).toStrictEqual(200);
+    expect(res.statusCode).toStrictEqual(resExpect);
   });
 }
 );
@@ -90,7 +95,7 @@ describe('testing registration for sucess', () => {
         authUserId: expect.any(Number),
       })
     );
-    expect(res.statusCode).toStrictEqual(200);
+    expect(res.statusCode).toStrictEqual(OKAY);
   });
 });
 
@@ -140,7 +145,7 @@ describe('testing authLoginV1 for input errors', () => {
     );
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(bodyObj).toEqual({ error: 'error' });
-    expect(res.statusCode).toStrictEqual(200);
+    expect(res.statusCode).toStrictEqual(OKAY);
   });
   /// /////////////////////////////////////////////////////////////////////////
   /// /////////////////////////////////////////////////////////////////////////
@@ -168,7 +173,7 @@ describe('testing authLoginV1 for input errors', () => {
         authUserId: expect.any(Number),
       })
     );
-    expect(res.statusCode).toStrictEqual(200);
+    expect(res.statusCode).toStrictEqual(OKAY);
   });
 });
 
@@ -209,7 +214,7 @@ describe('testing auth/logout/v1', () => {
     );
     const bodyObj = JSON.parse(String(res2.getBody()));
     expect(bodyObj).toEqual({});
-    expect(res2.statusCode).toStrictEqual(200);
+    expect(res2.statusCode).toStrictEqual(OKAY);
   });
 });
 
