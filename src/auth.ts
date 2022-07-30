@@ -25,12 +25,15 @@ Return Value:
 
     Returns {authUserId: authUserId} on sucessfull login, email and password both exist and are values of the same "User"
 */
-export function authLoginV1(email: string, password: string) {
+export function authLoginV3(email: string, password: string) {
   const data: dataStoreType = getData();
-  if (!containsEmail(email, data)) { return { error: 'error' }; }
+  if(!containsEmail(email, data)) { // email does not belong to a user
+    throw HTTPError(BAD_REQ, "Incorrect Email");
+  }
   const user: user = data.users.find(u => u.email === email);
-  if (user.password !== password) { return { error: 'error' }; }
-
+  if (user.password !== password) { 
+    throw HTTPError(BAD_REQ, "Incorrect Password");
+   }
   const newtoken = assignToken(user.authUserId);
   return {
     token: newtoken,
@@ -148,7 +151,7 @@ export function authRegisterV3(email: string, password: string, nameFirst: strin
   data.users.push(newUser);
   setData(data);
   // now log in the new user, and return token and authuserId as per authLogin
-  return authLoginV1(newUser.email, newUser.password);
+  return authLoginV3(newUser.email, newUser.password);
 }
 /*
 containsEmail takes the datastore object and an email to check if the email is already registred to a user.
