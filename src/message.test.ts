@@ -581,7 +581,13 @@ describe('Tests for message/pin/v1', () => {
     expect(res.statusCode).toBe(BAD_REQ);
   });
 
-  test('Case 2: messageId is already pinned', () => {
+  test('Case 2: messageId refers to message in a dm user not member of', () => {
+    // Token1 is pinning messageId1 which is in different channel
+    const res = requestMessagePinV1(token1, messageId3);
+    expect(res.statusCode).toBe(BAD_REQ);
+  });
+
+  test('Case 3: messageId is already pinned', () => {
     // Token1 is pinning messageId1 in channel1
     requestMessagePinV1(token1, messageId1);
 
@@ -590,19 +596,19 @@ describe('Tests for message/pin/v1', () => {
     expect(res.statusCode).toBe(BAD_REQ);
   });
 
-  test('Case 3: user no owner permissions in channel', () => {
+  test('Case 4: user no owner permissions in channel', () => {
     // Token 3 (not owner) pins messageId2
     const res = requestMessagePinV1(token3, messageId2);
     expect(res.statusCode).toBe(FORBID);
   });
 
-  test('Case 4: user no owner permissions in dm', () => {
+  test('Case 5: user no owner permissions in dm', () => {
     // Token 3 (not owner) pins messageId3
     const res = requestMessagePinV1(token3, messageId3);
     expect(res.statusCode).toBe(FORBID);
   });
 
-  test('Case 5: sucessful pin, user global owner (channel)', () => {
+  test('Case 6: sucessful pin, user global owner (channel)', () => {
     // Token 1 (global owner) pins messageId2
     const res = requestMessagePinV1(token1, messageId2);
     expect(res.statusCode).toBe(OK);
@@ -611,7 +617,7 @@ describe('Tests for message/pin/v1', () => {
     expect(bodyObj).toStrictEqual({});
   });
 
-  test('Case 6: sucessful pin, (dm)', () => {
+  test('Case 7: sucessful pin, (dm)', () => {
     // Token 2 (owner of dm) pins messageId3
     const res = requestMessagePinV1(token2, messageId3);
     expect(res.statusCode).toBe(OK);
@@ -620,12 +626,12 @@ describe('Tests for message/pin/v1', () => {
     expect(bodyObj).toStrictEqual({});
   });
 
-  test('Case 7: invalid token', () => {
+  test('Case 8: invalid token', () => {
     const res = requestMessageUnPinV1('invalid-token', messageId1);
     expect(res.statusCode).toBe(FORBID);
   });
 
-  test('Case 8: invalid messageId (channel)', () => {
+  test('Case 9: invalid messageId (channel)', () => {
     const res = requestMessageUnPinV1(token1, 11);
     expect(res.statusCode).toBe(BAD_REQ);
   });
@@ -690,7 +696,7 @@ describe('Tests for message/unpin/v1', () => {
     expect(res.statusCode).toBe(BAD_REQ);
   });
 
-  test('Case 2: messageId is already pinned', () => {
+  test('Case 2: messageId is already unpinned', () => {
     // Token1 is unpinning messageId1 in channel1
     requestMessageUnPinV1(token1, messageId1);
 
@@ -711,7 +717,7 @@ describe('Tests for message/unpin/v1', () => {
     expect(res.statusCode).toBe(FORBID);
   });
 
-  test('Case 5: sucessful pin, user global owner (channel)', () => {
+  test('Case 5: sucessful unpin, user global owner (channel)', () => {
     // Token 1 (global owner) unpins messageId2
     const res = requestMessageUnPinV1(token1, messageId2);
     expect(res.statusCode).toBe(OK);
@@ -720,7 +726,7 @@ describe('Tests for message/unpin/v1', () => {
     expect(bodyObj).toStrictEqual({});
   });
 
-  test('Case 6: sucessful pin, (dm)', () => {
+  test('Case 6: sucessful unpin, (dm)', () => {
     // Token 2 (owner of dm) unpins messageId3
     const res = requestMessageUnPinV1(token2, messageId3);
     expect(res.statusCode).toBe(OK);
