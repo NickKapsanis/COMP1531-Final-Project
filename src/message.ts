@@ -29,12 +29,12 @@ const BAD_REQ = 400;
  *      { error: 'error' }      object     Error message (given invalid input)
  *      { messageId: <number> } object     Successful message send
  */
-function messageSendV1(token: string, channelId: number, message: string) {
+export function messageSendV1(token: string, channelId: number, message: string) {
   const data: dataStoreType = getData();
 
   // Token validation
   if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Invalid token');
   }
 
   const userId: number = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
@@ -43,16 +43,16 @@ function messageSendV1(token: string, channelId: number, message: string) {
   // Checking if valid channelIds were given
   // Validating if authorised user is a member of the channel
   if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid channelId');
   } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Not a member of channel');
   }
 
   const channelGivenIndex: number = data.channels.findIndex(channel => channel.channelId === channelId);
 
   // Message validation
   if (message.length < 1 || message.length > 1000) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid message length');
   }
 
   const newMessageId: number = generateId('c');
@@ -83,7 +83,7 @@ function messageSendV1(token: string, channelId: number, message: string) {
  *      { error: 'error' }      object     Error message (given invalid input)
  *      { messageId: <number> } object     Successful message send
  */
-function messageSendDmV1(token: string, dmId: number, message: string) {
+export function messageSendDmV1(token: string, dmId: number, message: string) {
   const data: dataStoreType = getData();
 
   // Token validation
@@ -159,7 +159,7 @@ function generateId(mode: string) {
 *      { error: 'error' }     object     Error message when given invalid input
 *      { }                    object     Successful messageEdit
 */
-function messageEditV1(token: string, messageId: number, message: string) {
+export function messageEditV1(token: string, messageId: number, message: string) {
   const data: dataStoreType = getData();
   const mode = 'e';
 
@@ -204,7 +204,7 @@ function messageEditV1(token: string, messageId: number, message: string) {
  *      { error: 'error' }      object     Error message (given invalid input)
  *      { }                     object     Successful message remove
  */
-function messageRemoveV1(token: string, messageId: number) {
+export function messageRemoveV1(token: string, messageId: number) {
   const data: dataStoreType = getData();
   const mode = 'r';
 
@@ -364,66 +364,16 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
   return {};
 }
 
-function messageSendLaterV1(token: string, channelId: number, message: string, timeSent: number) {
-  const timeRemain: number = Math.ceil(timeSent - Math.floor(Date.now() / 1000));
+export function messageSendLaterV1(token: string, channelId: number, message: string, timeSent: number) {
+  const timeRemain: number = Math.ceil(timeSent - Math.floor(Date.now() / 1000)) * 1000;
   if (timeRemain < 0) {
     throw HTTPError(BAD_REQ, 'Invalid time');
   }
 
-  const data: dataStoreType = getData();
-
-  // Token validation
-  if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
-    throw HTTPError(FORBID, 'Invalid token');
-  }
-
-  const userId: number = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
-  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
-
-  // Checking if valid channelIds were given
-  // Validating if authorised user is a member of the channel
-  if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
-    throw HTTPError(BAD_REQ, 'Invalid channelId');
-  } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
-    throw HTTPError(FORBID, 'Invalid access to channel');
-  }
-
-  const channelGivenIndex: number = data.channels.findIndex(channel => channel.channelId === channelId);
-
-  // Message validation
-  if (message.length < 1 || message.length > 1000) {
-    throw HTTPError(BAD_REQ, 'Invalid message');
-  }
-
-  let newMessageId: number; 
-  const newMessageId = sleepMessage(userId, channelGivenIndex, message, timeRemain).then((messageId) => {
-    return messageId; 
-  }); 
-
-  console.log(newMessageId); 
-  return { messageId: newMessageId };
+  sleep(timeRemain);
+  return messageSendV1(token, channelId, message);
 }
 
-async function sleepMessage(userId: number, index: number, message: string, timeRemain: number) {
-  await new Promise(resolve => setTimeout(resolve, timeRemain));
-  return sendMessage(userId, index, message); 
+function sleep(timeRemain: number) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeRemain);
 }
-
-function sendMessage(userId: number, index: number, message: string) {
-  const data: dataStoreType = getData();
-  const newMessageId: number = generateId('c');
-
-  const newMessage: message = {
-    messageId: newMessageId,
-    uId: userId,
-    timeSent: Math.floor(Date.now() / 1000),
-    message: message,
-  };
-
-  data.channels[index].messages.unshift(newMessage);
-  setData(data);
-
-  return newMessageId;
-}
-
-export { messageSendLaterV1, messageRemoveV1, messageEditV1, messageSendDmV1, messageSendV1 }; 
