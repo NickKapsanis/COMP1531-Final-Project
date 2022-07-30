@@ -11,7 +11,7 @@ import cors from 'cors';
 import { usersAllV1, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
-import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
+import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1, messageSendLaterDmV1 } from './message';
 import { channelDetailsV2, channelMessagesV2 } from './channel';
 import errorHandler from 'middleware-http-errors';
 
@@ -243,6 +243,13 @@ app.delete('/message/remove/v1', (req, res) => {
 app.put('/message/edit/v1', (req, res) => {
   const { token, messageId, message } = req.body;
   res.json(messageEditV1(token, messageId, message));
+});
+
+// messageSendLaterDmV1
+app.post('/message/sendlaterdm/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const { dmId, message, timeSent } = req.body;
+  res.json(messageSendLaterDmV1(token, dmId, message, timeSent));
 });
 
 // handles errors nicely
