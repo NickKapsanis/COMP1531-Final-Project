@@ -4,7 +4,6 @@ import config from './config.json';
 import { getUId } from './other';
 import { dmList } from './dm';
 import { messageSendDmV1 } from './message';
-import { getData } from './dataStore';
 
 const port = config.port;
 const hosturl = config.url;
@@ -679,7 +678,6 @@ describe('Testing dm/remove/v1', () => {
     expect(output3.dms).toStrictEqual([]);
   });
 });
-
 /*
 ////////////////////////////////////////////////
 /////            Helper functions          /////

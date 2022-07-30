@@ -28,7 +28,8 @@ export function dmDetailsV1(token: string, dmId: number) {
   // input check the 3 possible error returns
   if (!checkValidToken(token)) return { error: 'error' };
   if (!checkValidDmId(dmId)) return { error: 'error' };
-  if (!isMemberOf(dmId, token) && !isOwnerOf(dmId, token)) return { error: 'error' };
+  // this check relys on the dmId and token to be valid
+  if (!isOwnerOf(dmId, token) && !isMemberOf(dmId, token)) return { error: 'error' };
   // if all if's above are not triggered, return details
   const data = getData();
   const members: user[] = [];
@@ -66,6 +67,7 @@ export function dmLeaveV1(token: string, dmId: number) {
   // input check the 3 possible error returns
   if (!checkValidToken(token)) return { error: 'error' };
   if (!checkValidDmId(dmId)) return { error: 'error' };
+  // this check relys on the dmId and token to be valid
   if (!isMemberOf(dmId, token)) return { error: 'error' };
   // if all if statements were passed over, remove the user from the dm
   const data = getData();
@@ -100,6 +102,7 @@ export function dmMessagesV1(token: string, dmId: number, start: number) {
   // input check the 3 possible error returns
   if (!checkValidToken(token)) return { error: 'error' };
   if (!checkValidDmId(dmId)) return { error: 'error' };
+  // this check relys on the dmId and token to be valid
   if (!isMemberOf(dmId, token)) return { error: 'error' };
   const data = getData();
   const dmObjMessages = data.dms.find(dm => dm.dmId === dmId).messages;
@@ -263,7 +266,7 @@ export function dmRemoveV1(token: string, dmId: number) {
 // helper function returns true or false if the input dmId is or is not a valid dmId in the datastore repectivly.
 function checkValidDmId(dmId: number) {
   const data = getData();
-  if (data.dms?.find(dm => dm.dmId === dmId) !== undefined) {
+  if (data.dms.find(dm => dm.dmId === dmId) !== undefined) {
     return true;
   } else {
     return false;
@@ -272,36 +275,35 @@ function checkValidDmId(dmId: number) {
 // helper function returns true or false if the input token authuser is or is not a member of the dmId
 function isMemberOf(dmId: number, token: string) {
   const data = getData();
-  const userId = data.users?.find(user => user.tokens.find(tok => tok === token))?.uId;
+  const userId = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
 
-  if (data.dms?.find(dm => dm.dmId === dmId).allMembers.find(member => member === userId) !== undefined) {
+  if (data.dms.find(dm => dm.dmId === dmId).allMembers.find(member => member === userId) !== undefined) {
     return true;
   } else {
     return false;
   }
 }
 // helper function returns true or false if the input token authUSer is or is not a memebr of the dmId
+// assumes valid dmId and valid and active token
 function isOwnerOf(dmId: number, token: string) {
   const data = getData();
-  const userId = data.users?.find(user => user.tokens.find(tok => tok === token))?.uId;
+  const userId = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
   // now check in the owner field of the DM intrested in
-  if (data.dms?.find(dm => dm.dmId === dmId).owner === userId) {
+  if (data.dms.find(dm => dm.dmId === dmId).owner === userId) {
     return true;
   } else {
     return false;
   }
 }
+// helper function retunrs userId of given active token returns -1 if the userId does not exist.
+// this function expects a valid acrtive token input
+function tokenToUserId(token: string) {
+  const data = getData();
+  return data.users.find(user => user.tokens.find(tok => tok === token)).uId;
+}
 // helper function returns userId of authUserId returns -1 if the authUserId is not in the datastore.
 export function giveUid(authUserId: number) {
   const userId = getData().users?.find(user => user.authUserId === authUserId)?.uId;
-  if (userId === undefined) return -1;
-  else return userId;
-}
-
-// helper function retunrs userId of given active token returns -1 if the userId does not exist.
-function tokenToUserId(token: string) {
-  const data = getData();
-  const userId = data.users?.find(user => user.tokens.find(tok => tok === token))?.uId;
   if (userId === undefined) return -1;
   else return userId;
 }
