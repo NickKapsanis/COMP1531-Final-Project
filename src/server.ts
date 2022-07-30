@@ -90,8 +90,8 @@ app.post('/auth/login/v3', (req, res) => {
 
 // authLogoutV2
 app.post('/auth/logout/v2', (req, res) => {
-  const data = req.body;
-  res.json(authLogoutV2(data.token));
+  const token = req.header('token');
+  res.json(authLogoutV2(token));
 });
 
 // clearV1()

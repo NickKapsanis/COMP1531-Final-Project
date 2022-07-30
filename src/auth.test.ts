@@ -207,6 +207,7 @@ describe('testing auth/logout/v2', () => {
         }),
         headers: {
           'Content-type': 'application/json',
+          token : tok,
         },
       }
     );
