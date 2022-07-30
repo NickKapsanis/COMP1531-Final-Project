@@ -105,12 +105,12 @@ describe('testing registration for sucess', () => {
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
 
-describe('testing authLoginV1 for input errors', () => {
+describe('testing authLoginV3 for input errors', () => {
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
     request(
       'POST',
-      url + '/auth/register/v2',
+      url + '/auth/register/v3',
       {
         body: JSON.stringify({
           email: 'TheEmail@gmail.com',
@@ -129,10 +129,10 @@ describe('testing authLoginV1 for input errors', () => {
     { email: 'NotTheEmail@gmail.com', password: '1234567', d: 'incorrect email (email does not belong to a user)' },
     { email: 'TheEmail@gmail.com', password: 'notThePassword', d: 'incorrect password (password does not match the email given)' },
     { email: 'NotTheEmail@gmail.com', password: 'notThePassword', d: 'incorrect email and password' },
-  ])('$d', ({ email, password, d }) => {
+  ])('$d', ({ email, password }) => {
     const res = request(
       'POST',
-      url + '/auth/login/v2',
+      url + '/auth/login/v3',
       {
         body: JSON.stringify({
           email: email,
@@ -143,19 +143,17 @@ describe('testing authLoginV1 for input errors', () => {
         },
       }
     );
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(bodyObj).toEqual({ error: 'error' });
-    expect(res.statusCode).toStrictEqual(OKAY);
+    expect(res.statusCode).toBe(BAD_REQ);
   });
   /// /////////////////////////////////////////////////////////////////////////
   /// /////////////////////////////////////////////////////////////////////////
 
   test.each([
     { email: 'TheEmail@gmail.com', password: '1234567', d: 'email and password match' },
-  ])('$d', ({ email, password, d }) => {
+  ])('$d', ({ email, password }) => {
     const res = request(
       'POST',
-      url + '/auth/login/v2',
+      url + '/auth/login/v3',
       {
         body: JSON.stringify({
           email: email,
