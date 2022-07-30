@@ -4,6 +4,7 @@ import config from './config.json';
 import { getUId } from './other';
 import { dmList } from './dm';
 import { messageSendDmV1 } from './message';
+import { getData } from './dataStore';
 
 const port = config.port;
 const hosturl = config.url;
@@ -393,7 +394,7 @@ describe('Testing dmMessagesV1', () => {
     const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
     const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
     const start = 0; // there are no messages so 0 is the only usable size
-    for (let i = 0; i < 100; i++) { messageSendDmV1(user1.token, dm12, '$i'); }
+    for (let i = 0; i < 100; i++) { messageSendDmV1(user1.token, dm12.dmId, '$i'); }
     /// /////////////////////////////////////////////////////////////////////////////////////////
     const res = request(
       'GET',
@@ -418,7 +419,7 @@ describe('Testing dmMessagesV1', () => {
     const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
     const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
     const start = 0; // there are no messages so 0 is the only usable size
-    for (let i = 0; i < 31; i++) { messageSendDmV1(user1.token, dm12, '$i'); }
+    for (let i = 0; i < 30; i++) { messageSendDmV1(user1.token, dm12.dmId, '$i'); }
     /// /////////////////////////////////////////////////////////////////////////////////////////
     const res = request(
       'GET',
