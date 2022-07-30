@@ -108,15 +108,17 @@ export function dmMessagesV1(token: string, dmId: number, start: number) {
   // start by setting the end of the current block to send
   let pageEnd = start + 50;
   let end : number;
+  // if pageEnd is greater than the messages array length,
+  // then let pageEnd be the array length, and end be -1 to indicate
+  // the completion of the pagination.
   if (pageEnd >= dmObjMessages.length) {
-    const numToPrint = pageEnd - 50;
-    pageEnd = start + numToPrint;
+    pageEnd = dmObjMessages.length;
     end = -1;
   } else {
     end = pageEnd;
   }
   return {
-    messages: dmObjMessages.slice(start, pageEnd + 1),
+    messages: dmObjMessages.slice(start, pageEnd),
     start: start,
     end: end,
   };

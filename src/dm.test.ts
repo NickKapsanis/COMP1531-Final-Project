@@ -3,7 +3,6 @@ import { giveUid } from './dm';
 import config from './config.json';
 import { getUId } from './other';
 import { dmList } from './dm';
-import { send } from 'process';
 import { messageSendDmV1 } from './message';
 
 const port = config.port;
@@ -394,9 +393,7 @@ describe('Testing dmMessagesV1', () => {
     const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
     const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
     const start = 0; // there are no messages so 0 is the only usable size
-    for(let i = 0; i < 100; i++) {requestSendDm(dm12, '$i')};
-    const expectedMessages = [];
-    for(let i = 0; i < 50; i++) {expectedMessages.push(i)};
+    for (let i = 0; i < 100; i++) { messageSendDmV1(user1.token, dm12, '$i'); }
     /// /////////////////////////////////////////////////////////////////////////////////////////
     const res = request(
       'GET',
@@ -411,11 +408,9 @@ describe('Testing dmMessagesV1', () => {
     );
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(200);
-    expect(bodyObj).toStrictEqual({
-      messages: expect.arrayContaining(expectedMessages),
-      start: 0,
-      end: 50,
-    });
+    expect(bodyObj.start).toBe(0);
+    expect(bodyObj.end).toBe(50);
+    expect(bodyObj.messages.length).toBe(50);
   });
   test('test for less than 50 messages', () => {
     /// ////////////////////////////set up the datastore/////////////////////////////////////////
@@ -423,9 +418,7 @@ describe('Testing dmMessagesV1', () => {
     const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
     const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
     const start = 0; // there are no messages so 0 is the only usable size
-    for(let i = 0; i < 31; i++) {requestSendDm(dm12, '$i')};
-    const expectedMessages = [];
-    for(let i = 0; i < 31; i++) {expectedMessages.push(i)};
+    for (let i = 0; i < 31; i++) { messageSendDmV1(user1.token, dm12, '$i'); }
     /// /////////////////////////////////////////////////////////////////////////////////////////
     const res = request(
       'GET',
@@ -440,11 +433,9 @@ describe('Testing dmMessagesV1', () => {
     );
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(res.statusCode).toBe(200);
-    expect(bodyObj).toStrictEqual({
-      messages: expect.arrayContaining(expectedMessages),
-      start: 0,
-      end: -1,
-    });
+    expect(bodyObj.start).toBe(0);
+    expect(bodyObj.end).toBe(-1);
+    expect(bodyObj.messages.length).toBe(30);
   });
 });
 
@@ -762,24 +753,6 @@ function requestDmRemove(token: string, dmId: number) {
         token: token,
         dmId: dmId
       }
-    }
-  );
-  expect(res.statusCode).toStrictEqual(200);
-  return JSON.parse(String(res.getBody()));
-}
-
-function requestSendDm(dmId: number, message: string) {
-  const res = request(
-    'POST',
-    url + '/message/senddm/v1',
-    {
-      body: JSON.stringify({
-        dmId: dmId,
-        message: message,
-      }),
-      headers: {
-        'Content-type': 'application/json',
-      },
     }
   );
   expect(res.statusCode).toStrictEqual(200);
