@@ -12,6 +12,9 @@ type message = {
   message : string;
 }
 
+const FORBID = 403;
+const BAD_REQ = 400;
+
 // Tests for message/send/v1
 describe('Tests for message/send/V1', () => {
   let token1: string;
@@ -109,96 +112,96 @@ function testRequestMessageSendV1(token: string, channelId: number, message: str
 }
 
 // Tests for message/senddm/v1
-describe('Tests for message/senddm/V1', () => {
-  let token1: string;
-  let token2: string;
-  let token3: string;
-  let dmId1: number;
-  let dmId2: number;
+// describe('Tests for message/senddm/V1', () => {
+//   let token1: string;
+//   let token2: string;
+//   let token3: string;
+//   let dmId1: number;
+//   let dmId2: number;
 
-  beforeEach(() => {
-    //  member of: token1: [1], token2: [2]
-    // TODO: find uIDs of token1 and token2 to pass in
-    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
-    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
-    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adams');
-    dmId1 = requestDmCreateV1(token1, [1, 2]);
-    dmId2 = requestDmCreateV1(token2, [2, 3]);
-  });
+//   beforeEach(() => {
+//     //  member of: token1: [1], token2: [2]
+//     // TODO: find uIDs of token1 and token2 to pass in
+//     token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
+//     token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
+//     token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adams');
+//     dmId1 = requestDmCreateV1(token1, [1, 2]);
+//     dmId2 = requestDmCreateV1(token2, [2, 3]);
+//   });
 
-  afterEach(() => {
-    requestClear();
-  });
+//   afterEach(() => {
+//     requestClear();
+//   });
 
-  test('Case 1: token is invalid', () => {
-    const res = testRequestMessageSendDmV1('invalid-token', dmId1, 'Message 1');
+//   test('Case 1: token is invalid', () => {
+//     const res = testRequestMessageSendDmV1('invalid-token', dmId1, 'Message 1');
 
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
-  });
+//     const bodyObj = JSON.parse(String(res.getBody()));
+//     expect(res.statusCode).toBe(OK);
+//     expect(bodyObj).toStrictEqual({ error: 'error' });
+//   });
 
-  test('Case 2: dmId does not refer to valid DM', () => {
-    // NOTE: cannot use method as did before as cannot list all DMs in dataStore without referring to it
-    const invalidId = Math.floor((Math.random() * 1000) + 1000);
+//   test('Case 2: dmId does not refer to valid DM', () => {
+//     // NOTE: cannot use method as did before as cannot list all DMs in dataStore without referring to it
+//     const invalidId = Math.floor((Math.random() * 1000) + 1000);
 
-    const res = testRequestMessageSendDmV1(token3, invalidId, 'Message 1');
+//     const res = testRequestMessageSendDmV1(token3, invalidId, 'Message 1');
 
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
-  });
+//     const bodyObj = JSON.parse(String(res.getBody()));
+//     expect(res.statusCode).toBe(OK);
+//     expect(bodyObj).toStrictEqual({ error: 'error' });
+//   });
 
-  test('Case 3: length of message is less than 1 or more than 1000 characters', () => {
-    // Generate 1000+ character message
-    const testMessage100 = 'dlXqa8qv6YSWfOcAO7Vf9gAjigjRXGjHygJahreDg0yKUIpKRKhQWpruNwESu7nKdwtJU0zGsM34tgCm9CaWyPkV4hhVClmFfQNM';
-    let testMessage1000 = '';
-    for (let i = 0; i < 11; i++) {
-      testMessage1000 = testMessage1000 + testMessage100;
-    }
+//   test('Case 3: length of message is less than 1 or more than 1000 characters', () => {
+//     // Generate 1000+ character message
+//     const testMessage100 = 'dlXqa8qv6YSWfOcAO7Vf9gAjigjRXGjHygJahreDg0yKUIpKRKhQWpruNwESu7nKdwtJU0zGsM34tgCm9CaWyPkV4hhVClmFfQNM';
+//     let testMessage1000 = '';
+//     for (let i = 0; i < 11; i++) {
+//       testMessage1000 = testMessage1000 + testMessage100;
+//     }
 
-    const res1 = testRequestMessageSendDmV1(token1, dmId1, '');
-    const res2 = testRequestMessageSendDmV1(token1, dmId1, testMessage1000);
+//     const res1 = testRequestMessageSendDmV1(token1, dmId1, '');
+//     const res2 = testRequestMessageSendDmV1(token1, dmId1, testMessage1000);
 
-    expect(res1.statusCode).toBe(OK);
-    expect(res2.statusCode).toBe(OK);
-    const bodyObj1 = JSON.parse(String(res1.getBody()));
-    const bodyObj2 = JSON.parse(String(res2.getBody()));
+//     expect(res1.statusCode).toBe(OK);
+//     expect(res2.statusCode).toBe(OK);
+//     const bodyObj1 = JSON.parse(String(res1.getBody()));
+//     const bodyObj2 = JSON.parse(String(res2.getBody()));
 
-    expect(bodyObj1).toStrictEqual({ error: 'error' });
-    expect(bodyObj2).toStrictEqual({ error: 'error' });
-  });
+//     expect(bodyObj1).toStrictEqual({ error: 'error' });
+//     expect(bodyObj2).toStrictEqual({ error: 'error' });
+//   });
 
-  test('Case 4: user not member of DM', () => {
-    const res = testRequestMessageSendDmV1(token1, dmId2, 'Message 1');
+//   test('Case 4: user not member of DM', () => {
+//     const res = testRequestMessageSendDmV1(token1, dmId2, 'Message 1');
 
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
-  });
+//     const bodyObj = JSON.parse(String(res.getBody()));
+//     expect(res.statusCode).toBe(OK);
+//     expect(bodyObj).toStrictEqual({ error: 'error' });
+//   });
 
-  test('Case 5: successful message senddm', () => {
-    const res = testRequestMessageSendDmV1(token1, dmId1, 'Message 1');
-    const bodyObj = JSON.parse(String(res.getBody())).messageId;
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual(expect.any(Number)); // To change once format of ids finalised.
-  });
-});
+//   test('Case 5: successful message senddm', () => {
+//     const res = testRequestMessageSendDmV1(token1, dmId1, 'Message 1');
+//     const bodyObj = JSON.parse(String(res.getBody())).messageId;
+//     expect(res.statusCode).toBe(OK);
+//     expect(bodyObj).toStrictEqual(expect.any(Number)); // To change once format of ids finalised.
+//   });
+// });
 
-// Helper function for message/senddm/v1 HTTP calls
-function testRequestMessageSendDmV1(token: string, dmId: number, message: string) {
-  return request(
-    'POST',
-        `${url}:${port}/message/senddm/v1`,
-        {
-          json: {
-            token: token,
-            dmId: dmId,
-            message: message,
-          }
-        }
-  );
-}
+// // Helper function for message/senddm/v1 HTTP calls
+// function testRequestMessageSendDmV1(token: string, dmId: number, message: string) {
+//   return request(
+//     'POST',
+//         `${url}:${port}/message/senddm/v1`,
+//         {
+//           json: {
+//             token: token,
+//             dmId: dmId,
+//             message: message,
+//           }
+//         }
+//   );
+// }
 
 // Tests for message/edit/v1
 describe('Tests for message/edit/V1', () => {
@@ -538,15 +541,16 @@ function requestMessageRemoveV1(token: string, messageId: number) {
 }
 
 describe('Tests for message/sendlaterdm/v1', () => {
-  let dmId1: number; 
-  let token1: string; 
-  let token2: string; 
+  let dmId1: number;
+  let dmId2: number;
+  let token1: string;
+  let token2: string;
 
   beforeEach(() => {
     token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
     dmId1 = requestDmCreateV1(token1, [1, 2]);
-    dmId2 = requestDmCreateV1(token2, [2]); 
+    dmId2 = requestDmCreateV1(token2, [2]);
   });
 
   afterEach(() => {
@@ -557,12 +561,12 @@ describe('Tests for message/sendlaterdm/v1', () => {
     // NOTE: cannot use method as did before as cannot list all DMs in dataStore without referring to it
     const invalidId = Math.floor((Math.random() * 1000) + 1000);
 
-    const timeSent = Math.floor(Date.now() / 1000) + 5; 
-    const res = requestMessageSendLaterV1(invalidId, 'Message 1', timeSent);
+    const timeSent = Math.floor(Date.now() / 1000) + 1;
+    const res = requestMessageSendLaterDmV1(token1, invalidId, 'Message 1', timeSent);
     expect(res.statusCode).toBe(BAD_REQ);
-  }); 
+  });
 
-  test('Case 2: length of message is less than 1 or more than 1000 characters', () => {
+  test('Case 2: length of message is more than 1000 characters', () => {
     // Generate 1000+ character message
     const testMessage100 = 'dlXqa8qv6YSWfOcAO7Vf9gAjigjRXGjHygJahreDg0yKUIpKRKhQWpruNwESu7nKdwtJU0zGsM34tgCm9CaWyPkV4hhVClmFfQNM';
     let testMessage1000 = '';
@@ -570,56 +574,64 @@ describe('Tests for message/sendlaterdm/v1', () => {
       testMessage1000 = testMessage1000 + testMessage100;
     }
 
-    const timeSent = Math.floor(Date.now() / 1000) + 5; 
-    const res1 = requestMessageSendLaterV1(dmId1, '', timeSent);
-    const res2 = requestMessageSendLaterV1(dmId1, testMessage1000, timeSent);
-
-    expect(res1.statusCode).toBe(BAD_REQ);
-    expect(res2.statusCode).toBe(BAD_REQ);
-  });
-
-  test('Case 3: timeSent is in the past', () => {
-    // Token 1 attempt to send message to channel1
-    const timeSent = Math.floor(Date.now() / 1000) - 5; 
-    const res = requestMessageSendLaterV1(dmId1, 'Message 1', timeSent);
+    const timeSent = Math.floor(Date.now() / 1000) + 1;
+    const res = requestMessageSendLaterDmV1(token1, dmId1, testMessage1000, timeSent);
     expect(res.statusCode).toBe(BAD_REQ);
   });
 
-  test('Case 4: dmID refers to dm user not member of', () => {
+  test('Case 3: length of message is less than 1 character', () => {
+    const timeSent = Math.floor(Date.now() / 1000) + 1;
+    const res = requestMessageSendLaterDmV1(token1, dmId1, '', timeSent);
+    expect(res.statusCode).toBe(BAD_REQ);
+  });
+
+  test('Case 4: timeSent is in the past', () => {
+    // Token 1 attempt to send message to channel1
+    const timeSent = Math.floor(Date.now() / 1000) - 5;
+    const res = requestMessageSendLaterDmV1(token1, dmId1, 'Message 1', timeSent);
+    expect(res.statusCode).toBe(BAD_REQ);
+  });
+
+  test('Case 5: dmID refers to dm user not member of', () => {
     // Token 1 attempt to send message to channel1 (5 seconds later)
-    const timeSent = Math.floor(Date.now() / 1000) + 5; 
-    const res = requestMessageSendLaterV1(dmId2, 'Message 1', timeSent);
+    const timeSent = Math.floor(Date.now() / 1000) + 1;
+    const res = requestMessageSendLaterDmV1(token1, dmId2, 'Message 1', timeSent);
     expect(res.statusCode).toBe(FORBID);
   });
 
-  test('Case 5: successful send later', () => {
+  test('Case 6: successful send later', () => {
     // Token 1 send message 5 seconds later to channel1
-    const timeSent = Math.floor(Date.now() / 1000) + 5; 
-    const res = requestMessageSendLaterV1(dmId1, 'Message 1', timeSent);
+    const timeSent = Math.floor(Date.now() / 1000) + 2;
+    const res = requestMessageSendLaterDmV1(token1, dmId1, 'Message 1', timeSent);
     expect(res.statusCode).toBe(OK);
 
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(bodyObj.messageId).toStrictEqual(expect.any(Number));
   });
 
-  // test('Case 6: DM is removed before the message has sent', () => {
-  // question: will it still return the messageId? 
+  // test('Case 7: DM is removed before the message has sent', () => {
+  // how to test?
   // });
 
-  // test('Case 7: invalid token', () => {
-
-  // }); 
+  test('Case 8: invalid token', () => {
+    const timeSent = Math.floor(Date.now() / 1000) + 1;
+    const res = requestMessageSendLaterDmV1('invalid-token', dmId1, 'Message 1', timeSent);
+    expect(res.statusCode).toBe(FORBID);
+  });
 });
 
-function requestMessageSendLaterDmV1(dmId: number, message: string, timeSent: number) {
+function requestMessageSendLaterDmV1(token: string, dmId: number, message: string, timeSent: number) {
   return request(
     'POST',
     `${url}:${port}/message/sendlaterdm/v1`,
     {
       json: {
         dmId: dmId,
-        message: message, 
-        timeSent: timeSent, 
+        message: message,
+        timeSent: timeSent,
+      },
+      headers: {
+        token: token,
       }
     }
   );
