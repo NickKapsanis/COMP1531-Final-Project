@@ -1,6 +1,7 @@
 import { getData, setData, dataStoreType, user, channel, message, dm } from './dataStore';
 import { channelsListV2 } from './channels';
 import { dmListV1 } from './dm';
+import HTTPError from 'http-errors';
 
 type channelOutput = {
   channelId: number;
@@ -11,6 +12,9 @@ type dmOutput = {
   dmId: number;
   name: string;
 }
+
+const FORBID = 403;
+const BAD_REQ = 400;
 
 /**
  * Given a valid inputs, sends message from user to specified channel and
@@ -84,7 +88,7 @@ export function messageSendDmV1(token: string, dmId: number, message: string) {
 
   // Token validation
   if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Invalid token');
   }
 
   const userId: number = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
@@ -93,16 +97,16 @@ export function messageSendDmV1(token: string, dmId: number, message: string) {
   // Checking if valid dmId was given
   // Validating if authorised user is a member of the DM
   if (data.dms.find(dm => dm.dmId === dmId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid dmId');
   } else if (dmsMemberOf.find(dm => dm.dmId === dmId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Not a member of dm');
   }
 
   const dmGivenIndex: number = data.dms.findIndex(dm => dm.dmId === dmId);
 
   // Message validation
   if (message.length < 1 || message.length > 1000) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid message length');
   }
 
   const newMessageId: number = generateId('d');
@@ -358,4 +362,18 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
 
   setData(data);
   return {};
+}
+
+export function messageSendLaterDmV1(token: string, dmId: number, message: string, timeSent: number) {
+  const timeRemain: number = Math.ceil(timeSent - Math.floor(Date.now() / 1000)) * 1000;
+  if (timeRemain < 0) {
+    throw HTTPError(BAD_REQ, 'Invalid time');
+  }
+
+  sleep(timeRemain);
+  return messageSendDmV1(token, dmId, message);
+}
+
+function sleep(timeRemain: number) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeRemain);
 }
