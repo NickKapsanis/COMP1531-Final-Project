@@ -53,7 +53,7 @@ Return Value:
     does not have an error return,
     interface specifies only active tokens will be input.
 */
-export function authLogoutV1(token: string) {
+export function authLogoutV2(token: string) {
   const data = getData();
   const authUserId = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
   removeToken(authUserId, token);

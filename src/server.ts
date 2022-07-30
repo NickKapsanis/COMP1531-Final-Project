@@ -6,7 +6,7 @@ import { dmDetailsV1, dmLeaveV1, dmMessagesV1 } from './dm';
 import { dmCreateV1, dmListV1, dmRemoveV1 } from './dm';
 import { channelsCreateV1, channelsListV2, channelsListallV2 } from './channels';
 import { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, channelsLeaveV1 } from './channel';
-import { authRegisterV3, authLoginV3, authLogoutV1 } from './auth';
+import { authRegisterV3, authLoginV3, authLogoutV2 } from './auth';
 import cors from 'cors';
 import { usersAllV1, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
@@ -88,10 +88,10 @@ app.post('/auth/login/v3', (req, res) => {
   res.json(authLoginV3(data.email, data.password));
 });
 
-// authLogout
-app.post('/auth/logout/v1', (req, res) => {
+// authLogoutV2
+app.post('/auth/logout/v2', (req, res) => {
   const data = req.body;
-  res.json(authLogoutV1(data.token));
+  res.json(authLogoutV2(data.token));
 });
 
 // clearV1()

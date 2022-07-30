@@ -179,11 +179,11 @@ describe('testing authLoginV3 for input errors', () => {
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////
-describe('testing auth/logout/v1', () => {
+describe('testing auth/logout/v2', () => {
   test('given an active token log out', () => {
     const res1 = request(
       'POST',
-      url + '/auth/register/v2',
+      url + '/auth/register/v3',
       {
         body: JSON.stringify({
           email: 'ThisIsaUser@gmail.com',
@@ -200,7 +200,7 @@ describe('testing auth/logout/v1', () => {
     // log out the user
     const res2 = request(
       'POST',
-      url + '/auth/logout/v1',
+      url + '/auth/logout/v2',
       {
         body: JSON.stringify({
           token: tok,
