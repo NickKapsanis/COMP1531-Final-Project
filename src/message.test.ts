@@ -16,100 +16,100 @@ const BAD_REQ = 400;
 const FORBID = 403;
 
 // Tests for message/send/v1
-describe('Tests for message/send/V1', () => {
-  let token1: string;
-  let token2: string;
-  let channelId1: number;
-  let channelId2: number;
+// describe('Tests for message/send/V1', () => {
+//   let token1: string;
+//   let token2: string;
+//   let channelId1: number;
+//   let channelId2: number;
 
-  beforeEach(() => {
-    //  Channels token[x] is member of: token1: [1], token2: [2]
-    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
-    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
-    channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
-    channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
-  });
+//   beforeEach(() => {
+//     //  Channels token[x] is member of: token1: [1], token2: [2]
+//     token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
+//     token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
+//     channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
+//     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
+//   });
 
-  afterEach(() => {
-    requestClear();
-  });
+//   afterEach(() => {
+//     requestClear();
+//   });
 
-  test('Case 1: token is invalid', () => {
-    const res = testRequestMessageSendV1('invalid-token', channelId1, 'Message 1');
+//   test('Case 1: token is invalid', () => {
+//     const res = testRequestMessageSendV1('invalid-token', channelId1, 'Message 1');
 
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
-  });
+//     const bodyObj = JSON.parse(String(res.getBody()));
+//     expect(res.statusCode).toBe(OK);
+//     expect(bodyObj).toStrictEqual({ error: 'error' });
+//   });
 
-  test('Case 2: channelId does not refer to valid channel', () => {
-    // Get all channels token is a part of
-    const allChannels = requestChannelsListallV2(token1);
-    let invalidId = 199;
-    for (const i in allChannels) {
-      if (invalidId === allChannels[i].channelId) {
-        invalidId = invalidId + 100;
-      }
-    }
+//   test('Case 2: channelId does not refer to valid channel', () => {
+//     // Get all channels token is a part of
+//     const allChannels = requestChannelsListallV2(token1);
+//     let invalidId = 199;
+//     for (const i in allChannels) {
+//       if (invalidId === allChannels[i].channelId) {
+//         invalidId = invalidId + 100;
+//       }
+//     }
 
-    const res = testRequestMessageSendV1(token1, invalidId, 'Message 1');
+//     const res = testRequestMessageSendV1(token1, invalidId, 'Message 1');
 
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
-  });
+//     const bodyObj = JSON.parse(String(res.getBody()));
+//     expect(res.statusCode).toBe(OK);
+//     expect(bodyObj).toStrictEqual({ error: 'error' });
+//   });
 
-  test('Case 3: length of message is less than 1 or more than 1000 characters', () => {
-    // Generate 1000+ character message
-    const testMessage100 = 'dlXqa8qv6YSWfOcAO7Vf9gAjigjRXGjHygJahreDg0yKUIpKRKhQWpruNwESu7nKdwtJU0zGsM34tgCm9CaWyPkV4hhVClmFfQNM';
-    let testMessage1000 = '';
-    for (let i = 0; i < 11; i++) {
-      testMessage1000 = testMessage1000 + testMessage100;
-    }
+//   test('Case 3: length of message is less than 1 or more than 1000 characters', () => {
+//     // Generate 1000+ character message
+//     const testMessage100 = 'dlXqa8qv6YSWfOcAO7Vf9gAjigjRXGjHygJahreDg0yKUIpKRKhQWpruNwESu7nKdwtJU0zGsM34tgCm9CaWyPkV4hhVClmFfQNM';
+//     let testMessage1000 = '';
+//     for (let i = 0; i < 11; i++) {
+//       testMessage1000 = testMessage1000 + testMessage100;
+//     }
 
-    const res1 = testRequestMessageSendV1(token1, channelId1, '');
-    const res2 = testRequestMessageSendV1(token1, channelId1, testMessage1000);
+//     const res1 = testRequestMessageSendV1(token1, channelId1, '');
+//     const res2 = testRequestMessageSendV1(token1, channelId1, testMessage1000);
 
-    expect(res1.statusCode).toBe(OK);
-    expect(res2.statusCode).toBe(OK);
-    const bodyObj1 = JSON.parse(String(res1.getBody()));
-    const bodyObj2 = JSON.parse(String(res2.getBody()));
+//     expect(res1.statusCode).toBe(OK);
+//     expect(res2.statusCode).toBe(OK);
+//     const bodyObj1 = JSON.parse(String(res1.getBody()));
+//     const bodyObj2 = JSON.parse(String(res2.getBody()));
 
-    expect(bodyObj1).toStrictEqual({ error: 'error' });
-    expect(bodyObj2).toStrictEqual({ error: 'error' });
-  });
+//     expect(bodyObj1).toStrictEqual({ error: 'error' });
+//     expect(bodyObj2).toStrictEqual({ error: 'error' });
+//   });
 
-  test('Case 4: user not member of channel', () => {
-    const res = testRequestMessageSendV1(token1, channelId2, 'Message 1');
+//   test('Case 4: user not member of channel', () => {
+//     const res = testRequestMessageSendV1(token1, channelId2, 'Message 1');
 
-    const bodyObj = JSON.parse(String(res.getBody()));
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
-  });
+//     const bodyObj = JSON.parse(String(res.getBody()));
+//     expect(res.statusCode).toBe(OK);
+//     expect(bodyObj).toStrictEqual({ error: 'error' });
+//   });
 
-  test('Case 5: successful message send', () => {
-    const res = testRequestMessageSendV1(token1, channelId1, 'Message 1');
+//   test('Case 5: successful message send', () => {
+//     const res = testRequestMessageSendV1(token1, channelId1, 'Message 1');
 
-    const bodyObj = JSON.parse(String(res.getBody())).messageId;
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual(expect.any(Number)); // TODO: check if working
-  });
-});
+//     const bodyObj = JSON.parse(String(res.getBody())).messageId;
+//     expect(res.statusCode).toBe(OK);
+//     expect(bodyObj).toStrictEqual(expect.any(Number)); // TODO: check if working
+//   });
+// });
 
-// Helper function for message/send/v1 HTTP calls
-function testRequestMessageSendV1(token: string, channelId: number, message: string) {
-  return request(
-    'POST',
-    `${url}:${port}/message/send/v1`,
-    {
-      json: {
-        token: token,
-        channelId: channelId,
-        message: message,
-      }
-    }
-  );
-}
+// // Helper function for message/send/v1 HTTP calls
+// function testRequestMessageSendV1(token: string, channelId: number, message: string) {
+//   return request(
+//     'POST',
+//     `${url}:${port}/message/send/v1`,
+//     {
+//       json: {
+//         token: token,
+//         channelId: channelId,
+//         message: message,
+//       }
+//     }
+//   );
+// }
 
 // Tests for message/senddm/v1
 describe('Tests for message/senddm/V1', () => {
@@ -564,12 +564,12 @@ describe('Tests for message/sendlater/v1', () => {
       }
     }
 
-    const timeSent = Math.floor(Date.now() / 1000) + 5;
+    const timeSent = Math.floor(Date.now() / 1000) + 3;
     const res = requestMessageSendLaterV1(token1, invalidId, 'Message 1', timeSent);
     expect(res.statusCode).toBe(BAD_REQ);
   });
 
-  test('Case 2: length of message is less than 1 or more than 1000 characters', () => {
+  test('Case 2: length of message is more than 1000 characters', () => {
     // Generate 1000+ character message
     const testMessage100 = 'dlXqa8qv6YSWfOcAO7Vf9gAjigjRXGjHygJahreDg0yKUIpKRKhQWpruNwESu7nKdwtJU0zGsM34tgCm9CaWyPkV4hhVClmFfQNM';
     let testMessage1000 = '';
@@ -577,12 +577,15 @@ describe('Tests for message/sendlater/v1', () => {
       testMessage1000 = testMessage1000 + testMessage100;
     }
 
-    const timeSent = Math.floor(Date.now() / 1000) + 5;
-    const res1 = requestMessageSendLaterV1(token1, channelId1, '', timeSent);
-    const res2 = requestMessageSendLaterV1(token1, channelId1, testMessage1000, timeSent);
+    const timeSent = Math.floor(Date.now() / 1000) + 1;
+    const res = requestMessageSendLaterV1(token1, channelId1, testMessage1000, timeSent);
+    expect(res.statusCode).toBe(BAD_REQ);
+  });
 
-    expect(res1.statusCode).toBe(BAD_REQ);
-    expect(res2.statusCode).toBe(BAD_REQ);
+  test('Case 3: length of message is less than 1 character', () => {
+    const timeSent = Math.floor(Date.now() / 1000) + 1;
+    const res = requestMessageSendLaterV1(token1, channelId1, '', timeSent);
+    expect(res.statusCode).toBe(BAD_REQ);
   });
 
   test('Case 3: timeSent is in the past', () => {
@@ -594,15 +597,15 @@ describe('Tests for message/sendlater/v1', () => {
 
   test('Case 4: channelId refers to channel user not member of', () => {
     // Token 2 attempt to send message to channel1 (1 second later)
-    const timeSent = Math.floor(Date.now() / 1000) + 5;
+    const timeSent = Math.floor(Date.now() / 1000) + 3;
     const res = requestMessageSendLaterV1(token2, channelId1, 'Message 1', timeSent);
     expect(res.statusCode).toBe(FORBID);
   });
 
-  test('Case 5: successful send later', async() => {
+  test('Case 5: successful send later', () => {
     // Token 1 send message 1 second later to channel1
-    const timeSent = Math.floor(Date.now() / 1000) + 20;
-    const res = await requestMessageSendLaterV1(token1, channelId1, 'Message 1', timeSent);
+    const timeSent = Math.floor(Date.now() / 1000) + 2;
+    const res = requestMessageSendLaterV1(token1, channelId1, 'Message 1', timeSent);
     expect(res.statusCode).toBe(OK);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -611,7 +614,7 @@ describe('Tests for message/sendlater/v1', () => {
 
   test('Case 6: invalid token', () => {
     // Invalid token send message 1 second later to channel1
-    const timeSent = Math.floor(Date.now() / 1000) + 5;
+    const timeSent = Math.floor(Date.now() / 1000) + 1;
     const res = requestMessageSendLaterV1('invalid-token', channelId1, 'Message 1', timeSent);
     expect(res.statusCode).toBe(FORBID);
   });
