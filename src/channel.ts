@@ -2,7 +2,7 @@ import { getData, setData, dataStoreType, channel, message, user } from './dataS
 import { userProfileV2 } from './users';
 import { channelsListV2 } from './channels';
 import { getUId } from './other';
-import { authRegisterV1, checkValidToken } from './auth';
+import { checkValidToken } from './auth';
 
 type userOutput = {
   uId: number;
