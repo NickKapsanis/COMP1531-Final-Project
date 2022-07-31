@@ -34,16 +34,65 @@ type channel = {
   ownerMembers : number[]; // array of all owners user Id's
   messages?: message[];
 }
+
+type channelsJoinedType = {
+  numChannelsJoined: number;
+  timeStamp: number;
+}
+
+type dmsJoinedType = {
+  numDmsJoined: number;
+  timeStamp: number;
+} 
+
+type messagesSentType = {
+  numMessagesSent: number;
+  timeStamp: number;
+} 
+
+type userStatsType = {
+  channelsJoined: channelsJoinedType[],
+  dmsJoined: dmsJoinedType[], 
+  messagesSent: messagesSentType[], 
+  involvementRate: number;
+}
+
+type channelsExistType = {
+  numChannelsExist: number;
+  timeStamp: number;
+}
+
+type dmsExistType = {
+  numDmsExist: number;
+  timeStamp: number;
+}
+
+type messagesExistType = {
+  numMessagesExist: number;
+  timeStamp: number;
+}
+
+type workspaceStatsType = {
+  channelsExist: channelsExistType[]; 
+  dmsExist: dmsExistType[];
+  messagesExist: messagesExistType[];
+  utilizationRate: Number;
+}
+
 type dataStoreType = {
   users? : user[];
   channels? : channel[];
   dms? : dm[];
+  userStats?: userStatsType[];
+  workspaceStats?: workspaceStatsType[];
 }
 
 const data: dataStoreType = {
   users: [],
   channels: [],
   dms: [],
+  userStats: [],
+  workspaceStats: {},
 };
 
 // Use get() to access the data
