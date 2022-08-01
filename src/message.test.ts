@@ -21,8 +21,8 @@ describe('Tests for message/send/V1', () => {
 
   beforeEach(() => {
     //  Channels token[x] is member of: token1: [1], token2: [2]
-    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
-    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
     channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
   });
@@ -119,9 +119,9 @@ describe('Tests for message/senddm/V1', () => {
   beforeEach(() => {
     //  member of: token1: [1], token2: [2]
     // TODO: find uIDs of token1 and token2 to pass in
-    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
-    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
-    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adams');
+    token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adams');
     dmId1 = requestDmCreateV1(token1, [1, 2]);
     dmId2 = requestDmCreateV1(token2, [2, 3]);
   });
@@ -214,9 +214,9 @@ describe('Tests for message/edit/V1', () => {
 
   beforeEach(() => {
     //  channelId1: [owners: 1][members: 1,2] channelId2: [owners: 1, 2][members: 2, 3] (because token1 is a global owner)
-    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
-    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
-    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
+    token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adam');
 
     channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
@@ -374,9 +374,9 @@ describe('Tests for message/remove/V1 (for input and channels)', () => {
 
   beforeEach(() => {
     //  channelId1: [owners: 1][members: 1,2] channelId2: [owners: 1, 2][members: 2, 3] (because token1 is a global owner)
-    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
-    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
-    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
+    token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adam');
 
     channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
@@ -459,9 +459,9 @@ describe('Tests for message/remove/v1 (for dms)', () => {
 
   beforeEach(() => {
     //  dmId1: [owner: 1][members: 1, 2] dmId2: [owner: 2][members: 2, 3]
-    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
-    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
-    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
+    token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adam');
 
     dmId1 = requestDmCreateV1(token1, [1, 2]);
     dmId2 = requestDmCreateV1(token2, [2, 3]);
@@ -542,10 +542,10 @@ function requestMessageRemoveV1(token: string, messageId: number) {
 /// /////////////////////        Helper Functions       /////////////////////////
 /// /////////////////////////////////////////////////////////////////////////////
 /// /////////////////////////////////////////////////////////////////////////////
-function requestAuthUserRegisterV2(email: string, password: string, nameFirst: string, nameLast: string) {
+function requestAuthUserRegisterV3(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
-    `${url}:${port}/auth/register/v2`,
+    `${url}:${port}/auth/register/v3`,
     {
       json: {
         email: email,
