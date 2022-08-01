@@ -457,7 +457,7 @@ describe('Testing dmMessagesV1', () => {
 function registerUser(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
-    url + '/auth/register/v2',
+    url + '/auth/register/v3',
     {
       body: JSON.stringify({
         email: email,
@@ -551,7 +551,6 @@ describe('Testing dm/create/v2', () => {
     const uIds = [member1UId, member2UId, member3UId];
 
     const output = requestDmCreate(creator.token, uIds);
-    expect( JSON.parse(String(output.getBody()))).toStrictEqual(expect.any(Number));
     expect(output.statusCode).toBe(OKAY);
 
     // const dmDetails = requestDmDetails(member1.token, output.dmId);
@@ -716,7 +715,7 @@ function requestClear() {
 function requestAuthRegister(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
-    url + '/auth/register/v2',
+    url + '/auth/register/v3',
     {
       body: JSON.stringify({
         email: email,
