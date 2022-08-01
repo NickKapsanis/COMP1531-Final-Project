@@ -3,6 +3,7 @@ import { giveUid } from './dm';
 import config from './config.json';
 import { getUId } from './other';
 import { dmList } from './dm';
+import { messageSendDmV1 } from './message';
 
 const port = config.port;
 const hosturl = config.url;
@@ -273,7 +274,27 @@ describe('Testing dmMessagesV1', () => {
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
   });
-
+  test('token is not valid', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
+    const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+    const res = request(
+      'GET',
+      url + '/dm/messages/v1',
+      {
+        qs: {
+          token: 'thisisprobablynotatoken',
+          dmId: dm12.dmId,
+          start: 10,
+        }
+      }
+    );
+    const bodyObj = JSON.parse(res.body as string);
+    expect(res.statusCode).toBe(200);
+    expect(bodyObj).toEqual({ error: 'error' });
+  });
   test('dmId is not valid', () => {
     /// ////////////////////////////set up the datastore/////////////////////////////////////////
     const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
@@ -365,6 +386,56 @@ describe('Testing dmMessagesV1', () => {
       start: 0,
       end: -1,
     });
+  });
+  test('test for greater than 50 messages', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
+    const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
+    const start = 0; // there are no messages so 0 is the only usable size
+    for (let i = 0; i < 100; i++) { messageSendDmV1(user1.token, dm12.dmId, '$i'); }
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+    const res = request(
+      'GET',
+      url + '/dm/messages/v1',
+      {
+        qs: {
+          token: user1.token,
+          dmId: dm12.dmId,
+          start: start,
+        }
+      }
+    );
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(res.statusCode).toBe(200);
+    expect(bodyObj.start).toBe(0);
+    expect(bodyObj.end).toBe(50);
+    expect(bodyObj.messages.length).toBe(50);
+  });
+  test('test for less than 50 messages', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const user1 = registerUser('testingUser1@gmail.com', '1234567', 'FirstName1', 'LastName1');
+    const user2 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const dm12 = startDm(user1.token, [giveUid(user2.authUserId)]);
+    const start = 0; // there are no messages so 0 is the only usable size
+    for (let i = 0; i < 30; i++) { messageSendDmV1(user1.token, dm12.dmId, '$i'); }
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+    const res = request(
+      'GET',
+      url + '/dm/messages/v1',
+      {
+        qs: {
+          token: user1.token,
+          dmId: dm12.dmId,
+          start: start,
+        }
+      }
+    );
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(res.statusCode).toBe(200);
+    expect(bodyObj.start).toBe(0);
+    expect(bodyObj.end).toBe(-1);
+    expect(bodyObj.messages.length).toBe(30);
   });
 });
 
@@ -607,7 +678,6 @@ describe('Testing dm/remove/v1', () => {
     expect(output3.dms).toStrictEqual([]);
   });
 });
-
 /*
 ////////////////////////////////////////////////
 /////            Helper functions          /////
