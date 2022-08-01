@@ -173,6 +173,7 @@ describe('standupSend', () => {
   });
   test('user is not a member of the channel', () => {
     const Steve = createUser('steve@gmail.com', 'testPassword123', 'Steve', 'Smith');
+    standupStart(John.token, sampleChannel.channelId, 10);
     expect(standupSend(Steve.token, sampleChannel.channelId, 'message')).toEqual(403);
   });
   test('token is invalid', () => {

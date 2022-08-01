@@ -46,9 +46,9 @@ function standupStartV1(token: string, channelId: number, length: number) {
   const index: number = data.channels.indexOf(channel);
   data.channels[index].standupActiveTime.isActive = true;
   data.channels[index].standupActiveTime.timeFinish = finishTime;
+  console.log(channel.channelId + "UP HERE");
+  setTimeout(function() { finishStandup(channel.channelId, user); }, length * 1000);
   setData(data);
-
-  setTimeout(function() { finishStandup(channel, user); }, length * 1000);
   return { finishTime: finishTime };
 }
 
@@ -134,9 +134,20 @@ function standupSendV1(token: string, channelId: number, message: string) {
 }
 
 // helper function to call after length of standup expires. Sends all messages during standup to the channel
-function finishStandup(channel: channel, user: userType) {
+function finishStandup(channelId: number, user: user) {
   const data = getData();
+  const channel: channel = getChannel(channelId, data.channels);
   let finalOutput = '';
+
+  /* dealing with testing failure. In the event standup is called in tests, database is cleared before the standup can be
+  finalised. Thus, standupSend with fail with channels and users having no data (therefore undefined). In a real use case,
+  clearing all data is highly unlikely to occur before a standup expires. To deal with this edge case, I manually abort the
+  function should the database be cleared.
+  */
+  if (channel === undefined) {
+    return;
+  }
+
   // send all messages in the standup bank as one big message from the user who began the standup
   for (let i = 0; i <= channel.standupMessageBank.length - 1; i++) {
     finalOutput += (channel.standupMessageBank[i] + '/n');
@@ -145,7 +156,7 @@ function finishStandup(channel: channel, user: userType) {
   finalOutput += channel.standupMessageBank[(channel.standupMessageBank.length) - 1];
 
   const newId = Number('1' + String(Date.now()) + String(Math.floor(Math.random() * 100)));
-  const UId = Number(getUId(user.authUserId));
+  const UId = Number(user.uId);
   const newMessage: message = {
     messageId: newId,
     uId: UId,
@@ -154,6 +165,7 @@ function finishStandup(channel: channel, user: userType) {
   };
 
   const index: number = data.channels.indexOf(channel);
+  console.log(index);
   data.channels[index].messages.unshift(newMessage);
   data.channels[index].standupActiveTime.isActive = false;
   delete data.channels[index].standupActiveTime.timeFinish;
