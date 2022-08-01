@@ -158,7 +158,7 @@ describe('Testing dm/leave/v2', () => {
       'POST',
       url + '/dm/leave/v2',
       {
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           dmId: badDmId,
         }),
         headers: {
@@ -607,17 +607,17 @@ describe('Testing dm/list/v2', () => {
     expect(output.dms.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
     expect(output.dms.find(i => i.dmId === secondDm.dmId)).not.toStrictEqual(undefined);
 
-    const res1 = requestDmList(member2.token)
+    const res1 = requestDmList(member2.token);
     const output1: dmList = JSON.parse(String(res1.getBody()));
     expect(output1.dms.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
     expect(output1.dms.find(i => i.dmId === secondDm.dmId)).toStrictEqual(undefined);
 
-    const res2 = requestDmList(creator.token)
+    const res2 = requestDmList(creator.token);
     const output2: dmList = JSON.parse(String(res2.getBody()));
     expect(output2.dms.find(i => i.dmId === firstDm.dmId)).not.toStrictEqual(undefined);
     expect(output2.dms.find(i => i.dmId === secondDm.dmId)).not.toStrictEqual(undefined);
 
-    const res3 = requestDmList(member3.token)
+    const res3 = requestDmList(member3.token);
     const output3: dmList = JSON.parse(String(res3.getBody()));
     expect(output3.dms.find(i => i.dmId === firstDm.dmId)).toStrictEqual(undefined);
     expect(output3.dms.find(i => i.dmId === secondDm.dmId)).toStrictEqual(undefined);
@@ -696,7 +696,7 @@ describe('Testing dm/remove/v2', () => {
     expect(output2.dms).toStrictEqual([]);
     const output3 = JSON.parse(String(requestDmList(creator.token).getBody()));
     expect(output3.dms).toStrictEqual([]);
-    expect(response.statusCode).toBe(OKAY)
+    expect(response.statusCode).toBe(OKAY);
   });
 });
 /*
@@ -746,7 +746,7 @@ function requestDmCreate(token: string, uIds: Array<number>) {
       },
     }
   );
-  return res
+  return res;
 }
 
 function requestDmList(token: string) {
@@ -759,7 +759,7 @@ function requestDmList(token: string) {
       },
     }
   );
-  //return JSON.parse(String(res.getBody()));
+  // return JSON.parse(String(res.getBody()));
   return res;
 }
 
@@ -776,7 +776,7 @@ function requestDmRemove(token: string, dmId: number) {
       },
     }
   );
-  //return JSON.parse(String(res.getBody()));
+  // return JSON.parse(String(res.getBody()));
   return res;
 }
 

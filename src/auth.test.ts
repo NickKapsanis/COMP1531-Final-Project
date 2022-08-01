@@ -7,7 +7,7 @@ const port = config.port;
 const hosturl = config.url;
 const url = hosturl + ':' + port;
 
-const FORBID = 403;
+// const FORBID = 403;
 const BAD_REQ = 400;
 const OKAY = 200;
 
@@ -19,10 +19,10 @@ const OKAY = 200;
 
 describe('Testing authRegisterV3 for input Error', () => {
   test.each([
-    { email: 'notanemail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond', resExpect: BAD_REQ},
-    { email: 'ThisisAnEmail@gmail.com', password: 'sub6', nameFirst: 'James', nameLast: 'Bond', resExpect: BAD_REQ},
-    { email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: '', nameLast: 'Bond', resExpect: BAD_REQ},
-    { email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: 'James', nameLast: '', resExpect: BAD_REQ},
+    { email: 'notanemail.com', password: '1234567', nameFirst: 'James', nameLast: 'Bond', resExpect: BAD_REQ },
+    { email: 'ThisisAnEmail@gmail.com', password: 'sub6', nameFirst: 'James', nameLast: 'Bond', resExpect: BAD_REQ },
+    { email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: '', nameLast: 'Bond', resExpect: BAD_REQ },
+    { email: 'ThisisAnEmail@gmail.com', password: '1234567', nameFirst: 'James', nameLast: '', resExpect: BAD_REQ },
     {
       email: 'ThisisAnEmail@gmail.com',
       password: '1234567',
@@ -207,7 +207,7 @@ describe('testing auth/logout/v2', () => {
         }),
         headers: {
           'Content-type': 'application/json',
-          token : tok,
+          token: tok,
         },
       }
     );

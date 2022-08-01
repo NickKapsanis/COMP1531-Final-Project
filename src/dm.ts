@@ -6,7 +6,7 @@ import HTTPError from 'http-errors';
 
 const FORBID = 403;
 const BAD_REQ = 400;
-const OKAY = 200;
+// const OKAY = 200;
 
 export type dmListItem = {
   dmId: number,
@@ -33,15 +33,15 @@ Return Value:
 export function dmDetailsV2(token: string, dmId: number) {
   // input check the 3 possible error returns
   if (!checkValidToken(token)) { // token is invalid
-    throw HTTPError(BAD_REQ, "Invalid Token");
-  };
+    throw HTTPError(BAD_REQ, 'Invalid Token');
+  }
   if (!checkValidDmId(dmId)) { // if the dm is not a valid dm
-    throw HTTPError(BAD_REQ, "Invalid DMID");
-  };
+    throw HTTPError(BAD_REQ, 'Invalid DMID');
+  }
   // this check relys on the dmId and token to be valid
   if (!isOwnerOf(dmId, token) && !isMemberOf(dmId, token)) { // if the user is not authorised to see details
-    throw HTTPError(FORBID, "User is not a member or owner of the DM");
-  };
+    throw HTTPError(FORBID, 'User is not a member or owner of the DM');
+  }
   // if all if's above are not triggered, return details
   const data = getData();
   const members: user[] = [];
@@ -78,15 +78,15 @@ Return Value:
 export function dmLeaveV2(token: string, dmId: number) {
   // input check the 3 possible error returns
   if (!checkValidToken(token)) { // token is invalid
-    throw HTTPError(BAD_REQ, "Invalid Token");
-  };
+    throw HTTPError(BAD_REQ, 'Invalid Token');
+  }
   if (!checkValidDmId(dmId)) { // if the dm is not a valid dm
-    throw HTTPError(BAD_REQ, "Invalid DMID");
-  };
+    throw HTTPError(BAD_REQ, 'Invalid DMID');
+  }
   // this check relys on the dmId and token to be valid
-  if (!isMemberOf(dmId, token)) {// if the user is not authorised 
-    throw HTTPError(FORBID, "User is not a member or owner of the DM");
-  };
+  if (!isMemberOf(dmId, token)) { // if the user is not authorised
+    throw HTTPError(FORBID, 'User is not a member or owner of the DM');
+  }
   // if all if statements were passed over, remove the user from the dm
   const data = getData();
   const userId = tokenToUserId(token);
@@ -119,20 +119,20 @@ Return Value:
 export function dmMessagesV2(token: string, dmId: number, start: number) {
   // input check the 3 possible error returns
   if (!checkValidToken(token)) { // token is invalid
-    throw HTTPError(BAD_REQ, "Invalid Token");
-  };
+    throw HTTPError(BAD_REQ, 'Invalid Token');
+  }
   if (!checkValidDmId(dmId)) { // if the dm is not a valid dm
-    throw HTTPError(BAD_REQ, "Invalid DMID");
-  };
+    throw HTTPError(BAD_REQ, 'Invalid DMID');
+  }
   // this check relys on the dmId and token to be valid
-  if (!isMemberOf(dmId, token)) {// if the user is not authorised 
-    throw HTTPError(FORBID, "User is not a member or owner of the DM");
-  };
+  if (!isMemberOf(dmId, token)) { // if the user is not authorised
+    throw HTTPError(FORBID, 'User is not a member or owner of the DM');
+  }
   const data = getData();
   const dmObjMessages = data.dms.find(dm => dm.dmId === dmId).messages;
   if (dmObjMessages === undefined || dmObjMessages.length < start) {
-    throw HTTPError(BAD_REQ, "Start index greater than total messages");
-  };
+    throw HTTPError(BAD_REQ, 'Start index greater than total messages');
+  }
   // if all if statements were passed over, paginate the messages.
   // start by setting the end of the current block to send
   let pageEnd = start + 50;
@@ -176,16 +176,16 @@ export function dmCreateV2(token: string, uIds: number[]) {
   // Input checking 3 possible failures
   // token is invalid
   if (!checkValidToken(token)) { // token is invalid
-    throw HTTPError(BAD_REQ, "Invalid Token");
-  };
+    throw HTTPError(BAD_REQ, 'Invalid Token');
+  }
   // any uId in uIds is invalid
   if (!checkValidUids(uIds)) {
-    throw HTTPError(BAD_REQ, "One or more UID's are invalid")
-  };
+    throw HTTPError(BAD_REQ, "One or more UID's are invalid");
+  }
   // duplicate uId in uIds by comparing array size to set size
   if (uIds.length !== new Set(uIds).size) {
-    throw HTTPError(BAD_REQ, "One or more UID's are duplicated")
-  };
+    throw HTTPError(BAD_REQ, "One or more UID's are duplicated");
+  }
   // if all above if's are passed over all input is valid and safe to reference into.
 
   const creator = data.users.find(user => user.tokens.find(t => t === token));
@@ -243,8 +243,8 @@ export function dmListV2(token: string) {
   const data = getData();
   // token is invalid
   if (!checkValidToken(token)) { // token is invalid
-    throw HTTPError(BAD_REQ, "Invalid Token");
-  };
+    throw HTTPError(BAD_REQ, 'Invalid Token');
+  }
   const user = data.users.find(user => user.tokens.find(t => t === token));
   const dmsArray = [];
 
@@ -281,10 +281,10 @@ export function dmRemoveV2(token: string, dmId: number) {
   const dm = data.dms.find(dm => dm.dmId === dmId);
 
   if (user === undefined || dm === undefined) {
-    throw HTTPError(BAD_REQ, "Invalid Token or Invalid DM");
-  };
+    throw HTTPError(BAD_REQ, 'Invalid Token or Invalid DM');
+  }
   if (user.uId !== dm.owner) {
-    throw HTTPError(FORBID, "User is not an owner of the DM");
+    throw HTTPError(FORBID, 'User is not an owner of the DM');
   }
 
   const users = dm.allMembers;
