@@ -122,8 +122,8 @@ describe('Tests for message/senddm/V1', () => {
     token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
     token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adams');
-    dmId1 = requestDmCreateV1(token1, [1, 2]);
-    dmId2 = requestDmCreateV1(token2, [2, 3]);
+    dmId1 = requestDmCreateV2(token1, [1, 2]);
+    dmId2 = requestDmCreateV2(token2, [2, 3]);
   });
 
   afterEach(() => {
@@ -332,11 +332,11 @@ describe('Tests for message/edit/V1', () => {
   });
 
   test('Case 11: successful message edit (with dms)', () => {
-    const dmId1: number = requestDmCreateV1(token1, [1, 3]);
+    const dmId1: number = requestDmCreateV2(token1, [1, 3]);
     const messageId5: number = requestMessageSendDmV1(token1, dmId1, 'Message Dm 1.1');
 
     const res = requestMessageEditV1(token1, messageId5, 'Edited Message Dm 1.1');
-    const messages: Array<message | undefined> = requestDmMessageV1(token1, dmId1, 0);
+    const messages: Array<message | undefined> = requestDmMessageV2(token1, dmId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId5);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -463,8 +463,8 @@ describe('Tests for message/remove/v1 (for dms)', () => {
     token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
     token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adam');
 
-    dmId1 = requestDmCreateV1(token1, [1, 2]);
-    dmId2 = requestDmCreateV1(token2, [2, 3]);
+    dmId1 = requestDmCreateV2(token1, [1, 2]);
+    dmId2 = requestDmCreateV2(token2, [2, 3]);
 
     messageId1 = requestMessageSendDmV1(token1, dmId1, 'Message 1.1');
     messageId2 = requestMessageSendDmV1(token2, dmId1, 'Message 1.2');
@@ -502,7 +502,7 @@ describe('Tests for message/remove/v1 (for dms)', () => {
 
   test('Case 4: success remove: user is owner, did not send message', () => {
     const res = requestMessageRemoveV1(token1, messageId2);
-    const messages: Array<message | undefined> = requestDmMessageV1(token1, dmId1, 0);
+    const messages: Array<message | undefined> = requestDmMessageV2(token1, dmId1, 0);
     const removedMessage: message = messages.find(message => message.messageId === messageId2);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -513,7 +513,7 @@ describe('Tests for message/remove/v1 (for dms)', () => {
 
   test('Case 5: successful message remove', () => {
     const res = requestMessageRemoveV1(token1, messageId1);
-    const messages: Array<message | undefined> = requestDmMessageV1(token1, dmId1, 0);
+    const messages: Array<message | undefined> = requestDmMessageV2(token1, dmId1, 0);
     const removedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -623,12 +623,14 @@ function requestChannelLeaveV2(token: string, channelId: number) {
 function requestDmLeaveV2(token: string, dmId: number) {
   const res = request(
     'POST',
-    `${url}:${port}/dm/leave/v1`,
+    `${url}:${port}/dm/leave/v2`,
     {
       json: {
-        token: token,
         dmId: dmId,
-      }
+      },
+      headers: {
+        token: token,
+      },
     }
   );
 
@@ -667,31 +669,35 @@ function requestMessageSendV1(token: string, channelId: number, message: string)
   return JSON.parse(String(res.getBody())).messageId;
 }
 
-function requestDmCreateV1(token: string, uIds: Array<number>) {
+function requestDmCreateV2(token: string, uIds: Array<number>) {
   const res = request(
     'POST',
-      `${url}:${port}/dm/create/v1`,
+      `${url}:${port}/dm/create/v2`,
       {
         json: {
-          token: token,
           uIds: uIds,
-        }
+        },
+        headers: {
+          token: token,
+        },
       }
   );
 
   return JSON.parse(String(res.getBody())).dmId;
 }
 
-function requestDmMessageV1(token: string, dmId: number, start: number) {
+function requestDmMessageV2(token: string, dmId: number, start: number) {
   const res = request(
     'GET',
-    `${url}:${port}/dm/messages/v1`,
+    `${url}:${port}/dm/messages/v2`,
     {
       qs: {
-        token: token,
         dmId: dmId,
         start: start,
-      }
+      },
+      headers: {
+        token: token,
+      },
     }
   );
 
@@ -707,7 +713,7 @@ function requestMessageSendDmV1(token: string, dmId: number, message: string) {
             token: token,
             dmId: dmId,
             message: message,
-          }
+          },
         }
   );
 
