@@ -126,7 +126,9 @@ function channelsCreateV1(token: string, name: string, isPublic: boolean) {
     isPublic: isPublic,
     allMembers: [creator.uId],
     ownerMembers: [creator.uId],
-    messages: []
+    messages: [],
+    standupActiveTime: { isActive: false },
+    standupMessageBank: []
   };
 
   data.channels.push(newChannel);

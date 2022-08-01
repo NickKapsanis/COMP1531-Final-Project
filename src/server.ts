@@ -13,6 +13,7 @@ import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
 import { channelDetailsV2, channelMessagesV2 } from './channel';
+import { standupStartV1, standupActiveV1, standupSendV1 } from './standup';
 import errorHandler from 'middleware-http-errors';
 
 // Set up web app, use JSON
@@ -51,7 +52,6 @@ app.get('/dm/messages/v1', (req, res) => {
   const start = parseInt(req.query.start as string);
   res.json(dmMessagesV1(token, dmId, start));
 });
-
 // dmCreate
 app.post('/dm/create/v1', (req, res) => {
   const token = req.body.token;
@@ -81,19 +81,16 @@ app.post('/auth/register/v2', (req, res) => {
   const data = req.body;
   res.json(authRegisterV1(data.email, data.password, data.nameFirst, data.nameLast));
 });
-
 // authLogin
 app.post('/auth/login/v2', (req, res) => {
   const data = req.body;
   res.json(authLoginV1(data.email, data.password));
 });
-
 // authLogout
 app.post('/auth/logout/v1', (req, res) => {
   const data = req.body;
   res.json(authLogoutV1(data.token));
 });
-
 // clearV1()
 app.delete('/clear/v1', (req, res) => {
   res.json(clearV1());
@@ -103,13 +100,11 @@ app.get('/channels/list/v2', (req, res) => {
   const data = req.query.token as string;
   res.json(channelsListV2(data));
 });
-
 // channelsListallV2
 app.get('/channels/listall/v2', (req, res) => {
   const data = req.query.token as string;
   res.json(channelsListallV2(data));
 });
-
 // channelJoin
 app.post('/channel/join/v2', (req, res) => {
   const data = req.body;
@@ -185,64 +180,69 @@ app.put('/user/profile/sethandle/v1', (req, res) => {
   const { token, handleStr } = req.body;
   res.json(userSethandlelV1(token, handleStr));
 });
-
 // channelsListV2
 app.get('/channels/list/v2', (req, res) => {
   const data = req.query.token as string;
   res.json(channelsListV2(data));
 });
-
 // channelsListallV2
 app.get('/channels/listall/v2', (req, res) => {
   const data = req.query.token as string;
   res.json(channelsListallV2(data));
 });
-
 // channelDetailsV2
 app.get('/channel/details/v2', (req, res) => {
   const token = String(req.query.token);
   const channelId = Number(req.query.channelId);
   res.json(channelDetailsV2(token, channelId));
 });
-
 // channelMessagesV2
 app.get('/channel/messages/v2', (req, res) => {
   const token = String(req.query.token);
   const channelId = Number(req.query.channelId);
   const start = Number(req.query.start);
-
   res.json(channelMessagesV2(token, channelId, start));
 });
-
 // channelsLeaveV1
 app.post('/channel/leave/v1', (req, res) => {
   const data = req.body;
   res.json(channelsLeaveV1(data.token, data.channelId));
 });
-
 // messegeSendV1
 app.post('/message/send/v1', (req, res) => {
   const { token, channelId, message } = req.body;
   res.json(messageSendV1(token, channelId, message));
 });
-
 // messegeSendDmV1
 app.post('/message/senddm/v1', (req, res) => {
   const { token, dmId, message } = req.body;
   res.json(messageSendDmV1(token, dmId, message));
 });
-
 // messageRemoveV1
 app.delete('/message/remove/v1', (req, res) => {
   const token = String(req.query.token);
   const messageId = Number(req.query.messageId);
   res.json(messageRemoveV1(token, messageId));
 });
-
 // messageEditV1
 app.put('/message/edit/v1', (req, res) => {
   const { token, messageId, message } = req.body;
   res.json(messageEditV1(token, messageId, message));
+});
+app.post('/standup/start/v1', (req, res) => {
+  const { channelId, length } = req.body;
+  const token = String(req.header('token'));
+  res.json(standupStartV1(token, channelId, length));
+});
+app.get('/standup/active/v1', (req, res) => {
+  const channelId = Number(req.query.channelId);
+  const token = String(req.header('token'));
+  res.json(standupActiveV1(token, channelId));
+});
+app.post('/standup/send/v1', (req, res) => {
+  const { channelId, message } = req.body;
+  const token = String(req.header('token'));
+  res.json(standupSendV1(token, channelId, message));
 });
 
 // handles errors nicely
