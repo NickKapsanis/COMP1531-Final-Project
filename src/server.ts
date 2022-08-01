@@ -2,8 +2,8 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
-import { dmDetailsV1, dmLeaveV1, dmMessagesV1 } from './dm';
-import { dmCreateV1, dmListV1, dmRemoveV1 } from './dm';
+import { dmDetailsV2, dmLeaveV2, dmMessagesV2 } from './dm';
+import { dmCreateV2, dmListV2, dmRemoveV2 } from './dm';
 import { channelsCreateV1, channelsListV2, channelsListallV2 } from './channels';
 import { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, channelsLeaveV1 } from './channel';
 import { authRegisterV3, authLoginV3, authLogoutV2 } from './auth';
@@ -33,41 +33,42 @@ app.get('/echo', (req, res, next) => {
     next(err);
   }
 });
-// request dm details V1
-app.get('/dm/details/v1', (req, res) => {
-  const token = req.query.token as string;
+// request dm details V2
+app.get('/dm/details/v2', (req, res) => {
+  const token = req.header('token');
   const dmId = parseInt(req.query.dmId as string);
-  res.json(dmDetailsV1(token, dmId));
+  res.json(dmDetailsV2(token, dmId));
 });
-// request dm leave V1
-app.post('/dm/leave/v1', (req, res) => {
+// request dm leave V2
+app.post('/dm/leave/v2', (req, res) => {
+  const token = req.header('token');
   const data = req.body;
-  res.json(dmLeaveV1(data.token, data.dmId));
+  res.json(dmLeaveV2(token, data.dmId));
 });
-// request dm messages V1
-app.get('/dm/messages/v1', (req, res) => {
-  const token = req.query.token as string;
+// request dm messages V2
+app.get('/dm/messages/v2', (req, res) => {
+  const token = req.header('token');
   const dmId = parseInt(req.query.dmId as string);
   const start = parseInt(req.query.start as string);
-  res.json(dmMessagesV1(token, dmId, start));
+  res.json(dmMessagesV2(token, dmId, start));
 });
 
-// dmCreate
-app.post('/dm/create/v1', (req, res) => {
-  const token = req.body.token;
+// dmCreate V2
+app.post('/dm/create/v2', (req, res) => {
+  const token = req.header('token');
   const uIds = req.body.uIds;
-  res.json(dmCreateV1(token, uIds));
+  res.json(dmCreateV2(token, uIds));
 });
-// dmList
-app.get('/dm/list/v1', (req, res) => {
-  const token = String(req.query.token);
-  res.json(dmListV1(token));
+// dmList V2
+app.get('/dm/list/v2', (req, res) => {
+  const token = req.header('token');
+  res.json(dmListV2(token));
 });
 // dmRemove
-app.delete('/dm/remove/v1', (req, res) => {
-  const token = String(req.query.token);
+app.delete('/dm/remove/v2', (req, res) => {
+  const token = req.header('token');
   const dmId = Number(req.query.dmId);
-  res.json(dmRemoveV1(token, dmId));
+  res.json(dmRemoveV2(token, dmId));
 });
 app.post('/channels/create/v2', (req, res) => {
   const token = String(req.body.token);
