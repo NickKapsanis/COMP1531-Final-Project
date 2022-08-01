@@ -449,7 +449,7 @@ describe('Testing dmMessagesV1', () => {
 function registerUser(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
-    url + '/auth/register/v2',
+    url + '/auth/register/v3',
     {
       body: JSON.stringify({
         email: email,
@@ -694,7 +694,7 @@ function requestClear() {
 function requestAuthRegister(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
-    url + '/auth/register/v2',
+    url + '/auth/register/v3',
     {
       body: JSON.stringify({
         email: email,

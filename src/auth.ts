@@ -6,9 +6,9 @@ import HTTPError from 'http-errors';
 
 export { checkValidToken };
 
-const FORBID = 403;
+// const FORBID = 403;
 const BAD_REQ = 400;
-const OKAY = 200;
+// const OKAY = 200;
 
 /*
 authLoginV1
@@ -27,13 +27,13 @@ Return Value:
 */
 export function authLoginV3(email: string, password: string) {
   const data: dataStoreType = getData();
-  if(!containsEmail(email, data)) { // email does not belong to a user
-    throw HTTPError(BAD_REQ, "Incorrect Email");
+  if (!containsEmail(email, data)) { // email does not belong to a user
+    throw HTTPError(BAD_REQ, 'Incorrect Email');
   }
   const user: user = data.users.find(u => u.email === email);
-  if (user.password !== password) { 
-    throw HTTPError(BAD_REQ, "Incorrect Password");
-   }
+  if (user.password !== password) {
+    throw HTTPError(BAD_REQ, 'Incorrect Password');
+  }
   const newtoken = assignToken(user.authUserId);
   return {
     token: newtoken,
@@ -97,20 +97,20 @@ export function authRegisterV3(email: string, password: string, nameFirst: strin
     return { error: 'error' };
   }
   */
-  if(!isEmail(email)) { //email entered is not validated as an email by 'validator'
-    throw HTTPError(BAD_REQ, "email entered is not a valid email");
+  if (!isEmail(email)) { // email entered is not validated as an email by 'validator'
+    throw HTTPError(BAD_REQ, 'email entered is not a valid email');
   }
-  if(password.length < 6) { //password is too short
-    throw HTTPError(BAD_REQ, "password is too short - less than 6 characters")
+  if (password.length < 6) { // password is too short
+    throw HTTPError(BAD_REQ, 'password is too short - less than 6 characters');
   }
-  if(nameFirst.length < 1 || nameFirst.length > 50) { // first name must be >1 and < 50 characters
-    throw HTTPError(BAD_REQ, "first name is not within range");
+  if (nameFirst.length < 1 || nameFirst.length > 50) { // first name must be >1 and < 50 characters
+    throw HTTPError(BAD_REQ, 'first name is not within range');
   }
-  if(nameLast.length < 1 || nameLast.length > 50) { // last name must be >1 and <50 characters
-    throw HTTPError(BAD_REQ, "last name is not within range");
+  if (nameLast.length < 1 || nameLast.length > 50) { // last name must be >1 and <50 characters
+    throw HTTPError(BAD_REQ, 'last name is not within range');
   }
-  if(containsEmail(email, data)) { // email is already contained in the dataStore registred to another user
-    throw HTTPError(BAD_REQ, "email is already in use");
+  if (containsEmail(email, data)) { // email is already contained in the dataStore registred to another user
+    throw HTTPError(BAD_REQ, 'email is already in use');
   }
 
   // This block creates a user handle according to specs in Interface V1

@@ -16,7 +16,7 @@ describe('Testing clearV1()', () => {
   test('', () => {
     request(
       'POST',
-      url + '/auth/register/v2',
+      url + '/auth/register/v3',
       {
         body: JSON.stringify({
           email: 'testemail@email.com',
@@ -43,7 +43,7 @@ describe('Testing clearV1()', () => {
     expect(res2.statusCode).toBe(OK);
     const res3 = request(
       'POST',
-      url + '/auth/login/v2',
+      url + '/auth/login/v3',
       {
         body: JSON.stringify({
           email: 'testemail@email.com',
@@ -54,9 +54,6 @@ describe('Testing clearV1()', () => {
         }
       }
     );
-
-    const body1 = JSON.parse(String(res3.getBody()));
-    expect(res3.statusCode).toBe(OK);
-    expect(body1).toStrictEqual({ error: 'error' });
+    expect(res3.statusCode).toBe(400);
   });
 });

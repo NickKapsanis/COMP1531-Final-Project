@@ -1,1 +1,1 @@
-{"users":[],"channels":[],"dms":[]}
+{"users":[{"uId":1,"authUserId":1,"tokens":["76e8ea6f-f370-4796-8cfe-2b7b1b20b8cb","bdbc5738-9568-4551-9a99-c09b6266ecb8"],"nameFirst":"The","nameLast":"Tester","email":"TheEmail@gmail.com","password":"1234567","handleStr":"thetester","channels":[],"dms":[],"isGlobalOwner":1},{"uId":2,"authUserId":2,"tokens":[],"nameFirst":"The","nameLast":"Tester","email":"ThisIsaUser@gmail.com","password":"1234567","handleStr":"thetester0","channels":[],"dms":[],"isGlobalOwner":2}],"channels":[],"dms":[]}
