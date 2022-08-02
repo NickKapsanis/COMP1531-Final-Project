@@ -82,12 +82,12 @@ export function messageSendV2(token: string, channelId: number, message: string)
  *      { error: 'error' }      object     Error message (given invalid input)
  *      { messageId: <number> } object     Successful message send
  */
-export function messageSendDmV1(token: string, dmId: number, message: string) {
+export function messageSendDmV2(token: string, dmId: number, message: string) {
   const data: dataStoreType = getData();
 
   // Token validation
   if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Invalid token');
   }
 
   const userId: number = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
@@ -96,16 +96,16 @@ export function messageSendDmV1(token: string, dmId: number, message: string) {
   // Checking if valid dmId was given
   // Validating if authorised user is a member of the DM
   if (data.dms.find(dm => dm.dmId === dmId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid dmId');
   } else if (dmsMemberOf.find(dm => dm.dmId === dmId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Not a member of dm');
   }
 
   const dmGivenIndex: number = data.dms.findIndex(dm => dm.dmId === dmId);
 
   // Message validation
   if (message.length < 1 || message.length > 1000) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid message length');
   }
 
   const newMessageId: number = generateId('d');

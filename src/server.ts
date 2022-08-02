@@ -11,7 +11,7 @@ import cors from 'cors';
 import { usersAllV1, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
-import { messageSendV2, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
+import { messageSendV2, messageSendDmV2, messageRemoveV1, messageEditV1 } from './message';
 import { channelDetailsV2, channelMessagesV2 } from './channel';
 import errorHandler from 'middleware-http-errors';
 
@@ -228,10 +228,11 @@ app.post('/message/send/v2', (req, res) => {
   res.json(messageSendV2(token, channelId, message));
 });
 
-// messegeSendDmV1
-app.post('/message/senddm/v1', (req, res) => {
-  const { token, dmId, message } = req.body;
-  res.json(messageSendDmV1(token, dmId, message));
+// messegeSendDmV2
+app.post('/message/senddm/v2', (req, res) => {
+  const token = String(req.header('token'));
+  const { dmId, message } = req.body;
+  res.json(messageSendDmV2(token, dmId, message));
 });
 
 // messageRemoveV1
