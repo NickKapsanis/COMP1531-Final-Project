@@ -180,6 +180,10 @@ function channelJoinV2(token: string, channelId: number) {
     return { error: 'error' };
   }
 
+  if (authUserId === undefined) {
+    return { error: 'error' };
+  }
+
   if (userIndex === undefined) {
     return { error: 'error' };
   }
@@ -220,7 +224,6 @@ function channelJoinV2(token: string, channelId: number) {
 function channelInviteV2(token: string, channelId: number, uId: number) {
   const data: dataStoreType = getData();
   const channel: channel = getChannel(channelId, data.channels);
-
   const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
   const userInviting: user = data.users[data.users.findIndex(user => user.authUserId === authUserId)];
   let userJoining: user;
@@ -232,6 +235,10 @@ function channelInviteV2(token: string, channelId: number, uId: number) {
 
   // error when we can't find a valid user or channel ID
   if (userJoining === undefined) {
+    return { error: 'error' };
+  }
+
+  if (userInviting === undefined) {
     return { error: 'error' };
   }
 
@@ -355,6 +362,11 @@ function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
 
   // error when uId refers to a user who is currently the only owner of the channel
   if (channel.ownerMembers.length === 1) {
+    return { error: 'error' };
+  }
+
+  // error when the user removing owner is not a member of the channel
+  if (!userRemovingOwner.channels.includes(channelId)) {
     return { error: 'error' };
   }
 

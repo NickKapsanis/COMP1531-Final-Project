@@ -299,7 +299,7 @@ function requestChannelDetailsV3(token: string, channelId: number) {
 // helper function - calls auth register through the server
 const createUser = (emails: string, passwords: string, name: string, surname: string) => {
   const res = request(
-    'POST', url + '/auth/register/v2',
+    'POST', url + '/auth/register/v3',
     {
       body: JSON.stringify({ email: emails, password: passwords, nameFirst: name, nameLast: surname }),
       headers: {
