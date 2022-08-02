@@ -2,6 +2,7 @@
 import request from 'sync-request';
 // import { PORT, HOST } from './server';
 import config from './config.json';
+import { registerUser } from './dm.test';
 
 const port = config.port;
 const hosturl = config.url;
@@ -203,7 +204,6 @@ describe('testing auth/logout/v2', () => {
       url + '/auth/logout/v2',
       {
         body: JSON.stringify({
-          token: tok,
         }),
         headers: {
           'Content-type': 'application/json',
@@ -221,3 +221,108 @@ describe('testing auth/logout/v2', () => {
 //  ///////////////////////////////////////////////////////////////////
 //  ///////////////////////////////////////////////////////////////////
 //  ///////////////////////////////////////////////////////////////////
+
+describe('testing authPasswordresetRequest', () => {
+  // two error conditions are bad email or bad token
+  // with no error thrown on bad token, expect an empty object return
+  test('bad token', () => {
+    request('DELETE', url + '/clear/v1');
+    registerUser('austin_powers@gmail.com', '12345678', 'Austin', 'Powers');
+    const res = passwordResetRequest('austin_powers@gmail.com', 'badToken');
+
+    expect(res.statusCode).toBe(OKAY);
+    expect(JSON.parse(String(res.getBody()))).toEqual({});
+  })
+  // with bad email no error should throw. Expect empty return obj
+  test('bad email', () => {
+    request('DELETE', url + '/clear/v1');
+    const user = registerUser('austin_powers@gmail.com', '12345678', 'Austin', 'Powers');
+    const res = passwordResetRequest('notaUsersEmail@gmail.com', user.token);
+
+    expect(res.statusCode).toBe(OKAY);
+    expect(JSON.parse(String(res.getBody()))).toEqual({});
+  })
+  // testing for sucessful call
+  // on sucess expect all tokens the user has to become invalid
+  // i.e log the user out globally as such calling logout should BAD_REQ error
+  test('sucessful call user has 1 token valid', () => {
+    request('DELETE', url + '/clear/v1');
+    const user = registerUser('austin_powers@gmail.com', '12345678', 'Austin', 'Powers');
+    const res = passwordResetRequest('austin_powers@gmail.com', user.token);
+
+    expect(res.statusCode).toBe(OKAY);
+    expect(JSON.parse(String(res.getBody()))).toEqual({});
+    expect(logoutUser(user.token).statusCode).toBe(BAD_REQ);
+  });
+  test('sucessful call user has 5 token valid', () => {
+    request('DELETE', url + '/clear/v1');
+    const userEmail = 'austin_powers@gmail.com'
+    const userPassword = '12345678'
+
+    const userToken0 = registerUser(userEmail, userPassword, 'Austin', 'Powers').token;
+    // log in 4 times
+    const userToken1 = JSON.parse(String(loginUser(userEmail, userPassword))).token;
+    const userToken2 = JSON.parse(String(loginUser(userEmail, userPassword))).token;
+    const userToken3 = JSON.parse(String(loginUser(userEmail, userPassword))).token;
+    const userToken4 = JSON.parse(String(loginUser(userEmail, userPassword))).token;
+
+    // now call password reset, expect all of the above tokens to become invalid
+    const res = passwordResetRequest('austin_powers@gmail.com', userToken0);
+
+    // check response codes for passwordResetRequest
+    expect(res.statusCode).toBe(OKAY);
+    expect(JSON.parse(String(res.getBody()))).toEqual({});
+
+    // now check that every token is now invalid
+    expect(logoutUser(userToken0).statusCode).toBe(BAD_REQ);
+    expect(logoutUser(userToken1).statusCode).toBe(BAD_REQ);
+    expect(logoutUser(userToken2).statusCode).toBe(BAD_REQ);
+    expect(logoutUser(userToken3).statusCode).toBe(BAD_REQ);
+    expect(logoutUser(userToken4).statusCode).toBe(BAD_REQ);
+  });
+});
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+// helper function - requests a password reset, returns a response object
+function passwordResetRequest(email: string, token: string) {
+  return request(
+    'POST',
+    url + '/auth/passwordreset/request/v1',
+    {
+      body: JSON.stringify({
+        email: email,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+        token: token,
+      },
+    }
+  );
+}
+// helper function requests a logout, returns a response object
+function logoutUser(token: string) {
+  return request(
+    'POST',
+    url + '/auth/logout/v2',
+    {
+      headers: {
+        'Content-type': 'application/json',
+        token: token,
+      },
+    }
+  );
+}
+// helper function requests a login, returns a response object
+function loginUser(email: string, password: string) {
+  return request(
+    'POST',
+    url + '/auth/login/v3',
+    {
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
+    }
+  );
+}
