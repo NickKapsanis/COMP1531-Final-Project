@@ -556,13 +556,13 @@ describe('Tests for message/share/v1', () => {
 
   beforeEach(() => {
     //  channelMembers1: [1,2], channelOwners1: [1], channelMembers2: [2, 3], channelOwners2: [1, 2] //because 1 is a global owner
-    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
-    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
-    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
+    token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adam');
     channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
-    dmId1 = requestDmCreateV1(token2, [2, 3]);
-    dmId2 = requestDmCreateV1(token1, [1, 2]);
+    dmId1 = requestDmCreateV2(token2, [2, 3]);
+    dmId2 = requestDmCreateV2(token1, [1, 2]);
 
     // Invite token2 into Channel 1
     requestChannelInviteV2(token1, channelId1, 2);
@@ -648,7 +648,7 @@ describe('Tests for message/share/v1', () => {
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(bodyObj.sharedMessageId).toStrictEqual(expect.any(Number));
 
-    const messages: Array<message | undefined> = requestDmMessageV1(token2, dmId2, 0);
+    const messages: Array<message | undefined> = requestDmMessageV2(token2, dmId2, 0);
     const sharedMessage: message = messages.find(message => message.messageId === bodyObj.sharedMessageId);
     expect(sharedMessage.message.includes('Attach message')).toStrictEqual(false);
   });

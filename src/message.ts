@@ -380,7 +380,7 @@ export function messageShareV1(token: string, ogMessageId: number, message: stri
   }
 
   const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
-  const dmsMemberOf: Array<dmOutput> = dmListV1(token).dms;
+  const dmsMemberOf: Array<dmOutput> = dmListV2(token).dms;
 
   // Checking if ogMessageId is valid and if user is part of the channel/dm
   let ogChannel: channel;
