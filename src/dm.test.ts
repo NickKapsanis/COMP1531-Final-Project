@@ -454,7 +454,7 @@ describe('Testing dmMessagesV1', () => {
 // ///////////////////////////////////////////////////////////////////////////////////////////
 // ///////////////////////////////////////////////////////////////////////////////////////////
 // testing helper function, registers a user by making an http call. returns the body object of the response
-function registerUser(email: string, password: string, nameFirst: string, nameLast: string) {
+export function registerUser(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
     url + '/auth/register/v3',
