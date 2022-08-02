@@ -386,7 +386,8 @@ function channelsLeaveV1(token: string, channelId: number) {
 
   const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
 
-  const user = data.users.find(i => i.authUserId === authUserId);
+  // don't need this line anymore
+  // const user = data.users.find(i => i.authUserId === authUserId);
 
   // the channelsListV1, which uses getUId function already does error checking within.
   const channelsArray = channelsListV2(token).channels;
@@ -415,7 +416,7 @@ function channelsLeaveV1(token: string, channelId: number) {
     }
   }
   // case given user wasn't a part of channel. this case will not happen, irrelevant.
-  //return { error: 'error' };
+  // return { error: 'error' };
 }
 
 export { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, getChannel, channelDetailsV2, channelMessagesV2, channelsLeaveV1 };

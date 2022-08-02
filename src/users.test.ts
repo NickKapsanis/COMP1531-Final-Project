@@ -101,7 +101,6 @@ test('Testing invalid token case.', () => {
   expect(aliceLastName).toEqual('Smith');
 });
 
-
 test('Testing invalid name change case.', () => {
   request('DELETE', url + '/clear/v1');
 
@@ -134,10 +133,6 @@ test('Testing invalid name change case.', () => {
   expect(aliceFirstName).toEqual('Alice');
   expect(aliceLastName).toEqual('Smith');
 });
-
-
-
-
 
 test('Testing if changing nothing still returns same name.', () => {
   request('DELETE', url + '/clear/v1');
@@ -335,9 +330,6 @@ test('Testing invalid email.', () => {
   expect(aliceEmail).toEqual('alice@email.com');
 });
 
-
-
-
 test('Testing if changing nothing still returns same email.', () => {
   request('DELETE', url + '/clear/v1');
 
@@ -396,7 +388,6 @@ test('Testing changing email.', () => {
   expect(aliceEmail).toEqual('supercoolnew@email.com');
 });
 
-
 test('Testing changing email to somebody elses email', () => {
   request('DELETE', url + '/clear/v1');
 
@@ -431,30 +422,9 @@ test('Testing changing email to somebody elses email', () => {
   expect(bobEmail).toEqual('bob@email.com');
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /// /////////////////////////////////////////////
 /// /////////Tests for userSethandleV1()//////////
 /// /////////////////////////////////////////////
-
 
 test('Testing invalid token.', () => {
   request('DELETE', url + '/clear/v1');
@@ -484,9 +454,6 @@ test('Testing invalid token.', () => {
   expect(aliceHandle).toEqual('alicesmith');
   expect(bodyObj).toStrictEqual({ error: 'error' });
 });
-
-
-
 
 test('Testing if changing nothing still returns same handle.', () => {
   request('DELETE', url + '/clear/v1');

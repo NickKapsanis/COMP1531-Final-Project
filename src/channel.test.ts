@@ -353,12 +353,10 @@ describe('Testing removeChannelOwnerV1', () => {
 /// /////////Tests for channelLeaveV1()//////////
 /// /////////////////////////////////////////////
 
-
 test('tests invalid token case', () => {
   request('DELETE', url + '/clear/v1');
 
   const james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
-  const rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
 
   const testCreatedChannel = createChannel(james.token, 'testChannel1', true);
 
@@ -383,10 +381,6 @@ test('tests invalid token case', () => {
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toEqual({ error: 'error' });
 });
-
-
-
-
 
 test('tests the case that user isnt in the given channel', () => {
   request('DELETE', url + '/clear/v1');

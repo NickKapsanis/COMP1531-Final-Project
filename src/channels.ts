@@ -67,9 +67,9 @@ function channelsListallV2(token: string) {
 
   const data = getData();
 
-  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
-
-  const user = data.users.find(i => i.authUserId === authUserId);
+  // don't need this code anymore
+  // const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
+  // const user = data.users.find(i => i.authUserId === authUserId);
 
   const allChannelsArray = [];
 
