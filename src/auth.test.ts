@@ -183,7 +183,7 @@ describe('testing authLoginV3 for input errors', () => {
 describe('testing auth/logout/v2', () => {
   test('invalid token', () => {
     request('DELETE', url + '/clear/v1');
-    const res1 = request(
+    request(
       'POST',
       url + '/auth/register/v3',
       {
@@ -213,7 +213,7 @@ describe('testing auth/logout/v2', () => {
     );
     expect(res2.statusCode).toStrictEqual(FORBID);
   });
-  //test sucess
+  // test sucess
   test('given an active token log out', () => {
     request('DELETE', url + '/clear/v1');
     const res1 = request(
@@ -259,7 +259,7 @@ describe('testing auth/logout/v2', () => {
 describe('testing authPasswordresetRequest', () => {
   // error conditions is bad email
   // with no error thrown expect an empty object return
-  
+
   // with bad email no error should throw. Expect empty return obj
   test('bad email', () => {
     request('DELETE', url + '/clear/v1');

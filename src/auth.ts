@@ -3,6 +3,7 @@ import isEmail from 'validator/lib/isEmail';
 import { user, dataStoreType } from './dataStore';
 import { v4 as uuidv4 } from 'uuid';
 import HTTPError from 'http-errors';
+import { emailResetCode } from './email';
 
 export { checkValidToken };
 
@@ -55,9 +56,9 @@ Return Value:
 */
 export function authLogoutV2(token: string) {
   const data = getData();
-  if(!checkValidToken(token)) {
+  if (!checkValidToken(token)) {
     throw HTTPError(FORBID, 'Invalid Token');
-  };
+  }
   const authUserId = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
   removeToken(authUserId, token);
   return {};
@@ -145,7 +146,7 @@ export function authRegisterV3(email: string, password: string, nameFirst: strin
   return authLoginV3(newUser.email, newUser.password);
 }
 /*
-authPasswordresetRequestV1 given an email and token belonging to 
+authPasswordresetRequestV1 given an email and token belonging to
 the same registred user. Send the user an email containing a password reset code
 The reset password code, when provided to authPasswordresetResetV1 verifies the indentity of the user.
 NO ERROR are raised on incorrect email for security/privacy
@@ -159,7 +160,23 @@ Return Value:
     Returns {} if code sucessfully sends && if code does not send
 */
 export function authPasswordresetRequestV1(email: string) {
-  return {}
+  const data = getData();
+  // check if valid email in datastore and return {}
+  if (!containsEmail(email, data)) return {};
+  // log out the user of all sessions
+  const tokens = data.users.find(user => user.email === email).tokens
+  if(tokens !== undefined) {
+    for (const tok of tokens) authLogoutV2(tok);
+  }
+  // generate a reset code and store it in database
+  const newResetcode = 'reset code';
+  //String(Math.round(Math.random() * 1000000));
+  //data.passwordResetCodes.push(newResetcode);
+  console.log(data.passwordResetCodes);
+  setData(data);
+  // email reset code to the user
+  emailResetCode(email, newResetcode);
+  return {};
 }
 /*
 authPasswordresetResetV1 given a valid password reset code,
@@ -177,7 +194,7 @@ Return Value:
     trows 400Error on password entred is < 6 charactes long.
 */
 export function authPasswordresetResetV1(resetCode: string, newPassword: string) {
-  return {}
+  return {};
 }
 /*
 containsEmail takes the datastore object and an email to check if the email is already registred to a user.
