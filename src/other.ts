@@ -42,6 +42,7 @@ function clearV1() {
     users: [],
     channels: [],
     dms: [],
+    passwordResetCodes: [],
   };
 
   setData(newData);

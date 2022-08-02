@@ -288,7 +288,7 @@ describe('testing authPasswordresetRequest', () => {
 
     const userToken0 = registerUser(userEmail, userPassword, 'Austin', 'Powers').token;
     // log in 4 times
-    const userToken1 = JSON.parse(String(loginUser(userEmail, userPassword).getBody())).token;
+    const userToken1 = JSON.parse(String(loginUser('austin_powers@gmail.com', userPassword).getBody())).token;
     const userToken2 = JSON.parse(String(loginUser(userEmail, userPassword).getBody())).token;
     const userToken3 = JSON.parse(String(loginUser(userEmail, userPassword).getBody())).token;
     const userToken4 = JSON.parse(String(loginUser(userEmail, userPassword).getBody())).token;
@@ -409,6 +409,9 @@ function loginUser(email: string, password: string) {
         email: email,
         password: password,
       }),
+      headers: {
+        'Content-type': 'application/json',
+      },
     }
   );
 }

@@ -1,1 +1,1 @@
-{"users":[{"uId":1,"authUserId":1,"tokens":["ad254386-ba41-4648-98db-2dbf7bd20344"],"nameFirst":"Austin","nameLast":"Powers","email":"m13aboost.testingemail@gmail.com","password":"12345678","handleStr":"austinpowers","channels":[],"dms":[],"isGlobalOwner":1}],"channels":[],"dms":[]}
+{"users":[{"uId":1,"authUserId":1,"tokens":[],"nameFirst":"Austin","nameLast":"Powers","email":"m13aboost.testingemail@gmail.com","password":"12345678","handleStr":"austinpowers","channels":[],"dms":[],"isGlobalOwner":1}],"channels":[],"dms":[],"passwordResetCodes":["973450"]}

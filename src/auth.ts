@@ -28,6 +28,7 @@ Return Value:
 */
 export function authLoginV3(email: string, password: string) {
   const data: dataStoreType = getData();
+
   if (!containsEmail(email, data)) { // email does not belong to a user
     throw HTTPError(BAD_REQ, 'Incorrect Email');
   }
@@ -160,19 +161,19 @@ Return Value:
     Returns {} if code sucessfully sends && if code does not send
 */
 export function authPasswordresetRequestV1(email: string) {
-  const data = getData();
   // check if valid email in datastore and return {}
-  if (!containsEmail(email, data)) return {};
+  if (!containsEmail(email, getData())) return {};
   // log out the user of all sessions
-  const tokens = data.users.find(user => user.email === email).tokens
+  let tokens = getData().users.find(user => user.email === email).tokens
   if(tokens !== undefined) {
-    for (const tok of tokens) authLogoutV2(tok);
+    for (let tok of tokens) authLogoutV2(tok);
   }
+
+  let data = getData();
   // generate a reset code and store it in database
-  const newResetcode = 'reset code';
-  //String(Math.round(Math.random() * 1000000));
-  //data.passwordResetCodes.push(newResetcode);
-  console.log(data.passwordResetCodes);
+  const newResetcode = String(Math.round(Math.random() * 1000000));
+  data.passwordResetCodes.push(newResetcode);
+
   setData(data);
   // email reset code to the user
   emailResetCode(email, newResetcode);
