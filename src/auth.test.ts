@@ -261,10 +261,10 @@ describe('testing authPasswordresetRequest', () => {
 
     const userToken0 = registerUser(userEmail, userPassword, 'Austin', 'Powers').token;
     // log in 4 times
-    const userToken1 = JSON.parse(String(loginUser(userEmail, userPassword))).token;
-    const userToken2 = JSON.parse(String(loginUser(userEmail, userPassword))).token;
-    const userToken3 = JSON.parse(String(loginUser(userEmail, userPassword))).token;
-    const userToken4 = JSON.parse(String(loginUser(userEmail, userPassword))).token;
+    const userToken1 = JSON.parse(String(loginUser(userEmail, userPassword).getBody())).token;
+    const userToken2 = JSON.parse(String(loginUser(userEmail, userPassword).getBody())).token;
+    const userToken3 = JSON.parse(String(loginUser(userEmail, userPassword).getBody())).token;
+    const userToken4 = JSON.parse(String(loginUser(userEmail, userPassword).getBody())).token;
 
     // now call password reset, expect all of the above tokens to become invalid
     const res = passwordResetRequest('austin_powers@gmail.com', userToken0);
@@ -281,10 +281,54 @@ describe('testing authPasswordresetRequest', () => {
     expect(logoutUser(userToken4).statusCode).toBe(BAD_REQ);
   });
 });
+//  ///////////////////////////////////////////////////////////////////
+//  ///////////////////////////////////////////////////////////////////
+//  ///////////////////////////////////////////////////////////////////
+//  ///////////////////////////////////////////////////////////////////
+
+describe('testing authPasswordresetReset', () => {
+  // can error 2 ways, bad newPassword or bad resetCode
+  test('bad password reset code', () => {
+    request('DELETE', url + '/clear/v1');
+    registerUser('austin_powers@gmail.com', '12345678', 'Austin', 'Powers');
+    passwordResetRequest('austin_powers@gmail.com', 'badToken');
+
+    const res = passwordResetReset('ThisIsNOTaResetCode','12345678');
+
+    expect(res.statusCode).toBe(BAD_REQ);
+  })
+  test('bad new password, too short', () => {
+    request('DELETE', url + '/clear/v1');
+    registerUser('m13aboost.testingemail@gmail.com', '12345678', 'Austin', 'Powers');
+    passwordResetRequest('m13aboost.testingemail@gmail.com', 'badToken');
+
+    // note that this test only tests the m13A_BOOST testing email
+    const resetCode = getTestEmailResponseCode();
+    // note that currntly this just uses a master reset code. It does not check
+    // for a new code.
+    const res = passwordResetReset(resetCode,'123');
+
+    expect(res.statusCode).toBe(BAD_REQ);
+  })
+  test('good call. password resets', () => {
+    request('DELETE', url + '/clear/v1');
+    registerUser('m13aboost.testingemail@gmail.com', '12345678', 'Austin', 'Powers');
+    passwordResetRequest('m13aboost.testingemail@gmail.com', 'badToken');
+
+    // note that this test only tests the m13A_BOOST testing email
+    const resetCode = getTestEmailResponseCode();
+    // note that currntly this just uses a master reset code. It does not check
+    // for a new code.
+    const res = passwordResetReset(resetCode,'ThisIsTheNewPassword');
+
+    expect(res.statusCode).toBe(OKAY);
+    expect(loginUser('m13aboost.testingemail@gmail.com', 'ThisIsTheNewPassword').statusCode).toBe(OKAY);
+  })
+});
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
-// helper function - requests a password reset, returns a response object
+// helper function - requests a password reset email, returns a response object
 function passwordResetRequest(email: string, token: string) {
   return request(
     'POST',
@@ -296,6 +340,22 @@ function passwordResetRequest(email: string, token: string) {
       headers: {
         'Content-type': 'application/json',
         token: token,
+      },
+    }
+  );
+}
+// helper function - requests a password reset given code, returns a response object
+function passwordResetReset(resetCode: string, newPassword: string) {
+  return request(
+    'POST',
+    url + '/auth/passwordreset/reset/v1',
+    {
+      body: JSON.stringify({
+        resetCode: resetCode,
+        newPassword: newPassword,
+      }),
+      headers: {
+        'Content-type': 'application/json',
       },
     }
   );
@@ -325,4 +385,13 @@ function loginUser(email: string, password: string) {
       }),
     }
   );
+}
+// helper function that reads the inbox of 
+// m13aboost.testingemail@gmail.com to look for emails
+// that have the subject 'UNSW Treats Passoword Reset Requested'
+// reads the email and returns the body, which is just the code as a string.
+// returns the string. Will throw error if it cannot read.
+// currently returns a master reset code
+function getTestEmailResponseCode() {
+  return 'master_reset';
 }

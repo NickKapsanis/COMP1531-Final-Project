@@ -103,7 +103,7 @@ app.post('/auth/passwordreset/request/v1', (req, res) => {
 });
 
 // authPasswordresetResetV1
-app.post('//auth/passwordreset/reset/v1', (req, res) => {
+app.post('/auth/passwordreset/reset/v1', (req, res) => {
   const resetCode = req.body.resetCode;
   const newPassword = req.body.newPassword;
   res.json(authPasswordresetResetV1(resetCode, newPassword));
