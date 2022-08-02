@@ -12,7 +12,6 @@ type message = {
   message : string;
 }
 
-
 const BAD_REQ = 400;
 const FORBID = 403;
 
