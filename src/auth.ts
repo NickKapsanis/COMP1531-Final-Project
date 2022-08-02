@@ -73,7 +73,7 @@ Arguments:
     password (string)       - password of the user to register
 
 Return Value:
-    Returns { error : 'error' } on
+    throws 400 error on
         -length of nameFirst is >50 or <1
         -length of nameLast is >50 or <1
         -email is not a valid email
@@ -84,19 +84,7 @@ Return Value:
 */
 export function authRegisterV3(email: string, password: string, nameFirst: string, nameLast: string) {
   const data: dataStoreType = getData();
-  /*
-  if (
-    !isEmail(email) ||
-        password.length < 6 ||
-        nameFirst.length < 1 ||
-        nameFirst.length > 50 ||
-        nameLast.length < 1 ||
-        nameLast.length > 50 ||
-        containsEmail(email, data)
-  ) {
-    return { error: 'error' };
-  }
-  */
+
   if (!isEmail(email)) { // email entered is not validated as an email by 'validator'
     throw HTTPError(BAD_REQ, 'email entered is not a valid email');
   }
@@ -152,6 +140,41 @@ export function authRegisterV3(email: string, password: string, nameFirst: strin
   setData(data);
   // now log in the new user, and return token and authuserId as per authLogin
   return authLoginV3(newUser.email, newUser.password);
+}
+/*
+authPasswordresetRequestV1 given an email and token belonging to 
+the same registred user. Send the user an email containing a password reset code
+The reset password code, when provided to authPasswordresetResetV1 verifies the indentity of the user.
+NO ERROR are raised on incorrect email for security/privacy
+When a password request is made log the user out of all logins.
+
+Arguments:
+    email (string)    - the email of the User
+    token (object)    - the session token of the calling user
+
+Return Value:
+    Returns {} if code sucessfully sends && if code does not send
+*/
+export function authPasswordresetRequestV1(email: string, token: string) {
+  return {}
+}
+/*
+authPasswordresetResetV1 given a valid password reset code,
+reset the password to the given newPassword
+
+400 error on bad reset code and bad new password
+
+Arguments:
+    resetCode (string)    - the reset code generated and emailed to the user in resetRequest
+    newPassword (string)    - the new password for the user.
+
+Return Value:
+    Returns {} on no error
+    throws 400 Error on resetCode is not a valid resetCode
+    trows 400Error on password entred is < 6 charactes long.
+*/
+export function authPasswordresetResetV1(resetCode: string, newPassword: string) {
+  return {}
 }
 /*
 containsEmail takes the datastore object and an email to check if the email is already registred to a user.
