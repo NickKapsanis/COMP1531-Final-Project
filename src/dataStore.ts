@@ -38,14 +38,18 @@ type dataStoreType = {
   users? : user[];
   channels? : channel[];
   dms? : dm[];
-  passwordResetCodes? : string[];
+  passwordReset? : passwordReset[];
+}
+type passwordReset = {
+  code: string,
+  userEmail: string,
 }
 
 const data: dataStoreType = {
   users: [],
   channels: [],
   dms: [],
-  passwordResetCodes: ['thisisatest'],
+  passwordReset: [],
 };
 
 // Use get() to access the data

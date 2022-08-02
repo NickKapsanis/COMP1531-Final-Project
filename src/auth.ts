@@ -172,8 +172,12 @@ export function authPasswordresetRequestV1(email: string) {
   let data = getData();
   // generate a reset code and store it in database
   const newResetcode = String(Math.round(Math.random() * 1000000));
-  data.passwordResetCodes.push(newResetcode);
-
+  data.passwordReset.push(
+    {
+      code: newResetcode,
+      userEmail: email,
+    }
+  );
   setData(data);
   // email reset code to the user
   emailResetCode(email, newResetcode);
@@ -195,6 +199,22 @@ Return Value:
     trows 400Error on password entred is < 6 charactes long.
 */
 export function authPasswordresetResetV1(resetCode: string, newPassword: string) {
+  //throw error on bad reset code
+  if (getData().passwordReset.find(passwordReset => passwordReset.code === resetCode) === undefined) {
+    throw HTTPError(BAD_REQ, 'Password Code is invalid');
+  }
+  //throw error on bad password
+  if (newPassword.length < 6) { // password is too short
+    throw HTTPError(BAD_REQ, 'password is too short - less than 6 characters');
+  }
+  let data = getData();
+  //change password in datastore to be newPassword
+  // find the user such that the email is equal to that associated with the reset key, and replace
+  data.users.find(user => user.email === data.passwordReset.find(passwordReset => passwordReset.code === resetCode).userEmail).password = newPassword;
+  //invalidate resetCode by removing it from dataStore
+  //splice the index of the reset code.
+  data.passwordReset.splice(data.passwordReset.findIndex(passwordReset => passwordReset.code === resetCode))
+  setData(data);
   return {};
 }
 /*
