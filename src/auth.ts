@@ -6,7 +6,7 @@ import HTTPError from 'http-errors';
 
 export { checkValidToken };
 
-// const FORBID = 403;
+const FORBID = 403;
 const BAD_REQ = 400;
 // const OKAY = 200;
 
@@ -55,6 +55,9 @@ Return Value:
 */
 export function authLogoutV2(token: string) {
   const data = getData();
+  if(!checkValidToken(token)) {
+    throw HTTPError(FORBID, 'Invalid Token');
+  };
   const authUserId = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
   removeToken(authUserId, token);
   return {};
@@ -155,7 +158,7 @@ Arguments:
 Return Value:
     Returns {} if code sucessfully sends && if code does not send
 */
-export function authPasswordresetRequestV1(email: string, token: string) {
+export function authPasswordresetRequestV1(email: string) {
   return {}
 }
 /*

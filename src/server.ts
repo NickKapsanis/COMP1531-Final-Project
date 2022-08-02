@@ -97,9 +97,8 @@ app.post('/auth/logout/v2', (req, res) => {
 
 // authPasswordresetRequestV1
 app.post('/auth/passwordreset/request/v1', (req, res) => {
-  const token = req.header('token');
   const email = req.body.email;
-  res.json(authPasswordresetRequestV1(email, token));
+  res.json(authPasswordresetRequestV1(email));
 });
 
 // authPasswordresetResetV1
