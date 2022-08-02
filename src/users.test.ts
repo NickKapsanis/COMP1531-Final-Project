@@ -67,6 +67,78 @@ describe('Testing userProfileV1()', () => {
 /// /////////////////////////////////////////////
 /// /////////Tests for userSetnameV1()////////////
 /// /////////////////////////////////////////////
+
+test('Testing invalid token case.', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
+  let aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+
+  const res = request(
+    'PUT',
+    url + '/user/profile/setname/v1',
+    {
+      body: JSON.stringify({
+        token: 'aWoogaWoogaWoo',
+        nameFirst: aliceFirstName,
+        nameLast: aliceLastName
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(res.getBody() as string);
+
+  aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
+  aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(aliceFirstName).toEqual('Alice');
+  expect(aliceLastName).toEqual('Smith');
+});
+
+
+test('Testing invalid name change case.', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
+  let aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+
+  const res = request(
+    'PUT',
+    url + '/user/profile/setname/v1',
+    {
+      body: JSON.stringify({
+        token: alice.token,
+        nameFirst: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        nameLast: aliceLastName
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(res.getBody() as string);
+
+  aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
+  aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(aliceFirstName).toEqual('Alice');
+  expect(aliceLastName).toEqual('Smith');
+});
+
+
+
+
+
 test('Testing if changing nothing still returns same name.', () => {
   request('DELETE', url + '/clear/v1');
 
@@ -204,6 +276,68 @@ test('Testing changing both names.', () => {
 /// /////////////////////////////////////////////
 /// /////////Tests for userSetemailV1()////////////
 /// /////////////////////////////////////////////
+
+test('Testing invalid token.', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+
+  const res = request(
+    'PUT',
+    url + '/user/profile/setemail/v1',
+    {
+      body: JSON.stringify({
+        token: 'someInvalidToken',
+        email: aliceEmail,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res.getBody()));
+
+  aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(aliceEmail).toEqual('alice@email.com');
+});
+
+test('Testing invalid email.', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+
+  const res = request(
+    'PUT',
+    url + '/user/profile/setemail/v1',
+    {
+      body: JSON.stringify({
+        token: alice.token,
+        email: 'thisIsNotAnEmail',
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res.getBody()));
+
+  aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(aliceEmail).toEqual('alice@email.com');
+});
+
+
+
+
 test('Testing if changing nothing still returns same email.', () => {
   request('DELETE', url + '/clear/v1');
 
@@ -262,9 +396,98 @@ test('Testing changing email.', () => {
   expect(aliceEmail).toEqual('supercoolnew@email.com');
 });
 
+
+test('Testing changing email to somebody elses email', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
+  const bob = createUser('bob@email.com', 'testPassword123', 'Bob', 'James');
+  const aliceUid = Number(getUId(alice.authUserId));
+  const bobUid = Number(getUId(bob.authUserId));
+  let aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+  let bobEmail = requestUserProfileV2(bob.token, bobUid).user.email;
+
+  const res = request(
+    'PUT',
+    url + '/user/profile/setemail/v1',
+    {
+      body: JSON.stringify({
+        token: alice.token,
+        email: 'bob@email.com',
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res.getBody()));
+
+  aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+  bobEmail = requestUserProfileV2(bob.token, bobUid).user.email;
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(aliceEmail).toEqual('alice@email.com');
+  expect(bobEmail).toEqual('bob@email.com');
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /// /////////////////////////////////////////////
 /// /////////Tests for userSethandleV1()//////////
 /// /////////////////////////////////////////////
+
+
+test('Testing invalid token.', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
+  const aliceUid = Number(getUId(alice.authUserId));
+  let aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+
+  const res = request(
+    'PUT',
+    url + '/user/profile/sethandle/v1',
+    {
+      body: JSON.stringify({
+        token: 'thisIsNotAValidToken',
+        handleStr: aliceHandle,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res.getBody()));
+
+  aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+
+  expect(res.statusCode).toBe(200);
+  expect(aliceHandle).toEqual('alicesmith');
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+});
+
+
+
+
 test('Testing if changing nothing still returns same handle.', () => {
   request('DELETE', url + '/clear/v1');
 

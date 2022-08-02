@@ -25,7 +25,6 @@ function channelsListV2(token: string) {
   const authUserId = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
 
   const user = data.users.find(i => i.authUserId === authUserId);
-  if (user === undefined) { return { error: 'error' }; }
 
   let numChannels = 0;
   const channelsArray = [];
@@ -71,7 +70,6 @@ function channelsListallV2(token: string) {
   const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
 
   const user = data.users.find(i => i.authUserId === authUserId);
-  if (user === undefined) { return { error: 'error' }; }
 
   const allChannelsArray = [];
 
