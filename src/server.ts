@@ -11,7 +11,7 @@ import cors from 'cors';
 import { usersAllV1, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
-import { messageSendV2, messageSendDmV2, messageRemoveV1, messageEditV1 } from './message';
+import { messageSendV2, messageSendDmV2, messageRemoveV2, messageEditV2 } from './message';
 import { channelDetailsV2, channelMessagesV2 } from './channel';
 import errorHandler from 'middleware-http-errors';
 
@@ -236,16 +236,17 @@ app.post('/message/senddm/v2', (req, res) => {
 });
 
 // messageRemoveV1
-app.delete('/message/remove/v1', (req, res) => {
-  const token = String(req.query.token);
+app.delete('/message/remove/v2', (req, res) => {
+  const token = String(req.header('token'));
   const messageId = Number(req.query.messageId);
-  res.json(messageRemoveV1(token, messageId));
+  res.json(messageRemoveV2(token, messageId));
 });
 
 // messageEditV1
-app.put('/message/edit/v1', (req, res) => {
-  const { token, messageId, message } = req.body;
-  res.json(messageEditV1(token, messageId, message));
+app.put('/message/edit/v2', (req, res) => {
+  const token = String(req.header('token'));
+  const { messageId, message } = req.body;
+  res.json(messageEditV2(token, messageId, message));
 });
 
 // handles errors nicely
