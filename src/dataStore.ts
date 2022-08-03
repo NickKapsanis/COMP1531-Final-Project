@@ -18,6 +18,7 @@ type message = {
   uId : number;
   timeSent : number; // unix timestamp
   message : string;
+  isThisMessageReacted : number; // 1=yes, anything else=no. change later as required
 }
 type dm = {
     dmId: number;

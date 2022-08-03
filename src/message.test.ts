@@ -537,6 +537,457 @@ function requestMessageRemoveV1(token: string, messageId: number) {
   );
 }
 
+
+
+////////////////////// Tests for messageReactV1 //////////////////////
+
+
+test('Testing invalid reactID', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+  const testCreatedChannelID = createChannel(james.token, 'testChannel1', true).channelId;
+  channelJoin(rufus.token, testCreatedChannelID);
+  const jamesSentMessageID = messageSendV1(james.token, testCreatedChannelID, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+
+  const res = request(
+    'POST',
+    url + '/message/react/v1',
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 6969,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res.getBody()));
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+
+  //now we need to check the message has not been reacted to.
+  expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(1);
+});
+
+
+
+test('Testing given channel, react to message successfully', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+  const testCreatedChannelID = createChannel(james.token, 'testChannel1', true).channelId;
+  channelJoin(rufus.token, testCreatedChannelID);
+  const jamesSentMessageID = messageSendV1(james.token, testCreatedChannelID, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+
+  const res = request(
+    'POST',
+    url + '/message/react/v1',
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res.getBody()));
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({});
+
+  //now we need to check the message has been reacted to.
+  expect(data.channels[0].messages[0].isThisMessageReacted).toEqual(1);
+});
+
+
+
+
+test('Testing invalid channel/dm ID', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+  const testCreatedChannelID = createChannel(james.token, 'testChannel1', true).channelId;
+  channelJoin(rufus.token, testCreatedChannelID);
+  const jamesSentMessageID = messageSendV1(james.token, testCreatedChannelID, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+  // we will give invalid channel ID.
+
+  const res = request(
+    'POST',
+    url + '/message/react/v1',
+    {
+      body: JSON.stringify({
+        messageId: 69420,
+        reactId: 1,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res.getBody()));
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+
+  //now we need to check the message has not been reacted to.
+  expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(1);
+});
+
+
+test('Testing reacting to message already been reacted to in channel', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+  const testCreatedChannelID = createChannel(james.token, 'testChannel1', true).channelId;
+  channelJoin(rufus.token, testCreatedChannelID);
+  const jamesSentMessageID = messageSendV1(james.token, testCreatedChannelID, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+
+  const res1 = request(
+    'POST',
+    url + '/message/react/v1',
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+
+  const res2 = request(
+    'POST',
+    url + '/message/react/v1',
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res2.getBody()));
+
+  expect(res2.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+
+  //just making sure message is still reacted to.
+  expect(data.channels[0].messages[0].isThisMessageReacted).toEqual(1);
+});
+
+
+
+
+test('Testing given dm, react to message successfully', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+
+  const jamesUId = Number(getUId(james.authUserId));
+  const rufusUId = Number(getUId(rufus.authUserId));
+  const uIds = [jamesUId, rufusUId];
+  const dmId1 = requestDmCreateV2(james.token, uIds);
+
+  const jamesSentMessageID = messageSendV1(james.token, dmId1, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+
+  const res = request(
+    'POST',
+    url + '/message/react/v1',
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res.getBody()));
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({});
+
+  //now we need to check the message has been reacted to.
+  expect(data.channels[0].messages[0].isThisMessageReacted).toEqual(1);
+});
+
+
+
+
+test('Testing reacting to message already been reacted to in dm', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+
+  const jamesUId = Number(getUId(james.authUserId));
+  const rufusUId = Number(getUId(rufus.authUserId));
+  const uIds = [jamesUId, rufusUId];
+  const dmId1 = requestDmCreateV2(james.token, uIds);
+
+  const jamesSentMessageID = messageSendV1(james.token, dmId1, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+
+  const res1 = request(
+    'POST',
+    url + '/message/react/v1',
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+
+  const res2 = request(
+    'POST',
+    url + '/message/react/v1',
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res2.getBody()));
+
+  expect(res2.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+
+  //just making sure message is still reacted to.
+  expect(data.channels[0].messages[0].isThisMessageReacted).toEqual(1);
+});
+
+
+
+
+
+
+
+
+
+
+////////////////////// Tests for messageUnreactV1 //////////////////////
+
+
+test('Testing invalid reactID unreact', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+  const testCreatedChannelID = createChannel(james.token, 'testChannel1', true).channelId;
+  channelJoin(rufus.token, testCreatedChannelID);
+  const jamesSentMessageID = messageSendV1(james.token, testCreatedChannelID, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+
+  const res = request(
+    'POST',
+    url + '/message/unreact/v1',
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 6969,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res.getBody()));
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+
+  //now we need to check the message has not been reacted to.
+  expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(1);
+});
+
+
+test('Testing invalid channel/dm ID unreact', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+  const testCreatedChannelID = createChannel(james.token, 'testChannel1', true).channelId;
+  channelJoin(rufus.token, testCreatedChannelID);
+  const jamesSentMessageID = messageSendV1(james.token, testCreatedChannelID, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+  // we will give invalid channel ID.
+
+  const res = request(
+    'POST',
+    url + '/message/unreact/v1',
+    {
+      body: JSON.stringify({
+        messageId: 69420,
+        reactId: 1,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res.getBody()));
+
+  expect(res.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({ error: 'error' });
+
+  //now we need to check the message has not been reacted to.
+  expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(1);
+});
+
+
+
+test('Testing given channel, and reacted message, unreact to message successfully', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+  const testCreatedChannelID = createChannel(james.token, 'testChannel1', true).channelId;
+  channelJoin(rufus.token, testCreatedChannelID);
+  const jamesSentMessageID = messageSendV1(james.token, testCreatedChannelID, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+
+  const res1 = request(
+    'POST',
+    url + '/message/react/v1',
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+
+  const res2 = request(
+    'POST',
+    url + '/message/unreact/v1',
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res2.getBody()));
+
+  expect(res2.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({});
+
+  //now we need to check the message has been reacted to.
+  expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(1);
+});
+
+
+
+
+
+test('Testing given dm, and reacted message, unreact to message successfully', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+
+  const jamesUId = Number(getUId(james.authUserId));
+  const rufusUId = Number(getUId(rufus.authUserId));
+  const uIds = [jamesUId, rufusUId];
+  const dmId1 = requestDmCreateV2(james.token, uIds);
+
+  const jamesSentMessageID = messageSendV1(james.token, dmId1, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+
+  const res1 = request(
+    'POST',
+    url + '/message/react/v1',
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+
+  const res2 = request(
+    'POST',
+    url + '/message/unreact/v1',
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const bodyObj = JSON.parse(String(res2.getBody()));
+
+  expect(res2.statusCode).toBe(200);
+  expect(bodyObj).toStrictEqual({});
+
+  //now we need to check the message has been reacted to.
+  expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(1);
+});
+
+
+
+
+
+
 /// /////////////////////////////////////////////////////////////////////////////
 /// /////////////////////////////////////////////////////////////////////////////
 /// /////////////////////        Helper Functions       /////////////////////////
