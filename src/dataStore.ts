@@ -13,12 +13,17 @@ type user = {
   dms: number[];
   isGlobalOwner: 1 | 2; // 1 for global owner 2 for not global
 }
+type react = {
+  reactId : number;
+  uIds : number[];
+  isThisUserReacted : boolean;
+}
 type message = {
   messageId : number;
   uId : number;
   timeSent : number; // unix timestamp
   message : string;
-  isThisMessageReacted : number; // 1=yes, anything else=no. change later as required
+  reacts : react[];
 }
 type dm = {
     dmId: number;
