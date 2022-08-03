@@ -11,7 +11,7 @@ import cors from 'cors';
 import { usersAllV1, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
-import { messageSendV2, messageSendDmV2, messageRemoveV2, messageEditV2 } from './message';
+import { messageSendV2, messageSendDmV2, messageRemoveV2, messageEditV2, messageShareV1 } from './message';
 import { channelDetailsV2, channelMessagesV2 } from './channel';
 import errorHandler from 'middleware-http-errors';
 
@@ -247,6 +247,12 @@ app.put('/message/edit/v2', (req, res) => {
   const token = String(req.header('token'));
   const { messageId, message } = req.body;
   res.json(messageEditV2(token, messageId, message));
+});
+
+app.post('/message/share/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const { ogMessageId, message, channelId, dmId } = req.body;
+  res.json(messageShareV1(token, ogMessageId, message, channelId, dmId));
 });
 
 // handles errors nicely
