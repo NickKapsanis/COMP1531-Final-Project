@@ -4,6 +4,8 @@ import { user, dataStoreType } from './dataStore';
 import { v4 as uuidv4 } from 'uuid';
 import HTTPError from 'http-errors';
 import { emailResetCode } from './email';
+import { time } from 'console';
+import { getTsBuildInfoEmitOutputFilePath } from 'typescript';
 
 export { checkValidToken };
 
@@ -172,15 +174,30 @@ export function authPasswordresetRequestV1(email: string) {
   let data = getData();
   // generate a reset code and store it in database
   const newResetcode = String(Math.round(Math.random() * 1000000));
+  // define the time to send as 11 seconds after the curent highest time to send in datastore.
+  let timeStampMax: number;
+  let newTimeToSend: number;
+  let timeToWait: number;
+  if(getData().passwordReset.length > 0) {
+    timeStampMax = Math.max(...getData().passwordReset.map(resetCodes => resetCodes.timeStamp));
+    // set the time to send this email to 11 seconds after the last email was sent.
+    newTimeToSend = timeStampMax + 11000;
+    timeToWait = newTimeToSend - Date.now();
+    } else {
+        timeToWait = 1;
+    }
   data.passwordReset.push(
     {
       code: newResetcode,
       userEmail: email,
+      timeToWait: timeToWait,
+      timeStamp: Date.now(),
     }
   );
   setData(data);
-  // email reset code to the user
-  emailResetCode(email, newResetcode);
+  // email reset code to the user. This is async and will only occur 11 seconds after the previous call of this function finishes.
+  // this is to prevent the email being blocked as spam.
+  emailResetCode(email, newResetcode, timeToWait);
   return {};
 }
 /*
@@ -213,7 +230,7 @@ export function authPasswordresetResetV1(resetCode: string, newPassword: string)
   data.users.find(user => user.email === data.passwordReset.find(passwordReset => passwordReset.code === resetCode).userEmail).password = newPassword;
   //invalidate resetCode by removing it from dataStore
   //splice the index of the reset code.
-  data.passwordReset.splice(data.passwordReset.findIndex(passwordReset => passwordReset.code === resetCode))
+  data.passwordReset.splice(data.passwordReset.findIndex(passwordReset => passwordReset.code === resetCode));
   setData(data);
   return {};
 }

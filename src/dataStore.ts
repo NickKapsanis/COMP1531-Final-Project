@@ -43,6 +43,8 @@ type dataStoreType = {
 type passwordReset = {
   code: string,
   userEmail: string,
+  timeToWait: number,
+  timeStamp: number,
 }
 
 const data: dataStoreType = {
