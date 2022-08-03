@@ -54,7 +54,7 @@ export function messageSendV2(token: string, channelId: number, message: string)
 
   // Message validation
   if (message.length < 1 || message.length > 1000) {
-    throw HTTPError(BAD_REQ, 'Invalid start');
+    throw HTTPError(BAD_REQ, 'Invalid message length');
   }
 
   const newMessageId = sendMessage('c', userId, message, channelGivenIndex);
@@ -408,6 +408,30 @@ export function messageShareV1(token: string, ogMessageId: number, message: stri
     sharedMessageId = sendMessage('d', userId, message, dmGivenIndex, ogMessage.message);
     return { sharedMessageId: sharedMessageId };
   }
+}
+
+export function messageSendLaterV1(token: string, channelId: number, message: string, timeSent: number) {
+  const timeRemain: number = Math.ceil(timeSent - Math.floor(Date.now() / 1000)) * 1000;
+  if (timeRemain < 0) {
+    throw HTTPError(BAD_REQ, 'Invalid time');
+  }
+
+  sleep(timeRemain);
+  return messageSendV2(token, channelId, message);
+}
+
+export function messageSendLaterDmV1(token: string, dmId: number, message: string, timeSent: number) {
+  const timeRemain: number = Math.ceil(timeSent - Math.floor(Date.now() / 1000)) * 1000;
+  if (timeRemain < 0) {
+    throw HTTPError(BAD_REQ, 'Invalid time');
+  }
+
+  sleep(timeRemain);
+  return messageSendDmV2(token, dmId, message);
+}
+
+function sleep(timeRemain: number) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeRemain);
 }
 
 /// Helper Functions ///

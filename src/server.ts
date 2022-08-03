@@ -11,7 +11,7 @@ import cors from 'cors';
 import { usersAllV1, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
-import { messageSendV2, messageSendDmV2, messageRemoveV2, messageEditV2, messageShareV1 } from './message';
+import { messageSendV2, messageSendDmV2, messageRemoveV2, messageEditV2, messageShareV1, messageSendLaterV1, messageSendLaterDmV1 } from './message';
 import { channelDetailsV2, channelMessagesV2 } from './channel';
 import errorHandler from 'middleware-http-errors';
 
@@ -253,6 +253,20 @@ app.post('/message/share/v1', (req, res) => {
   const token = String(req.header('token'));
   const { ogMessageId, message, channelId, dmId } = req.body;
   res.json(messageShareV1(token, ogMessageId, message, channelId, dmId));
+});
+
+// messageSendLaterV1
+app.post('/message/sendlater/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const { channelId, message, timeSent } = req.body;
+  res.json(messageSendLaterV1(token, channelId, message, timeSent));
+});
+
+// messageSendLaterDmV1
+app.post('/message/sendlaterdm/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const { dmId, message, timeSent } = req.body;
+  res.json(messageSendLaterDmV1(token, dmId, message, timeSent));
 });
 
 // handles errors nicely
