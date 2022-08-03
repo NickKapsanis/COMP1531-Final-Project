@@ -14,6 +14,7 @@ import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
 import { channelDetailsV3, channelMessagesV3 } from './channel';
 import errorHandler from 'middleware-http-errors';
+import { adminUserpermissionChangeV1, adminUserRemoveV1 } from './admin';
 
 // Set up web app, use JSON
 const app = express();
@@ -244,6 +245,21 @@ app.delete('/message/remove/v1', (req, res) => {
 app.put('/message/edit/v1', (req, res) => {
   const { token, messageId, message } = req.body;
   res.json(messageEditV1(token, messageId, message));
+});
+
+// adminUserRemoveV1
+app.delete('/admin/user/remove/v1', (req, res) => {
+  const token = req.header('token');
+  const uId = req.body.uId;
+  res.json(adminUserRemoveV1(uId, token));
+});
+
+// adminUserpermissionsChangeV1
+app.post('/admin/userpermission/change/v1', (req, res) => {
+  const token = req.header('token');
+  const uId = req.body.uId;
+  const permissionId = req.body.permissionId;
+  res.json(adminUserpermissionChangeV1(uId, permissionId, token));
 });
 
 // handles errors nicely
