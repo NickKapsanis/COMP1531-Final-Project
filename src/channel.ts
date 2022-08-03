@@ -43,21 +43,21 @@ const BAD_REQ = 400;
  *        allMembers
  *      }
  */
-function channelDetailsV2(token: string, channelId: number) {
+function channelDetailsV3(token: string, channelId: number) {
   const data: dataStoreType = getData();
 
   // Token validation
   if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Invalid token');
   }
 
   const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
 
   // Checking if valid channelIds were given
   if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid channelId');
   } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Not a member of channel');
   }
 
   // Finding the given channel
@@ -435,4 +435,4 @@ function channelsLeaveV1(token: string, channelId: number) {
   return { error: 'error' };
 }
 
-export { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, getChannel, channelDetailsV2, channelMessagesV3, channelsLeaveV1 };
+export { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, getChannel, channelDetailsV3, channelMessagesV3, channelsLeaveV1 };

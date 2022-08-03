@@ -14,8 +14,8 @@ const OK = 200;
 const BAD_REQ = 400;
 const FORBID = 403;
 
-// Testing for channelDetailsV1
-describe('Testing channelDetailsV1', () => {
+// Testing for channelDetailsV3
+describe('Testing channelDetailsV3', () => {
   let token1: string;
   let token2: string;
   let channelId1: number;
@@ -42,23 +42,17 @@ describe('Testing channelDetailsV1', () => {
       }
     }
 
-    const res = requestChannelDetailsV2(token1, invalidId);
-    const bodyObj = JSON.parse(String(res.getBody()));
-
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = requestChannelDetailsV3(token1, invalidId);
+    expect(res.statusCode).toBe(BAD_REQ);
   });
 
-  test('Case 2: authorised user is not a member of channel', () => {
-    const res = requestChannelDetailsV2(token1, channelId2);
-    const bodyObj = JSON.parse(String(res.getBody()));
-
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+  test('Case 2: user is not a member of channel', () => {
+    const res = requestChannelDetailsV3(token1, channelId2);
+    expect(res.statusCode).toBe(FORBID);
   });
 
   test('Case 3: Deals with all valid arguments', () => {
-    const res = requestChannelDetailsV2(token1, channelId1);
+    const res = requestChannelDetailsV3(token1, channelId1);
     const bodyObj = JSON.parse(String(res.getBody()));
 
     expect(res.statusCode).toBe(OK);
@@ -71,25 +65,24 @@ describe('Testing channelDetailsV1', () => {
   });
 
   test('Case 4: Deals with invalid token', () => {
-    const res = requestChannelDetailsV2('invalid-token', channelId1);
-    const bodyObj = JSON.parse(String(res.getBody()));
-
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = requestChannelDetailsV3('invalid-token', channelId1);
+    expect(res.statusCode).toBe(FORBID);
   });
 });
 
 // Helper function for HTTP calls for channelDetailsV2
-function requestChannelDetailsV2(token: string, channelId: number) {
+function requestChannelDetailsV3(token: string, channelId: number) {
   return request(
     'GET',
-        `${hosturl}:${port}/channel/details/v2`,
-        {
-          qs: {
-            token: token,
-            channelId: channelId,
-          }
-        }
+    `${hosturl}:${port}/channel/details/v3`,
+    {
+      qs: {
+        channelId: channelId,
+      },
+      headers: {
+        token: token,
+      },
+    }
   );
 }
 
