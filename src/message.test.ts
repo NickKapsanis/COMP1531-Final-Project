@@ -563,6 +563,7 @@ test('Testing invalid reactID', () => {
         reactId: 6969,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
@@ -599,6 +600,7 @@ test('Testing given channel, react to message successfully', () => {
         reactId: 1,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
@@ -637,6 +639,7 @@ test('Testing invalid channel/dm ID', () => {
         reactId: 1,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
@@ -672,6 +675,7 @@ test('Testing reacting to message already been reacted to in channel', () => {
         reactId: 1,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
@@ -686,6 +690,7 @@ test('Testing reacting to message already been reacted to in channel', () => {
         reactId: 1,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
@@ -727,6 +732,7 @@ test('Testing given dm, react to message successfully', () => {
         reactId: 1,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
@@ -768,6 +774,7 @@ test('Testing reacting to message already been reacted to in dm', () => {
         reactId: 1,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
@@ -828,6 +835,7 @@ test('Testing invalid reactID unreact', () => {
         reactId: 6969,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
@@ -864,6 +872,7 @@ test('Testing invalid channel/dm ID unreact', () => {
         reactId: 1,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
@@ -900,6 +909,7 @@ test('Testing given channel, and reacted message, unreact to message successfull
         reactId: 1,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
@@ -914,6 +924,7 @@ test('Testing given channel, and reacted message, unreact to message successfull
         reactId: 1,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
@@ -956,6 +967,7 @@ test('Testing given dm, and reacted message, unreact to message successfully', (
         reactId: 1,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
@@ -970,6 +982,7 @@ test('Testing given dm, and reacted message, unreact to message successfully', (
         reactId: 1,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
