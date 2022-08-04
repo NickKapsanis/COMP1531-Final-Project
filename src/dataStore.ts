@@ -51,6 +51,7 @@ type messagesSentType = {
 } 
 
 type userStatsType = {
+  uId: number,
   channelsJoined: channelsJoinedType[],
   dmsJoined: dmsJoinedType[], 
   messagesSent: messagesSentType[], 
