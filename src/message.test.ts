@@ -1,85 +1,14 @@
 import request from 'sync-request';
 import config from './config.json';
 
-
-const OK = 200;
 const port = config.port;
 const url = config.url;
-
-type message = {
-  messageId : number;
-  uId : number;
-  timeSent : number;
-  message : string;
-  reacts: [];
-}
-
 const FORBID = 403;
 const BAD_REQ = 400;
 
-
-// Helper function for message/send/v1 HTTP calls
-function testRequestMessageSendV1(token: string, channelId: number, message: string) {
-  return request(
-    'POST',
-    `${url}:${port}/message/send/v1`,
-    {
-      json: {
-        token: token,
-        channelId: channelId,
-        message: message,
-      }
-    }
-  );
-}
-
-// Helper function for message/senddm/v1 HTTP calls
-function testRequestMessageSendDmV1(token: string, dmId: number, message: string) {
-  return request(
-    'POST',
-        `${url}:${port}/message/senddm/v1`,
-        {
-          json: {
-            token: token,
-            dmId: dmId,
-            message: message,
-          }
-        }
-  );
-}
-
-// Helper function for message/edit/v1 HTTP calls
-function requestMessageEditV1(token: string, messageId: number, message: string) {
-  return request(
-    'PUT',
-    `${url}:${port}/message/edit/v1`,
-    {
-      json: {
-        token: token,
-        messageId: messageId,
-        message: message,
-      }
-    }
-  );
-}
-
-// Helper function for message/remove/v1 HTTP calls
-function requestMessageRemoveV1(token: string, messageId: number) {
-  return request(
-    'DELETE',
-    `${url}:${port}/message/remove/v1`,
-    {
-      qs: {
-        token: token,
-        messageId: messageId,
-      }
-    }
-  );
-}
-
-//////////////////////////////////////////////////////////////////////
-////////////////////// Tests for messageReactV1 //////////////////////
-//////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////////////////////////////////////////
+/// /////////////////// Tests for messageReactV1 //////////////////////
+/// ///////////////////////////////////////////////////////////////////
 
 test('Testing invalid reactID', () => {
   requestClear();
@@ -107,13 +36,13 @@ test('Testing invalid reactID', () => {
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res.getBody()));
+  // const bodyObj = JSON.parse(String(res.getBody()));
 
   expect(res.statusCode).toBe(BAD_REQ);
-  //expect(bodyObj).toStrictEqual({"error":{"message":"Invalid reactId"}});
+  // expect(bodyObj).toStrictEqual({"error":{"message":"Invalid reactId"}});
 
-  //now we need to check the message has not been reacted to.
-  //expect(data.channels[0].messages[0].reacts.isThisUserReacted).not.toEqual(true);
+  // now we need to check the message has not been reacted to.
+  // expect(data.channels[0].messages[0].reacts.isThisUserReacted).not.toEqual(true);
 });
 
 test('Testing invalid token', () => {
@@ -142,13 +71,13 @@ test('Testing invalid token', () => {
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res.getBody()));
+  // const bodyObj = JSON.parse(String(res.getBody()));
 
   expect(res.statusCode).toBe(FORBID);
-  //expect(bodyObj).toStrictEqual({});
+  // expect(bodyObj).toStrictEqual({});
 
-  //now we need to check the message has been reacted to.
-  //.channels[0].messages[0].isThisMessageReacted).toEqual(true);
+  // now we need to check the message has been reacted to.
+  // .channels[0].messages[0].isThisMessageReacted).toEqual(true);
 });
 
 test('tests when user is not in the created channel.', () => {
@@ -176,20 +105,14 @@ test('tests when user is not in the created channel.', () => {
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res.getBody()));
+  // const bodyObj = JSON.parse(String(res.getBody()));
 
   expect(res.statusCode).toBe(400);
-  //expect(bodyObj).toStrictEqual({});
+  // expect(bodyObj).toStrictEqual({});
 
-  //now we need to check the message has been reacted to.
-  //.channels[0].messages[0].isThisMessageReacted).toEqual(true);
+  // now we need to check the message has been reacted to.
+  // .channels[0].messages[0].isThisMessageReacted).toEqual(true);
 });
-
-
-
-
-
-
 
 test('Testing given channel, react to message successfully', () => {
   requestClear();
@@ -217,17 +140,14 @@ test('Testing given channel, react to message successfully', () => {
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res.getBody()));
+  // const bodyObj = JSON.parse(String(res.getBody()));
 
   expect(res.statusCode).toBe(200);
-  //expect(bodyObj).toStrictEqual({});
+  // expect(bodyObj).toStrictEqual({});
 
-  //now we need to check the message has been reacted to.
-  //.channels[0].messages[0].isThisMessageReacted).toEqual(true);
+  // now we need to check the message has been reacted to.
+  // .channels[0].messages[0].isThisMessageReacted).toEqual(true);
 });
-
-
-
 
 test('Testing invalid channel/dm ID', () => {
   requestClear();
@@ -256,15 +176,15 @@ test('Testing invalid channel/dm ID', () => {
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res.getBody()));
+  // const bodyObj = JSON.parse(String(res.getBody()));
 
   expect(res.statusCode).toBe(BAD_REQ);
-  //expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(jamesSentMessageID).toBe(jamesSentMessageID);
+  // expect(bodyObj).toStrictEqual({ error: 'error' });
 
-  //now we need to check the message has not been reacted to.
-  //expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
+  // now we need to check the message has not been reacted to.
+  // expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
 });
-
 
 test('Testing reacting to message already been reacted to in channel', () => {
   requestClear();
@@ -274,8 +194,6 @@ test('Testing reacting to message already been reacted to in channel', () => {
   const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
   requestchannelJoinV2(rufusToken, testCreatedChannelID);
   const jamesSentMessageID = requestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
-  
-
 
   // james and rufus are both in the channel at this point.
   // james has sent a message.
@@ -309,22 +227,22 @@ test('Testing reacting to message already been reacted to in channel', () => {
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res2.getBody()));
+  // const bodyObj = JSON.parse(String(res2.getBody()));
 
+  expect(res1.statusCode).toBe(200);
   expect(res2.statusCode).toBe(BAD_REQ);
-  //expect(bodyObj).toStrictEqual({ error: 'error' });
+  // expect(bodyObj).toStrictEqual({ error: 'error' });
 
-  //just making sure message is still reacted to.
-  //expect(data.channels[0].messages[0].isThisMessageReacted).toEqual(true);
+  // just making sure message is still reacted to.
+  // expect(data.channels[0].messages[0].isThisMessageReacted).toEqual(true);
 });
-
 
 test('Testing when user is not in given dm', () => {
   requestClear();
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  let dmId1 = requestDmCreateV2(jamesToken, [1]);
+  const dmId1 = requestDmCreateV2(jamesToken, [1]);
   const jamesSentMessageID = requestMessageSendDmV1(jamesToken, dmId1, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -344,22 +262,21 @@ test('Testing when user is not in given dm', () => {
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res.getBody()));
+  // const bodyObj = JSON.parse(String(res.getBody()));
 
   expect(res.statusCode).toBe(400);
-  //expect(bodyObj).toStrictEqual({});
+  // expect(bodyObj).toStrictEqual({});
 
-  //now we need to check the message has been reacted to.
-  //expect(data.channels[0].messages[0].isThisMessageReacted).toEqual(true);
+  // now we need to check the message has been reacted to.
+  // expect(data.channels[0].messages[0].isThisMessageReacted).toEqual(true);
 });
-
 
 test('Testing given dm, react to message successfully', () => {
   requestClear();
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  let dmId1 = requestDmCreateV2(jamesToken, [1, 2]);
+  const dmId1 = requestDmCreateV2(jamesToken, [1, 2]);
   const jamesSentMessageID = requestMessageSendDmV1(jamesToken, dmId1, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -379,24 +296,21 @@ test('Testing given dm, react to message successfully', () => {
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res.getBody()));
+  // const bodyObj = JSON.parse(String(res.getBody()));
 
   expect(res.statusCode).toBe(200);
-  //expect(bodyObj).toStrictEqual({});
+  // expect(bodyObj).toStrictEqual({});
 
-  //now we need to check the message has been reacted to.
-  //expect(data.channels[0].messages[0].isThisMessageReacted).toEqual(true);
+  // now we need to check the message has been reacted to.
+  // expect(data.channels[0].messages[0].isThisMessageReacted).toEqual(true);
 });
-
-
-
 
 test('Testing reacting to message already been reacted to in dm', () => {
   requestClear();
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  let dmId1 = requestDmCreateV2(jamesToken, [1, 2]);
+  const dmId1 = requestDmCreateV2(jamesToken, [1, 2]);
   const jamesSentMessageID = requestMessageSendDmV1(jamesToken, dmId1, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -431,24 +345,19 @@ test('Testing reacting to message already been reacted to in dm', () => {
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res2.getBody()));
+  // const bodyObj = JSON.parse(String(res2.getBody()));
 
+  expect(res1.statusCode).toBe(200);
   expect(res2.statusCode).toBe(BAD_REQ);
-  //expect(bodyObj).toStrictEqual({ error: 'error' });
+  // expect(bodyObj).toStrictEqual({ error: 'error' });
 
-  //just making sure message is still reacted to.
-  //expect(data.channels[0].messages[0].isThisMessageReacted).toEqual(true);
+  // just making sure message is still reacted to.
+  // expect(data.channels[0].messages[0].isThisMessageReacted).toEqual(true);
 });
 
-
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////
-////////////////////// Tests for messageUnreactV1 //////////////////////
-////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////
+/// /////////////////// Tests for messageUnreactV1 //////////////////////
+/// /////////////////////////////////////////////////////////////////////
 
 test('Testing invalid reactID unreact', () => {
   requestClear();
@@ -476,15 +385,14 @@ test('Testing invalid reactID unreact', () => {
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res.getBody()));
+  // const bodyObj = JSON.parse(String(res.getBody()));
 
   expect(res.statusCode).toBe(BAD_REQ);
-  //expect(bodyObj).toStrictEqual({ error: 'error' });
+  // expect(bodyObj).toStrictEqual({ error: 'error' });
 
-  //now we need to check the message has not been reacted to.
-  //expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
+  // now we need to check the message has not been reacted to.
+  // expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
 });
-
 
 test('Testing invalid channel/dm ID unreact', () => {
   requestClear();
@@ -513,16 +421,15 @@ test('Testing invalid channel/dm ID unreact', () => {
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res.getBody()));
+  // const bodyObj = JSON.parse(String(res.getBody()));
 
   expect(res.statusCode).toBe(BAD_REQ);
-  //expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(jamesSentMessageID).toBe(jamesSentMessageID);
+  // expect(bodyObj).toStrictEqual({ error: 'error' });
 
-  //now we need to check the message has not been reacted to.
-  //expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
+  // now we need to check the message has not been reacted to.
+  // expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
 });
-
-
 
 test('Testing invalid token ID', () => {
   requestClear();
@@ -551,17 +458,14 @@ test('Testing invalid token ID', () => {
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res.getBody()));
+  // const bodyObj = JSON.parse(String(res.getBody()));
 
   expect(res.statusCode).toBe(FORBID);
-  //expect(bodyObj).toStrictEqual({ error: 'error' });
+  // expect(bodyObj).toStrictEqual({ error: 'error' });
 
-  //now we need to check the message has not been reacted to.
-  //expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
+  // now we need to check the message has not been reacted to.
+  // expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
 });
-
-
-
 
 test('Testing given channel, and reacted message, unreact to message successfully', () => {
   requestClear();
@@ -604,16 +508,15 @@ test('Testing given channel, and reacted message, unreact to message successfull
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res2.getBody()));
+  // const bodyObj = JSON.parse(String(res2.getBody()));
 
+  expect(res1.statusCode).toBe(200);
   expect(res2.statusCode).toBe(200);
-  //expect(bodyObj).toStrictEqual({});
+  // expect(bodyObj).toStrictEqual({});
 
-  //now we need to check the message has been reacted to.
-  //expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
+  // now we need to check the message has been reacted to.
+  // expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
 });
-
-
 
 test('Testing given channel, and reacted message, trying to unreact twice.', () => {
   requestClear();
@@ -671,27 +574,23 @@ test('Testing given channel, and reacted message, trying to unreact twice.', () 
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res2.getBody()));
+  // const bodyObj = JSON.parse(String(res2.getBody()));
 
+  expect(res1.statusCode).toBe(200);
+  expect(res2.statusCode).toBe(200);
   expect(res3.statusCode).toBe(200);
-  //expect(bodyObj).toStrictEqual({});
+  // expect(bodyObj).toStrictEqual({});
 
-  //now we need to check the message has been reacted to.
-  //expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
+  // now we need to check the message has been reacted to.
+  // expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
 });
-
-
-
-
-
 
 test('Testing given dm, and reacted message, unreact to message successfully', () => {
   requestClear();
 
-
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  let dmId1 = requestDmCreateV2(jamesToken, [1, 2]);
+  const dmId1 = requestDmCreateV2(jamesToken, [1, 2]);
   const jamesSentMessageID = requestMessageSendDmV1(jamesToken, dmId1, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -726,25 +625,22 @@ test('Testing given dm, and reacted message, unreact to message successfully', (
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res2.getBody()));
+  // const bodyObj = JSON.parse(String(res2.getBody()));
 
+  expect(res1.statusCode).toBe(200);
   expect(res2.statusCode).toBe(200);
-  //expect(bodyObj).toStrictEqual({});
+  // expect(bodyObj).toStrictEqual({});
 
-  //now we need to check the message has been reacted to.
-  //expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
+  // now we need to check the message has been reacted to.
+  // expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
 });
-
-
-
 
 test('Testing given dm, and reacted message, trying to unreact twice.', () => {
   requestClear();
 
-
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  let dmId1 = requestDmCreateV2(jamesToken, [1, 2]);
+  const dmId1 = requestDmCreateV2(jamesToken, [1, 2]);
   const jamesSentMessageID = requestMessageSendDmV1(jamesToken, dmId1, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -793,15 +689,16 @@ test('Testing given dm, and reacted message, trying to unreact twice.', () => {
       },
     }
   );
-  //const bodyObj = JSON.parse(String(res2.getBody()));
+  // const bodyObj = JSON.parse(String(res2.getBody()));
 
+  expect(res1.statusCode).toBe(200);
+  expect(res2.statusCode).toBe(200);
   expect(res3.statusCode).toBe(200);
-  //expect(bodyObj).toStrictEqual({});
+  // expect(bodyObj).toStrictEqual({});
 
-  //now we need to check the message has been reacted to.
-  //expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
+  // now we need to check the message has been reacted to.
+  // expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
 });
-
 
 /// /////////////////////////////////////////////////////////////////////////////
 /// /////////////////////////////////////////////////////////////////////////////
@@ -854,85 +751,6 @@ function requestchannelJoinV2(tokens: string, channelIds: number) {
   return JSON.parse(String(res.getBody()));
 }
 
-
-function requestChannelsListallV2(token: string) {
-  const res = request(
-    'GET',
-    `${url}:${port}/channels/listall/v2`,
-    {
-      qs: {
-        token: token,
-      }
-    }
-  );
-
-  return JSON.parse(String(res.getBody())).channels;
-}
-
-function requestChannelInviteV2(token: string, channelId: number, uId: number) {
-  const res = request(
-    'POST',
-    `${url}:${port}/channel/invite/v2`,
-    {
-      json: {
-        token: token,
-        channelId: channelId,
-        uId: uId,
-      }
-    }
-  );
-
-  return JSON.parse(String(res.getBody()));
-}
-
-function requestChannelLeaveV2(token: string, channelId: number) {
-  const res = request(
-    'POST',
-    `${url}:${port}/channel/leave/v1`,
-    {
-      json: {
-        token: token,
-        channelId: channelId,
-      }
-    }
-  );
-
-  return JSON.parse(String(res.getBody()));
-}
-
-function requestDmLeaveV2(token: string, dmId: number) {
-  const res = request(
-    'POST',
-    `${url}:${port}/dm/leave/v2`,
-    {
-      json: {
-        dmId: dmId,
-      },
-      headers: {
-        token: token,
-      },
-    }
-  );
-
-  return JSON.parse(String(res.getBody()));
-}
-
-function requestChannelMessageV2(token: string, channelId: number, start: number) {
-  const res = request(
-    'GET',
-    `${url}:${port}/channel/messages/v2`,
-    {
-      qs: {
-        token: token,
-        channelId: channelId,
-        start: start,
-      }
-    }
-  );
-
-  return JSON.parse(String(res.getBody())).messages;
-}
-
 function requestMessageSendV1(token: string, channelId: number, message: string) {
   const res = request(
     'POST',
@@ -964,24 +782,6 @@ function requestDmCreateV2(token: string, uIds: Array<number>) {
   );
 
   return JSON.parse(String(res.getBody())).dmId;
-}
-
-function requestDmMessageV2(token: string, dmId: number, start: number) {
-  const res = request(
-    'GET',
-    `${url}:${port}/dm/messages/v2`,
-    {
-      qs: {
-        dmId: dmId,
-        start: start,
-      },
-      headers: {
-        token: token,
-      },
-    }
-  );
-
-  return JSON.parse(String(res.getBody())).messages;
 }
 
 function requestMessageSendDmV1(token: string, dmId: number, message: string) {

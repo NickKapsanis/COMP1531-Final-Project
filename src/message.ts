@@ -16,9 +16,6 @@ type dmOutput = {
 const FORBID = 403;
 const BAD_REQ = 400;
 
-
-
-
 /**
  * Helper function to check if messageId is valid and returns the channel
  * the message is in if valid
@@ -29,7 +26,7 @@ const BAD_REQ = 400;
  * Returns:
  *      channelGiven:   object     The message's corresponding channel
  */
- function isMessageValidChannel(messageId: number) {
+function isMessageValidChannel(messageId: number) {
   const data: dataStoreType = getData();
 
   let channelGiven: channel;
@@ -80,10 +77,6 @@ function isMessageValidDm(messageId: number) {
 
   return dmGiven;
 }
-
-
-
-
 
 /**
  * Given a valid inputs, sends message from user to specified channel and
@@ -435,10 +428,6 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
   return {};
 }
 
-
-
-
-
 /**
 * Given a valid messageId and reactId,adds a "react" to that particular message
 *
@@ -473,14 +462,10 @@ export function messageUnReactV1(token: string, messageId: number, reactId: numb
   return reactUnreactMessage('u', token, messageId, reactId);
 }
 
-
-
-
-//this is a helper function for the react (r) and unreact (u) functions 
-//since they are very similar, to simplify the code.
+// this is a helper function for the react (r) and unreact (u) functions
+// since they are very similar, to simplify the code.
 
 function reactUnreactMessage(mode: string, token: string, messageId: number, reactId: number) {
-
   const data: dataStoreType = getData();
 
   // Token validation
@@ -488,7 +473,7 @@ function reactUnreactMessage(mode: string, token: string, messageId: number, rea
     throw HTTPError(FORBID, 'Invalid token');
   }
 
-  //does reactId validation. only need to make sure it is 1 since no other possible case.
+  // does reactId validation. only need to make sure it is 1 since no other possible case.
   if (reactId !== 1) {
     throw HTTPError(BAD_REQ, 'Invalid reactId');
   }
@@ -506,13 +491,12 @@ function reactUnreactMessage(mode: string, token: string, messageId: number, rea
   let messageGiven: message;
   const firstDigit = String(messageId)[0];
 
-
-  //case if channel given
+  // case if channel given
   if (firstDigit === '1') {
     // Checking if messageId is valid
     channelGiven = isMessageValidChannel(messageId);
 
-    //not sure if parts of this code block are required...
+    // not sure if parts of this code block are required...
     // Checking if user is global owner, otherwise check if member/owner of the message's channel
     if (user.isGlobalOwner === 2) {
       if (channelsMemberOf.find(channel => channel.channelId === channelGiven.channelId) === undefined) {
@@ -521,9 +505,8 @@ function reactUnreactMessage(mode: string, token: string, messageId: number, rea
     }
 
     messageGiven = channelGiven.messages.find(message => message.messageId === messageId);
-
   } else if (firstDigit === '2') {
-    //case if dm given
+    // case if dm given
     // Checking if messageId is valid
     dmGiven = isMessageValidDm(messageId);
 
@@ -533,31 +516,30 @@ function reactUnreactMessage(mode: string, token: string, messageId: number, rea
     }
 
     messageGiven = dmGiven.messages.find(message => message.messageId === messageId);
-
   } else {
     throw HTTPError(BAD_REQ, 'invalid messageId!');
   }
 
-  //checks if message has already been reacted/unreacted with
+  // checks if message has already been reacted/unreacted with
   if (messageGiven.reacts.length !== 0) {
     if (mode === 'r') {
-      let thumbsUpReact = messageGiven.reacts.find(({reactId}) => reactId === 1);
+      const thumbsUpReact = messageGiven.reacts.find(({ reactId }) => reactId === 1);
       if (thumbsUpReact.uIds.find(uId => uId === userId) !== undefined) {
         throw HTTPError(BAD_REQ, 'Message already reacted');
       }
     }
   }
 
-  //finds index of message in channel or dm.
+  // finds index of message in channel or dm.
   let messageGivenIndex: number;
-  //case if channel given
+  // case if channel given
   if (firstDigit === '1') {
     const channelGivenIndex = data.channels.findIndex(channel => channel.channelId === channelGiven.channelId);
     messageGivenIndex = channelGiven.messages.findIndex(message => message.messageId === messageId);
-    
-    //case when nobody has reacted to message so far. creates first react object.
+
+    // case when nobody has reacted to message so far. creates first react object.
     if (mode === 'r' && messageGiven.reacts.length === 0) {
-      let uIds: number[] = [userId];
+      const uIds: number[] = [userId];
       const newReact = {
         reactId: reactId,
         uIds: uIds,
@@ -568,7 +550,6 @@ function reactUnreactMessage(mode: string, token: string, messageId: number, rea
       return {};
     }
 
-
     if (mode === 'u' && messageGiven.reacts.length === 0) {
       return {};
     } else if (mode === 'u' && messageGiven.reacts.length === 1) {
@@ -577,24 +558,24 @@ function reactUnreactMessage(mode: string, token: string, messageId: number, rea
         setData(data);
         return {};
       }
-      //don't need to account for >1 reacts.
-      /*data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].uIds.filter(uId => uId = userId);
+      // don't need to account for >1 reacts.
+      /* data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].uIds.filter(uId => uId = userId);
       data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted = false;
       setData(data);
-      return {};*/
+      return {}; */
     }
-    //removed since reimplemented above.
-    /*data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].reactId = reactId;
+    // removed since reimplemented above.
+    /* data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].reactId = reactId;
     data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].uIds.push(userId);
-    data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted = !data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted;*/
+    data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted = !data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted; */
   } else if (firstDigit === '2') {
-    //case if dm given
+    // case if dm given
     const dmGivenIndex = data.dms.findIndex(dm => dm.dmId === dmGiven.dmId);
     messageGivenIndex = dmGiven.messages.findIndex(message => message.messageId === messageId);
 
-    //case when nobody has reacted to message so far. creates first react object.
+    // case when nobody has reacted to message so far. creates first react object.
     if (mode === 'r' && messageGiven.reacts.length === 0) {
-      let uIds: number[] = [userId];
+      const uIds: number[] = [userId];
       const newReact = {
         reactId: reactId,
         uIds: uIds,
@@ -605,37 +586,24 @@ function reactUnreactMessage(mode: string, token: string, messageId: number, rea
       return {};
     }
 
-
     if (mode === 'u' && messageGiven.reacts.length === 0) {
       return {};
     } else if (mode === 'u' && messageGiven.reacts.length === 1) {
-
       if (data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].uIds.length === 1) {
         data.dms[dmGivenIndex].messages[messageGivenIndex].reacts = [];
         setData(data);
         return {};
       }
-      //don't need to account for >1 reacts. 
-      /*data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].uIds.filter(uId => uId = userId);
+      // don't need to account for >1 reacts.
+      /* data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].uIds.filter(uId => uId = userId);
       data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted = false;
       setData(data);
-      return {};*/
+      return {}; */
     }
 
-    //removed since reimplemented above.
-    /*data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].reactId = reactId;
+    // removed since reimplemented above.
+    /* data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].reactId = reactId;
     data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].uIds.push(userId);
-    data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted = !data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted;*/
+    data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted = !data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted; */
   }
 }
-
-
-
-
-
-
-
-
-
-
-

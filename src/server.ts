@@ -253,7 +253,6 @@ app.post('/message/react/v1', (req, res) => {
   res.json(messageReactV1(token, messageId, reactId));
 });
 
-
 // messageUnReactV1
 app.post('/message/unreact/v1', (req, res) => {
   const token = String(req.header('token'));
