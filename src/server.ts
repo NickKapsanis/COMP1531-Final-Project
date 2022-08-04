@@ -8,7 +8,7 @@ import { channelsCreateV3, channelsListV2, channelsListallV2 } from './channels'
 import { channelJoinV3, channelInviteV3, addChannelOwnerV2, removeChannelOwnerV2, channelsLeaveV1 } from './channel';
 import { authRegisterV3, authLoginV3, authLogoutV2 } from './auth';
 import cors from 'cors';
-import { usersAllV2, userProfileV2 } from './users';
+import { usersAllV2, userProfileV3 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
@@ -139,10 +139,10 @@ app.get('/users/all/v2', (req, res) => {
   res.send(JSON.stringify(usersAllV2(token)));
 });
 // userProfile
-app.get('/user/profile/v2', (req, res) => {
-  const token = String(req.query.token);
+app.get('/user/profile/v3', (req, res) => {
+  const token = String(req.header('token'));
   const uId = Number(req.query.uId);
-  res.json(userProfileV2(token, uId));
+  res.json(userProfileV3(token, uId));
 });
 app.post('/other/getUId/v1', (req, res) => {
   const data = req.body;

@@ -1,3 +1,7 @@
+import HTTPError from 'http-errors';
+
+const FORBIDDEN = 403;
+
 type user = {
   uId: number,
   email: string,
@@ -32,13 +36,13 @@ returns the user information of the corresponding uId
     }
 */
 
-function userProfileV2(token: string, uId: number) {
+function userProfileV3(token: string, uId: number) {
   const data = getData();
   const user1 = data.users.find(user => user.tokens.find(t => t === token));
   const user2 = data.users.find(i => i.uId === uId);
 
   // checking if either uId or token are invalid
-  if (user1 === undefined || user2 === undefined) { return { error: 'error' }; }
+  if (user1 === undefined || user2 === undefined) { throw HTTPError(403, "token passed in is invalid") }
 
   // constructing output
   const user2Info: user = {
