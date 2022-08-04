@@ -577,7 +577,7 @@ const createChannel = (tokens: string, names: string, publicity: boolean) => {
     'POST',
     url + '/channels/create/v3',
     {
-      body: JSON.stringify({name: names, isPublic: publicity }),
+      body: JSON.stringify({ name: names, isPublic: publicity }),
       headers: {
         token: tokens,
         'Content-type': 'application/json',

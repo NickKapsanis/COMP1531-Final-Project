@@ -565,9 +565,9 @@ function requestChannelsCreateV2(token: string, name: string, isPublic: boolean)
     'POST',
     `${url}:${port}/channels/create/v3`,
     {
-      body: JSON.stringify({name: names, isPublic: publicity }),
+      body: JSON.stringify({ name: name, isPublic: isPublic }),
       headers: {
-        token: tokens,
+        token: token,
         'Content-type': 'application/json',
       },
     }

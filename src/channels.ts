@@ -118,8 +118,8 @@ function channelsCreateV3(token: string, name: string, isPublic: boolean) {
   const creator = data.users.find(user => user.tokens.find(t => t === token));
 
   // Error cases
-  if (creator === undefined) { throw HHTPError(FORBIDDEN, "token passed in is invalid") }
-  if (name.length > 20 || name.length < 1) { throw HHTPError(BAD_REQUEST, "length of name is less than 1 or more than 20 characters") }
+  if (creator === undefined) { throw HTTPError(FORBIDDEN, 'token passed in is invalid'); }
+  if (name.length > 20 || name.length < 1) { throw HTTPError(BAD_REQUEST, 'length of name is less than 1 or more than 20 characters'); }
 
   const newChannelId = data.channels.length + 1;
 
