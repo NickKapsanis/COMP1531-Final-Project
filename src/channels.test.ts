@@ -237,7 +237,7 @@ describe('Testing channelsCreateV1()', () => {
     expect(channelIsFound).not.toStrictEqual(undefined);
 
     // Checking if channel is created through channelDetails function
-    const channelDetails : channelDetailsOutput = requestChannelDetailsV2(token, testChannelId);
+    const channelDetails : channelDetailsOutput = requestChannelDetailsV3(token, testChannelId);
     expect(channelDetails).not.toStrictEqual({ error: 'error' });
     expect(channelDetails.name).toStrictEqual('testChannelName');
     expect(channelDetails.isPublic).toStrictEqual(false);
@@ -278,15 +278,17 @@ function requestChannelsListallV2(token: string) {
 }
 
 // helper function - gets channelsDetails()
-function requestChannelDetailsV2(token: string, channelId: number) {
+function requestChannelDetailsV3(token: string, channelId: number) {
   const res = request(
     'GET',
-    `${hosturl}:${port}/channel/details/v2`,
+    `${hosturl}:${port}/channel/details/v3`,
     {
       qs: {
-        token: token,
         channelId: channelId,
-      }
+      },
+      headers: {
+        token: token,
+      },
     }
   );
 
@@ -297,7 +299,7 @@ function requestChannelDetailsV2(token: string, channelId: number) {
 // helper function - calls auth register through the server
 const createUser = (emails: string, passwords: string, name: string, surname: string) => {
   const res = request(
-    'POST', url + '/auth/register/v2',
+    'POST', url + '/auth/register/v3',
     {
       body: JSON.stringify({ email: emails, password: passwords, nameFirst: name, nameLast: surname }),
       headers: {

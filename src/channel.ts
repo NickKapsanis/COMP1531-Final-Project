@@ -3,6 +3,7 @@ import { userProfileV2 } from './users';
 import { channelsListV2 } from './channels';
 import { getUId } from './other';
 import { checkValidToken } from './auth';
+import HTTPError from 'http-errors';
 
 type userOutput = {
   uId: number;
@@ -23,6 +24,9 @@ type messagesOutput = {
   end: number;
 }
 
+const FORBID = 403;
+const BAD_REQ = 400;
+
 /**
  * Returns the basic details about the channel (such as its name, public status,
  * owners and members) given a channelId and authUserId.
@@ -39,21 +43,21 @@ type messagesOutput = {
  *        allMembers
  *      }
  */
-function channelDetailsV2(token: string, channelId: number) {
+function channelDetailsV3(token: string, channelId: number) {
   const data: dataStoreType = getData();
 
   // Token validation
   if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Invalid token');
   }
 
   const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
 
   // Checking if valid channelIds were given
   if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid channelId');
   } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Not a member of channel');
   }
 
   // Finding the given channel
@@ -102,21 +106,21 @@ function channelDetailsV2(token: string, channelId: number) {
  *                                      where messages is an array of objects,
  *                                      start and end are integers.
  */
-function channelMessagesV2(token: string, channelId: number, start: number) {
+function channelMessagesV3(token: string, channelId: number, start: number) {
   const data: dataStoreType = getData();
 
   // Token validation
   if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Invalid token');
   }
 
   const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
 
   // Checking validity of 'channelId' input
   if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid channelId');
   } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Not a member of channel');
   }
 
   const channelGiven: channel = data.channels.find(channel => channel.channelId === channelId);
@@ -124,7 +128,7 @@ function channelMessagesV2(token: string, channelId: number, start: number) {
   // Checking validity of 'start' input
   let end: number;
   if (start > channelGiven.messages.length) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid start');
   } else if (start + 50 > channelGiven.messages.length) {
     end = -1;
   } else {
@@ -176,6 +180,10 @@ function channelJoinV2(token: string, channelId: number) {
     return { error: 'error' };
   }
 
+  if (authUserId === undefined) {
+    return { error: 'error' };
+  }
+
   if (userIndex === undefined) {
     return { error: 'error' };
   }
@@ -216,7 +224,6 @@ function channelJoinV2(token: string, channelId: number) {
 function channelInviteV2(token: string, channelId: number, uId: number) {
   const data: dataStoreType = getData();
   const channel: channel = getChannel(channelId, data.channels);
-
   const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
   const userInviting: user = data.users[data.users.findIndex(user => user.authUserId === authUserId)];
   let userJoining: user;
@@ -228,6 +235,10 @@ function channelInviteV2(token: string, channelId: number, uId: number) {
 
   // error when we can't find a valid user or channel ID
   if (userJoining === undefined) {
+    return { error: 'error' };
+  }
+
+  if (userInviting === undefined) {
     return { error: 'error' };
   }
 
@@ -354,6 +365,11 @@ function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
     return { error: 'error' };
   }
 
+  // error when the user removing owner is not a member of the channel
+  if (!userRemovingOwner.channels.includes(channelId)) {
+    return { error: 'error' };
+  }
+
   // error when the user removing the channel owner is not a global owner and channel owner
   if (!(userRemovingOwner.isGlobalOwner === 1) && !channel.ownerMembers.includes(userRemovingOwner.uId)) {
     return { error: 'error' };
@@ -419,4 +435,4 @@ function channelsLeaveV1(token: string, channelId: number) {
   return { error: 'error' };
 }
 
-export { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, getChannel, channelDetailsV2, channelMessagesV2, channelsLeaveV1 };
+export { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, getChannel, channelDetailsV3, channelMessagesV3, channelsLeaveV1 };
