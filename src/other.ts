@@ -1,4 +1,6 @@
-import { getData, setData, dataStoreType, message, user } from './dataStore';
+import { getData, setData, dataStoreType, message, dm, channel, user } from './dataStore';
+import { getChannel } from './channel';
+import HTTPError from 'http-errors';
 
 type errorMessage = {
   error: 'error'
@@ -80,6 +82,52 @@ export function checkValidUid(uId: number) {
 * Messages[] - An array of objects with type messages
 */
 
+function searchV1(token: string, queryStr: string) {
+  const data: dataStoreType = getData();
+  const outputArray: message[] = [];
+  const user: user = data.users.find(user => user.tokens.find(tok => tok === token));
+  
+  if (user === undefined) {
+    throw HTTPError(403, 'token is invalid');
+  }
+  if (queryStr.length >= 1000 || queryStr.length <= 0) {
+    throw HTTPError(400, 'invalid queryStr length');
+  }
 
+  let channels: channel[] = [];
+  let DMs: dm[] = []
+  for (let channelId of user.channels) {
+    channels.push(getChannel(channelId, data.channels))
+  }
+  for (let DMid of user.dms) {
+    DMs.push(getDMs(DMid, data.dms));
+  }
 
-export { clearV1, getUId };
+  for (let channel of channels) {
+    for (let message of channel.messages) {
+      if (message.message.toLowerCase().includes(queryStr.toLowerCase())) {
+        outputArray.push(message);
+      }
+    }
+  }
+  for (let dm of DMs) {
+    for (let message of dm.messages) {
+      if (message.message.toLowerCase().includes(queryStr.toLowerCase())) {
+        outputArray.push(message);
+      }
+    }
+  }
+  return outputArray;
+}
+
+function getDMs(DMid: number, DMsArray: dm[]) {
+  let dm: dm;
+  for (let i = 0; i < DMsArray.length; i++) {
+    if (DMid === DMsArray[i].dmId) {
+      dm = DMsArray[i];
+    }
+  }
+  return dm;
+}
+
+export { clearV1, getUId, searchV1 };
