@@ -246,20 +246,6 @@ describe('Testing Notifications/get', () => {
 
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Helper Functions 
 
 /* Function to get Notifications from server

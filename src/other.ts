@@ -1,4 +1,7 @@
 import { getData, setData, dataStoreType } from './dataStore';
+import HTTPError from 'http-errors';
+
+const FORBIDDEN = 403;
 
 type errorMessage = {
   error: 'error'
@@ -79,6 +82,19 @@ Return type:
 */
 
 // A user should not be notified of any reactions to their messages if they are no longer in the channel/DM that the message was sent in.
+// MessageSend, MessageSendDm, ChannelInvite, DmCreate (DmAdd?), message Forward, message Edit, MessageReact
+
+function getNotifications(token: string) {
+
+  const data = getData();
+  const user = data.users.find(user => user.tokens.find(t => t === token));
+
+  if (user === undefined) {throw HTTPError(FORBIDDEN, "token passed in is invalid") }
+
+  return { notifications : user.notifications}
+
+}
 
 
-export { clearV1, getUId };
+
+export { clearV1, getUId, getNotifications };
