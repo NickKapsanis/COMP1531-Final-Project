@@ -92,7 +92,7 @@ describe('standupStart', () => {
     expect(standupStart('gobbledook', sampleChannel.channelId, 2)).toEqual(403);
   });
   test('bad channel Id', () => {
-    expect(standupStart(John.token, -100, 10)).toEqual(400);
+    expect(standupStart(John.token, -100, 2)).toEqual(400);
   });
   test('length is a negative number', () => {
     expect(standupStart(John.token, sampleChannel.channelId, -10)).toEqual(400);
@@ -127,7 +127,7 @@ describe('standupActive', () => {
     expect(standupActive(Steve.token, sampleChannel.channelId)).toEqual(403);
   });
   test('successful return', () => {
-    const finishTime: { finishTime: number } = standupStart(John.token, sampleChannel.channelId, 10);
+    const finishTime: { finishTime: number } = standupStart(John.token, sampleChannel.channelId, 2);
     expect(standupActive(John.token, sampleChannel.channelId)).toEqual({ isActive: true, timeFinish: finishTime.finishTime });
   });
   test('token is invalid', () => {
@@ -186,11 +186,11 @@ describe('standupSend', () => {
     expect(standupSend('gobbledook', sampleChannel.channelId, 'message')).toEqual(403);
   });
   test('successful run through', async () => {
-    await new Promise((r) => setTimeout(r, 2400));
+    await new Promise((r) => setTimeout(r, 2200));
     standupStart(John.token, sampleChannel.channelId, 2);
     standupSend(John.token, sampleChannel.channelId, 'add this message to the queue');
     standupSend(John.token, sampleChannel.channelId, 'add message number 2 to the queue');
-    await new Promise((r) => setTimeout(r, 2400));
+    await new Promise((r) => setTimeout(r, 2200));
     const data = getData();
     expect(data.channels[0].messages.length).toEqual(1);
   });

@@ -162,6 +162,7 @@ function finishStandup(channelId: number, user: user) {
   const index: number = data.channels.indexOf(channel);
   data.channels[index].messages.unshift(newMessage);
   data.channels[index].standupActiveTime.isActive = false;
+  data.channels[index].standupMessageBank = [];
   delete data.channels[index].standupActiveTime.timeFinish;
   console.log(data.channels[index].messages[0]);
   setData(data);

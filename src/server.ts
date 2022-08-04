@@ -5,7 +5,7 @@ import config from './config.json';
 import { dmDetailsV2, dmLeaveV2, dmMessagesV2 } from './dm';
 import { dmCreateV2, dmListV2, dmRemoveV2 } from './dm';
 import { channelsCreateV1, channelsListV2, channelsListallV2 } from './channels';
-import { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, channelsLeaveV1 } from './channel';
+import { channelJoinV3, channelInviteV3, addChannelOwnerV2, removeChannelOwnerV2, channelsLeaveV1 } from './channel';
 import { authRegisterV3, authLoginV3, authLogoutV2 } from './auth';
 import cors from 'cors';
 import { usersAllV1, userProfileV2 } from './users';
@@ -53,7 +53,6 @@ app.get('/dm/messages/v2', (req, res) => {
   const start = parseInt(req.query.start as string);
   res.json(dmMessagesV2(token, dmId, start));
 });
-
 // dmCreate V2
 app.post('/dm/create/v2', (req, res) => {
   const token = req.header('token');
@@ -71,25 +70,23 @@ app.delete('/dm/remove/v2', (req, res) => {
   const dmId = Number(req.query.dmId);
   res.json(dmRemoveV2(token, dmId));
 });
+// channelsCreate
 app.post('/channels/create/v2', (req, res) => {
   const token = String(req.body.token);
   const name = String(req.body.name);
   const isPublic = Boolean(req.body.isPublic);
   res.json(channelsCreateV1(token, name, isPublic));
 });
-
 // authRegisterv3
 app.post('/auth/register/v3', (req, res) => {
   const data = req.body;
   res.json(authRegisterV3(data.email, data.password, data.nameFirst, data.nameLast));
 });
-
 // authLoginv3
 app.post('/auth/login/v3', (req, res) => {
   const data = req.body;
   res.json(authLoginV3(data.email, data.password));
 });
-
 // authLogoutV2
 app.post('/auth/logout/v2', (req, res) => {
   const token = req.header('token');
@@ -110,24 +107,28 @@ app.get('/channels/listall/v2', (req, res) => {
   res.json(channelsListallV2(data));
 });
 // channelJoin
-app.post('/channel/join/v2', (req, res) => {
-  const data = req.body;
-  res.json(channelJoinV2(data.token, data.channelId));
+app.post('/channel/join/v3', (req, res) => {
+  const { channelId } = req.body;
+  const token = String(req.header('token'));
+  res.json(channelJoinV3(token, channelId));
 });
 // channelInvite
-app.post('/channel/invite/v2', (req, res) => {
-  const data = req.body;
-  res.json(channelInviteV2(data.token, data.channelId, data.uId));
+app.post('/channel/invite/v3', (req, res) => {
+  const { channelId, uId } = req.body;
+  const token = String(req.header('token'));
+  res.json(channelInviteV3(token, channelId, uId));
 });
 // addChannelOwner
-app.post('/channel/addowner/v1', (req, res) => {
-  const data = req.body;
-  res.json(addChannelOwnerV1(data.token, data.channelId, data.uId));
+app.post('/channel/addowner/v2', (req, res) => {
+  const { channelId, uId } = req.body;
+  const token = String(req.header('token'));
+  res.json(addChannelOwnerV2(token, channelId, uId));
 });
 // removeChannelOwner
-app.post('/channel/removeowner/v1', (req, res) => {
-  const data = req.body;
-  res.json(removeChannelOwnerV1(data.token, data.channelId, data.uId));
+app.post('/channel/removeowner/v2', (req, res) => {
+  const { channelId, uId } = req.body;
+  const token = String(req.header('token'));
+  res.json(removeChannelOwnerV2(token, channelId, uId));
 });
 // clearV1
 app.delete('/clear/v1', (req, res) => {
@@ -233,16 +234,19 @@ app.put('/message/edit/v1', (req, res) => {
   const { token, messageId, message } = req.body;
   res.json(messageEditV1(token, messageId, message));
 });
+// standupStartV1
 app.post('/standup/start/v1', (req, res) => {
   const { channelId, length } = req.body;
   const token = String(req.header('token'));
   res.json(standupStartV1(token, channelId, length));
 });
+// standupActiveV1
 app.get('/standup/active/v1', (req, res) => {
   const channelId = Number(req.query.channelId);
   const token = String(req.header('token'));
   res.json(standupActiveV1(token, channelId));
 });
+// standupSendV1
 app.post('/standup/send/v1', (req, res) => {
   const { channelId, message } = req.body;
   const token = String(req.header('token'));
