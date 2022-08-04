@@ -8,7 +8,7 @@ import { channelsCreateV1, channelsListV2, channelsListallV2 } from './channels'
 import { channelJoinV3, channelInviteV3, addChannelOwnerV2, removeChannelOwnerV2, channelsLeaveV1 } from './channel';
 import { authRegisterV3, authLoginV3, authLogoutV2 } from './auth';
 import cors from 'cors';
-import { usersAllV1, userProfileV2 } from './users';
+import { usersAllV2, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
@@ -135,13 +135,9 @@ app.delete('/clear/v1', (req, res) => {
   res.json(clearV1());
 });
 // usersAll
-app.get('/users/all/v1', (req, res) => {
-  const token = req.query.token;
-  if (typeof token !== 'string') {
-    res.status(500).json({ error: 'Invalid dataset' });
-    return;
-  }
-  res.send(JSON.stringify(usersAllV1(token)));
+app.get('/users/all/v2', (req, res) => {
+  const token = String(req.header('token'));
+  res.send(JSON.stringify(usersAllV2(token)));
 });
 // userProfile
 app.get('/user/profile/v2', (req, res) => {

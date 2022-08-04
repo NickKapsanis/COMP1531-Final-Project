@@ -209,7 +209,7 @@ Given a session token, output all public user details in the system
     handleStr
 */
 
-function usersAllV1(token: string) {
+function usersAllV2(token: string) {
   if (!checkValidToken(token)) return { error: 'error' };
   const outputArray: { uId: number, email: string, nameFirst: string, nameLast: string, handleStr: string}[] = [];
   const data = getData();
@@ -227,4 +227,4 @@ function usersAllV1(token: string) {
   return outputArray;
 }
 
-export { userProfileV2, userSetnameV1, userSetemailV1, userSethandlelV1, usersAllV1, user };
+export { userProfileV2, userSetnameV1, userSetemailV1, userSethandlelV1, usersAllV2, user };
