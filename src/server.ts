@@ -4,7 +4,7 @@ import morgan from 'morgan';
 import config from './config.json';
 import { dmDetailsV2, dmLeaveV2, dmMessagesV2 } from './dm';
 import { dmCreateV2, dmListV2, dmRemoveV2 } from './dm';
-import { channelsCreateV1, channelsListV2, channelsListallV2 } from './channels';
+import { channelsCreateV3, channelsListV2, channelsListallV2 } from './channels';
 import { channelJoinV3, channelInviteV3, addChannelOwnerV2, removeChannelOwnerV2, channelsLeaveV1 } from './channel';
 import { authRegisterV3, authLoginV3, authLogoutV2 } from './auth';
 import cors from 'cors';
@@ -12,7 +12,6 @@ import { usersAllV2, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
-import { standupStartV1, standupActiveV1, standupSendV1 } from './standup';
 import { channelDetailsV3, channelMessagesV3 } from './channel';
 import errorHandler from 'middleware-http-errors';
 
@@ -75,7 +74,7 @@ app.post('/channels/create/v3', (req, res) => {
   const token = String(req.header('token'));
   const name = String(req.body.name);
   const isPublic = Boolean(req.body.isPublic);
-  res.json(channelsCreateV1(token, name, isPublic));
+  res.json(channelsCreateV3(token, name, isPublic));
 });
 // authRegisterv3
 app.post('/auth/register/v3', (req, res) => {
@@ -159,12 +158,6 @@ app.get('/channels/listall/v2', (req, res) => {
   const data = req.query.token as string;
   res.json(channelsListallV2(data));
 });
-app.post('/channels/create/v2', (req, res) => {
-  const token = String(req.body.token);
-  const name = String(req.body.name);
-  const isPublic = Boolean(req.body.isPublic);
-  res.json(channelsCreateV1(token, name, isPublic));
-});
 // userSetnameV1
 app.put('/user/profile/setname/v1', (req, res) => {
   const { token, nameFirst, nameLast } = req.body;
@@ -229,24 +222,6 @@ app.delete('/message/remove/v1', (req, res) => {
 app.put('/message/edit/v1', (req, res) => {
   const { token, messageId, message } = req.body;
   res.json(messageEditV1(token, messageId, message));
-});
-// standupStartV1
-app.post('/standup/start/v1', (req, res) => {
-  const { channelId, length } = req.body;
-  const token = String(req.header('token'));
-  res.json(standupStartV1(token, channelId, length));
-});
-// standupActiveV1
-app.get('/standup/active/v1', (req, res) => {
-  const channelId = Number(req.query.channelId);
-  const token = String(req.header('token'));
-  res.json(standupActiveV1(token, channelId));
-});
-// standupSendV1
-app.post('/standup/send/v1', (req, res) => {
-  const { channelId, message } = req.body;
-  const token = String(req.header('token'));
-  res.json(standupSendV1(token, channelId, message));
 });
 
 // handles errors nicely

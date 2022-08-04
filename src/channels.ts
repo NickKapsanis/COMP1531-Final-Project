@@ -145,4 +145,4 @@ function channelsCreateV3(token: string, name: string, isPublic: boolean) {
   return { channelId: newChannelId };
 }
 
-export { channelsCreateV1, channelsListV2, channelsListallV2 };
+export { channelsCreateV3, channelsListV2, channelsListallV2 };
