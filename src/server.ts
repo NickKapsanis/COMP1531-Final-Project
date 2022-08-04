@@ -12,12 +12,8 @@ import { usersAllV1, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
-<<<<<<< HEAD
-import { channelDetailsV2, channelMessagesV2 } from './channel';
 import { standupStartV1, standupActiveV1, standupSendV1 } from './standup';
-=======
 import { channelDetailsV3, channelMessagesV3 } from './channel';
->>>>>>> 8825376943200385c27de0e7a4e092c65c2d70a2
 import errorHandler from 'middleware-http-errors';
 
 // Set up web app, use JSON
@@ -57,16 +53,10 @@ app.get('/dm/messages/v2', (req, res) => {
   const start = parseInt(req.query.start as string);
   res.json(dmMessagesV2(token, dmId, start));
 });
-<<<<<<< HEAD
-// dmCreate
-app.post('/dm/create/v1', (req, res) => {
-  const token = req.body.token;
-=======
 
 // dmCreate V2
 app.post('/dm/create/v2', (req, res) => {
   const token = req.header('token');
->>>>>>> 8825376943200385c27de0e7a4e092c65c2d70a2
   const uIds = req.body.uIds;
   res.json(dmCreateV2(token, uIds));
 });
@@ -93,29 +83,17 @@ app.post('/auth/register/v3', (req, res) => {
   const data = req.body;
   res.json(authRegisterV3(data.email, data.password, data.nameFirst, data.nameLast));
 });
-<<<<<<< HEAD
-// authLogin
-app.post('/auth/login/v2', (req, res) => {
-=======
 
 // authLoginv3
 app.post('/auth/login/v3', (req, res) => {
->>>>>>> 8825376943200385c27de0e7a4e092c65c2d70a2
   const data = req.body;
   res.json(authLoginV3(data.email, data.password));
 });
-<<<<<<< HEAD
-// authLogout
-app.post('/auth/logout/v1', (req, res) => {
-  const data = req.body;
-  res.json(authLogoutV1(data.token));
-=======
 
 // authLogoutV2
 app.post('/auth/logout/v2', (req, res) => {
   const token = req.header('token');
   res.json(authLogoutV2(token));
->>>>>>> 8825376943200385c27de0e7a4e092c65c2d70a2
 });
 // clearV1()
 app.delete('/clear/v1', (req, res) => {
@@ -227,12 +205,7 @@ app.get('/channel/messages/v3', (req, res) => {
   const token = String(req.header('token'));
   const channelId = Number(req.query.channelId);
   const start = Number(req.query.start);
-<<<<<<< HEAD
-  res.json(channelMessagesV2(token, channelId, start));
-=======
-
   res.json(channelMessagesV3(token, channelId, start));
->>>>>>> 8825376943200385c27de0e7a4e092c65c2d70a2
 });
 // channelsLeaveV1
 app.post('/channel/leave/v1', (req, res) => {
