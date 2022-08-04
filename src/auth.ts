@@ -121,6 +121,9 @@ export function authRegisterV1(email: string, password: string, nameFirst: strin
     channels: [],
     dms: [],
     isGlobalOwner: isGlobalOwner,
+    // NOTIFICATION >>>>>>>>
+    notifications: [],
+    // NOTIFICATION >>>>>>>>
   };
   // put the new user into data and set the data.
   data.users.push(newUser);
