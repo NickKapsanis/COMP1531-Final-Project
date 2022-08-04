@@ -206,7 +206,6 @@ describe('standupSend', () => {
     jest.runAllTimers();
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 750);
     const data = getData();
-    console.log(data.channels);
     expect(data.channels[0].messages.length).toEqual(1);
   });
 });

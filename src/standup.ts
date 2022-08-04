@@ -139,11 +139,6 @@ function finishStandup(channelId: number, user: user) {
   const channel: channel = getChannel(channelId, data.channels);
   let finalOutput = '';
 
-  if (channel === undefined) {
-    console.log('WAS UNDEFINED');
-    return;
-  }
-
   // send all messages in the standup bank as one big message from the user who began the standup
   if (channel.standupMessageBank.length !== 0) {
     for (let i = 0; i < channel.standupMessageBank.length - 1; i++) {
@@ -169,7 +164,6 @@ function finishStandup(channelId: number, user: user) {
   data.channels[index].standupActiveTime.isActive = false;
   data.channels[index].standupMessageBank = [];
   delete data.channels[index].standupActiveTime.timeFinish;
-  console.log('GOT HERE!');
   setData(data);
   return {};
 }

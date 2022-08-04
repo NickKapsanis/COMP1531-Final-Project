@@ -80,4 +80,15 @@ export function checkValidUid(uId: number) {
 * Messages[] - An array of objects with type messages
 */
 
+function searchV1(token: string, queryStr: string) {
+  const data: dataStoreType = getData();
+  const outputArray: message[] = [];
+  const user: user = data.users.find(user => user.tokens.find(tok => tok === token));
+
+  // let channelIdsuser.channels
+
+  return outputArray;
+}
+
+
 export { clearV1, getUId };
