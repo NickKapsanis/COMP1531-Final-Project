@@ -1,8 +1,7 @@
 // note @ tags shouldn't be parsed as notifications --> TALK TO WHOEVER IS DOING NOTIFICATIONS
 
-import { getData, setData, dataStoreType, userType, channel, message, user } from './dataStore';
+import { getData, setData, dataStoreType, channel, message, user } from './dataStore';
 import { getChannel } from './channel';
-import { getUId } from './other';
 import HTTPError from 'http-errors';
 
 /**
@@ -46,9 +45,8 @@ function standupStartV1(token: string, channelId: number, length: number) {
   const index: number = data.channels.indexOf(channel);
   data.channels[index].standupActiveTime.isActive = true;
   data.channels[index].standupActiveTime.timeFinish = finishTime;
-  console.log(channel.channelId + "UP HERE");
-  setTimeout(function() { finishStandup(channel.channelId, user); }, length * 1000);
   setData(data);
+  setTimeout(function() { finishStandup(channel.channelId, user); }, length * 1000);
   return { finishTime: finishTime };
 }
 
@@ -86,6 +84,7 @@ function standupActiveV1(token: string, channelId: number) {
     return { isActive: channel.standupActiveTime.isActive, timeFinish: channel.standupActiveTime.timeFinish };
   } else {
     // we know time finish should be null if standup is not Active --> can ignore the tsc flag
+    // eslint-disable-next-line
     // @ts-ignore
     return { isActive: false, timeFinish: null };
   }
@@ -130,6 +129,7 @@ function standupSendV1(token: string, channelId: number, message: string) {
   const index: number = data.channels.indexOf(channel);
   const outputStr: string = (user.handleStr + ': ' + message);
   data.channels[index].standupMessageBank.push(outputStr);
+  setData(data);
   return {};
 }
 
@@ -138,22 +138,17 @@ function finishStandup(channelId: number, user: user) {
   const data = getData();
   const channel: channel = getChannel(channelId, data.channels);
   let finalOutput = '';
-
-  /* dealing with testing failure. In the event standup is called in tests, database is cleared before the standup can be
-  finalised. Thus, standupSend with fail with channels and users having no data (therefore undefined). In a real use case,
-  clearing all data is highly unlikely to occur before a standup expires. To deal with this edge case, I manually abort the
-  function should the database be cleared.
-  */
-  if (channel === undefined) {
+  // send all messages in the standup bank as one big message from the user who began the standup
+  if (channel.standupMessageBank.length !== 0) {
+    for (let i = 0; i < channel.standupMessageBank.length - 1; i++) {
+      finalOutput += (channel.standupMessageBank[i] + '\n');
+    }
+    // last message shouldn't print a newline afterwards
+    finalOutput += channel.standupMessageBank[(channel.standupMessageBank.length) - 1];
+    console.log(finalOutput);
+  } else {
     return;
   }
-
-  // send all messages in the standup bank as one big message from the user who began the standup
-  for (let i = 0; i <= channel.standupMessageBank.length - 1; i++) {
-    finalOutput += (channel.standupMessageBank[i] + '/n');
-  }
-  // last message shouldn't print a newline afterwards
-  finalOutput += channel.standupMessageBank[(channel.standupMessageBank.length) - 1];
 
   const newId = Number('1' + String(Date.now()) + String(Math.floor(Math.random() * 100)));
   const UId = Number(user.uId);
@@ -165,10 +160,10 @@ function finishStandup(channelId: number, user: user) {
   };
 
   const index: number = data.channels.indexOf(channel);
-  console.log(index);
   data.channels[index].messages.unshift(newMessage);
   data.channels[index].standupActiveTime.isActive = false;
   delete data.channels[index].standupActiveTime.timeFinish;
+  console.log(data.channels[index].messages[0]);
   setData(data);
   return {};
 }
