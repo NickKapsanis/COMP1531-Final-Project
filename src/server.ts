@@ -11,7 +11,7 @@ import cors from 'cors';
 import { usersAllV1, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
-import { messageSendV2, messageSendDmV2, messageRemoveV2, messageEditV2, messageShareV1, messageSendLaterV1, messageSendLaterDmV1, messagePinV1, messageUnPinV1 } from './message';
+import { messageSendV2, messageSendDmV2, messageRemoveV2, messageEditV2, messageShareV1, messageSendLaterV1, messageSendLaterDmV1, messagePinV1, messageUnPinV1, messageReactV1, messageUnReactV1 } from './message';
 import { channelDetailsV2, channelMessagesV2 } from './channel';
 import errorHandler from 'middleware-http-errors';
 
@@ -281,6 +281,20 @@ app.post('/message/unpin/v1', (req, res) => {
   const token = String(req.header('token'));
   const { messageId } = req.body;
   res.json(messageUnPinV1(token, messageId));
+});
+
+// messageReactV1
+app.post('/message/react/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const { messageId, reactId } = req.body;
+  res.json(messageReactV1(token, messageId, reactId));
+});
+
+// messageUnReactV1
+app.post('/message/unreact/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const { messageId, reactId } = req.body;
+  res.json(messageUnReactV1(token, messageId, reactId));
 });
 
 // handles errors nicely
