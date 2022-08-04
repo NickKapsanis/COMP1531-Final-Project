@@ -12,7 +12,6 @@ import { usersAllV2, userProfileV2 } from './users';
 import { clearV1, getUId } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
-import { standupStartV1, standupActiveV1, standupSendV1 } from './standup';
 import { channelDetailsV3, channelMessagesV3 } from './channel';
 import errorHandler from 'middleware-http-errors';
 
@@ -229,24 +228,6 @@ app.delete('/message/remove/v1', (req, res) => {
 app.put('/message/edit/v1', (req, res) => {
   const { token, messageId, message } = req.body;
   res.json(messageEditV1(token, messageId, message));
-});
-// standupStartV1
-app.post('/standup/start/v1', (req, res) => {
-  const { channelId, length } = req.body;
-  const token = String(req.header('token'));
-  res.json(standupStartV1(token, channelId, length));
-});
-// standupActiveV1
-app.get('/standup/active/v1', (req, res) => {
-  const channelId = Number(req.query.channelId);
-  const token = String(req.header('token'));
-  res.json(standupActiveV1(token, channelId));
-});
-// standupSendV1
-app.post('/standup/send/v1', (req, res) => {
-  const { channelId, message } = req.body;
-  const token = String(req.header('token'));
-  res.json(standupSendV1(token, channelId, message));
 });
 
 // handles errors nicely
