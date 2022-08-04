@@ -322,3 +322,22 @@ const createChannel = (tokens: string, names: string, publicity: boolean) => {
   );
   return JSON.parse(String(res.getBody()));
 };
+
+
+// helper function - calls channelInvite through the server
+const channelInvite = (tokens: string, channelIds: number, uIds: number) => {
+  const res = request(
+    'POST', url + '/channel/invite/v3',
+    {
+      body: JSON.stringify({ channelId: channelIds, uId: uIds }),
+      headers: {
+        token: tokens,
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  if (res.statusCode !== 200) {
+    return res.statusCode;
+  }
+  return JSON.parse(String(res.getBody()));
+};

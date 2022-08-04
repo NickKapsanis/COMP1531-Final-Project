@@ -78,4 +78,7 @@ Return type:
 
 */
 
+// A user should not be notified of any reactions to their messages if they are no longer in the channel/DM that the message was sent in.
+
+
 export { clearV1, getUId };

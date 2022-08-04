@@ -60,3 +60,128 @@ describe('Testing clearV1()', () => {
     expect(body1).toStrictEqual({ error: 'error' });
   });
 });
+
+/*
+/////////////////////////////////////////////
+///     Tests for Notifications/get     /////
+/////////////////////////////////////////////
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Helper Functions 
+
+/* Function to get Notifications from server
+ PARAMETERS - 
+  token : string 
+
+  RETURN - 
+  Error code:        Number (Incase of error)
+  {notifications}:   An object containing an array of 
+                     20 of the user's latest notifications
+
+*/
+function requestGetNotifications(token: string) {
+  const res = request(
+    'GET',
+    url + '/notifications/get/v1',
+    {
+      headers: {
+        token: token,
+      }
+    }
+  )
+
+  if (res.statusCode !== OK) {
+    return (res.statusCode);
+  }
+
+  return (JSON.parse(String(res.getBody())));
+}
+
+function requestMessageReact(token: string, messageId: number, reactId: number) {
+  const res = request(
+    'POST',
+    url + '/message/react/v1',
+    {
+      body : JSON.stringify({
+        messageId: messageId,
+        reactId: reactId,
+      }),
+      headers: {
+        token: token,
+      }
+    }
+  )
+
+  if (res.statusCode !== OK) {
+    return (res.statusCode);
+  }
+
+  return (JSON.parse(String(res.getBody())));
+}
+
+function requestCreateUser(token: string, messageId: number, reactId: number) {
+  const res = request(
+    'POST',
+    url + '/message/react/v1',
+    {
+      body : JSON.stringify({
+        messageId: messageId,
+        reactId: reactId,
+      }),
+      headers: {
+        token: token,
+      }
+    }
+  )
+
+  if (res.statusCode !== OK) {
+    return (res.statusCode);
+  }
+
+  return (JSON.parse(String(res.getBody())));
+}
+
+const createUser = (emails: string, passwords: string, name: string, surname: string) => {
+  const res = request(
+    'POST', url + '/auth/register/v3',
+    {
+      body: JSON.stringify({ email: emails, password: passwords, nameFirst: name, nameLast: surname }),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  return JSON.parse(String(res.getBody()));
+};
+
+const createChannel = (tokens: string, names: string, publicity: boolean) => {
+  const res = request(
+    'POST',
+    url + '/channels/create/v2',
+    {
+      body: JSON.stringify({name: names, isPublic: publicity}),
+      headers: {
+        token: tokens,
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  return JSON.parse(String(res.getBody()));
+};
+
