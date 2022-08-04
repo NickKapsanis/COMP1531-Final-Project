@@ -4,7 +4,6 @@ import { channelsListV2 } from './channels';
 import { getUId } from './other';
 import { checkValidToken } from './auth';
 import HTTPError from 'http-errors';
-import { userInfo } from 'os';
 
 type userOutput = {
   uId: number;
@@ -191,7 +190,7 @@ function channelJoinV3(token: string, channelId: number) {
     }
   }
 
-  let userIndex: number = data.users.indexOf(user);
+  const userIndex: number = data.users.indexOf(user);
   // update dataStore.js
   data.users[userIndex].channels.push(channelId);
   data.channels[data.channels.indexOf(channel)].allMembers.push(user.uId);
@@ -268,7 +267,6 @@ function addChannelOwnerV2(token: string, channelId: number, uId: number) {
   const userBecomingOwnerIndex: number = data.users.findIndex(user => user.uId === uId);
   const userBecomingOwner: user = data.users[userBecomingOwnerIndex];
 
-
   // error conditions
   if (channel === undefined) {
     throw HTTPError(400, 'bad channel ID');
@@ -309,7 +307,7 @@ function addChannelOwnerV2(token: string, channelId: number, uId: number) {
 */
 function removeChannelOwnerV2(token: string, channelId: number, uId: number) {
   const data: dataStoreType = getData();
-  const userRemovingOwner: user = data.users.find(user => user.tokens.find(tok => tok === token));;
+  const userRemovingOwner: user = data.users.find(user => user.tokens.find(tok => tok === token));
   const channel: channel = getChannel(channelId, data.channels);
   const userBeingRemovedIndex: number = data.users.findIndex(user => user.uId === uId);
   const userBeingRemoved: user = data.users[userBeingRemovedIndex];

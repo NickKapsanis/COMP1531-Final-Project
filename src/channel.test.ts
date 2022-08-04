@@ -245,7 +245,7 @@ describe('Testing channelInviteV3', () => {
     expect(channelInvite(tom.token, general.channelId, -100)).toEqual(400);
   });
   test('bad token', () => {
-    expect(channelInvite("arghh", general.channelId, -100)).toEqual(403);
+    expect(channelInvite('arghh', general.channelId, -100)).toEqual(403);
   });
   test('trying to invite existing channel member', () => {
     channelJoin(alex.token, ralphChannel.channelId);
@@ -293,7 +293,7 @@ describe('Testing addChannelOwnerV2', () => {
   });
   test('user is already a channel owner', () => {
     channelJoin(lily.token, richardChannel.channelId);
-    addOwner(richard.token, richardChannel.channelId, lilyuId)
+    addOwner(richard.token, richardChannel.channelId, lilyuId);
     expect(addOwner(richard.token, richardChannel.channelId, lilyuId)).toEqual(400);
   });
   test('the user adding the new owner is not a global owner or channel owner, but is in the channel', () => {
@@ -327,7 +327,7 @@ describe('Testing removeChannelOwnerV2', () => {
     marge = createUser('marge@gmail.com', 'testPassword123', 'marge', 'King');
     bartuId = getUID(bart.authUserId);
     margeuId = getUID(marge.authUserId);
-    homeruId = getUID(homer.authUserId)
+    homeruId = getUID(homer.authUserId);
 
     bartChannel = createChannel(bart.token, 'testChannel2', true);
     channelJoin(marge.token, bartChannel.channelId);
@@ -348,7 +348,7 @@ describe('Testing removeChannelOwnerV2', () => {
   });
   // doesn't work
   test('user attempting to remove owner lacks permissions', () => {
-    addOwner(bart.token, bartChannel.channelId, homeruId)
+    addOwner(bart.token, bartChannel.channelId, homeruId);
     expect(removeOwner(marge.token, bartChannel.channelId, bartuId)).toEqual(403);
   });
   test('bad token', () => {
@@ -622,7 +622,7 @@ const addOwner = (tokens: string, channelIds: number, uIds: number) => {
     'POST', url + '/channel/addowner/v2',
     {
       body: JSON.stringify({ channelId: channelIds, uId: uIds }),
-      headers: { 
+      headers: {
         'Content-type': 'application/json',
         token: tokens,
       },
@@ -640,8 +640,8 @@ const removeOwner = (tokens: string, channelIds: number, uIds: number) => {
     'POST', url + '/channel/removeowner/v2',
     {
       body: JSON.stringify({ channelId: channelIds, uId: uIds }),
-      headers: { 
-        'Content-type': 'application/json', 
+      headers: {
+        'Content-type': 'application/json',
         token: tokens,
       }
     }
