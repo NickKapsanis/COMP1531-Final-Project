@@ -128,7 +128,6 @@ describe('testing for SearchV1', () => {
     messageSendDmV1(homer.token, dmID.dmId, 'I also want to search something!');
     messageSendDmV1(homer.token, dmID.dmId, `This one shouldn't show up`);
     let searchData: message[] = searchV1(homer.token, 'search')
-    console.log(searchData);
     expect(searchData.length).toEqual(2);
   });
 });
