@@ -18,6 +18,7 @@ type message = {
   uId : number;
   timeSent : number; // unix timestamp
   message : string;
+  isPinned: boolean;
 }
 type dm = {
     dmId: number;

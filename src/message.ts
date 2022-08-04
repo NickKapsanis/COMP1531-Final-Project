@@ -434,6 +434,105 @@ function sleep(timeRemain: number) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeRemain);
 }
 
+/**
+ * Given a valid messageId, the message is marked as pinned.
+ *
+ * Arguments:
+ *      token:      string     The user's unique identifier
+ *      messageId:  number     The message's unique identifier
+ *
+ * Returns:
+ *      { }         object     Successful message pin
+ */
+export function messagePinV1(token: string, messageId: number) {
+  return pinMessage('p', token, messageId);
+}
+
+/**
+ * Given a valid messageId, the message is marked as pinned.
+ *
+ * Arguments:
+ *      token:      string     The user's unique identifier
+ *      messageId:  number     The message's unique identifier
+ *
+ * Returns:
+ *      { }         object     Successful message unpin
+ */
+export function messageUnPinV1(token: string, messageId: number) {
+  return pinMessage('u', token, messageId);
+}
+
+function pinMessage(mode: string, token: string, messageId: number) {
+  const data: dataStoreType = getData();
+
+  // Token validation
+  if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
+    throw HTTPError(FORBID, 'Invalid token');
+  }
+
+  // Finding userId
+  const user: user = data.users.find(user => user.tokens.find(tok => tok === token));
+  const userId: number = user.uId;
+
+  // Finding the channels and dms the user is a member of
+  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
+  const dmsMemberOf: Array<dmOutput> = dmListV2(token).dms;
+
+  let channelGiven: channel;
+  let dmGiven: dm;
+  let messageGiven: message;
+  const firstDigit = String(messageId)[0];
+  if (firstDigit === '1') {
+    // Checking if messageId is valid
+    channelGiven = isMessageValidChannel(messageId);
+
+    // Checking if user is global owner, otherwise check if member/owner of the message's channel
+    if (user.isGlobalOwner === 2) {
+      if (channelsMemberOf.find(channel => channel.channelId === channelGiven.channelId) === undefined) {
+        throw HTTPError(BAD_REQ, 'Invalid access to message');
+      } else if (channelGiven.ownerMembers.find(user => user === userId) === undefined) {
+        throw HTTPError(FORBID, 'Invalid access to pinning message');
+      }
+    }
+
+    messageGiven = channelGiven.messages.find(message => message.messageId === messageId);
+  } else if (firstDigit === '2') {
+    // Checking if messageId is valid
+    dmGiven = isMessageValidDm(messageId);
+
+    // Checking if member/owner of the message's channel
+    if (dmsMemberOf.find(dm => dm.dmId === dmGiven.dmId) === undefined) {
+      throw HTTPError(BAD_REQ, 'Invalid access to message');
+    } else if (dmGiven.owner !== userId) {
+      throw HTTPError(FORBID, 'Invalid access to pinning message');
+    }
+
+    messageGiven = dmGiven.messages.find(message => message.messageId === messageId);
+  }
+
+  if (mode === 'p' && messageGiven.isPinned === true) {
+    throw HTTPError(BAD_REQ, 'Message already pinned');
+  } else if (mode === 'u' && messageGiven.isPinned === false) {
+    throw HTTPError(BAD_REQ, 'Message already unpinned');
+  }
+
+  let messageGivenIndex: number;
+  if (firstDigit === '1') {
+    const channelGivenIndex = data.channels.findIndex(channel => channel.channelId === channelGiven.channelId);
+    messageGivenIndex = channelGiven.messages.findIndex(message => message.messageId === messageId);
+
+    data.channels[channelGivenIndex].messages[messageGivenIndex].isPinned = !messageGiven.isPinned;
+  } else if (firstDigit === '2') {
+    const dmGivenIndex = data.dms.findIndex(dm => dm.dmId === dmGiven.dmId);
+    messageGivenIndex = dmGiven.messages.findIndex(message => message.messageId === messageId);
+
+    data.dms[dmGivenIndex].messages[messageGivenIndex].isPinned = !messageGiven.isPinned;
+  }
+
+  setData(data);
+  return {};
+}
+
 /// Helper Functions ///
 
 /**
@@ -472,6 +571,7 @@ function sendMessage(mode: string, userId: number, message: string, index: numbe
     uId: userId,
     timeSent: Math.floor(Date.now() / 1000),
     message: message,
+    isPinned: false,
   };
 
   if (mode === 'c') {
