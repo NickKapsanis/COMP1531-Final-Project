@@ -311,7 +311,7 @@ const createUser = (emails: string, passwords: string, name: string, surname: st
 };
 
 // helper function - calls channelsCreate through the server
-const createChannel = (tokens: string, names: string, publicity: boolean) => {
+export const createChannel = (tokens: string, names: string, publicity: boolean) => {
   const res = request(
     'POST',
     url + '/channels/create/v2',

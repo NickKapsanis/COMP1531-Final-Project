@@ -655,7 +655,7 @@ function requestChannelMessageV3(token: string, channelId: number, start: number
   return JSON.parse(String(res.getBody())).messages;
 }
 
-function requestMessageSendV1(token: string, channelId: number, message: string) {
+export function requestMessageSendV1(token: string, channelId: number, message: string) {
   const res = request(
     'POST',
     `${url}:${port}/message/send/v1`,
@@ -706,7 +706,7 @@ function requestDmMessageV2(token: string, dmId: number, start: number) {
   return JSON.parse(String(res.getBody())).messages;
 }
 
-function requestMessageSendDmV1(token: string, dmId: number, message: string) {
+export function requestMessageSendDmV1(token: string, dmId: number, message: string) {
   const res = request(
     'POST',
         `${url}:${port}/message/senddm/v1`,

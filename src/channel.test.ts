@@ -167,7 +167,7 @@ describe('Testing channelMessagesV3', () => {
 });
 
 // Helper function for HTTP calls for channelMessagesV2
-function requestChannelMessagesV3(token: string, channelId: number, start: number) {
+export function requestChannelMessagesV3(token: string, channelId: number, start: number) {
   return request(
     'GET',
     `${hosturl}:${port}/channel/messages/v3`,

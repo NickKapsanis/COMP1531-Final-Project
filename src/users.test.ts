@@ -401,7 +401,7 @@ describe('Testing usersAllV1 - should all work if other functions work', () => {
   });
 });
 
-const usersAll = (tokens: string) => {
+export const usersAll = (tokens: string) => {
   const res = request(
     'GET', url + '/users/all/v1',
     { qs: { token: tokens } }

@@ -9,7 +9,7 @@ Arguments:
     token (string)  - token of the calling user
 
 Return Value:
-   throw 400 Error on 
+   throw 400 Error on
     -> uId not valid uID
     -> uID refers to the only global owner and is being demoted (must have 1+ global owner)
     -> permission Id is invalid (1 or 2)
@@ -21,15 +21,15 @@ Return Value:
     Returns {} on no error throw
 */
 export function adminUserpermissionChangeV1(uID: number, permissionId: number, token: string) {
-    return {};
+  return {};
 }
 
 /*
 adminUserRemoveV1
-Given a user by their uId, remove them from the Treats. 
-This means they should be removed from all channels/DMs, 
-and will not be included in the array of users returned by users/all. 
-Treats owners can remove other Treats owners 
+Given a user by their uId, remove them from the Treats.
+This means they should be removed from all channels/DMs,
+and will not be included in the array of users returned by users/all.
+Treats owners can remove other Treats owners
 (including the original first owner).
 Once users are removed, the contents of the messages they sent
 will be replaced by 'Removed user'.
@@ -42,7 +42,7 @@ Arguments:
     token (string)  - token of the calling user
 
 Return Value:
-   throw 400 Error on 
+   throw 400 Error on
     -> uId not valid uID
     -> uID refers to the only global owner (must have 1+ global owner)
 
@@ -52,5 +52,5 @@ Return Value:
     Returns {} on no error throw
 */
 export function adminUserRemoveV1(uID: number, token: string) {
-    return {};
+  return {};
 }
