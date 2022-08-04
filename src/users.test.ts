@@ -6,6 +6,9 @@ import request from 'sync-request';
 import config from './config.json';
 
 const OK = 200;
+const FORBIDDEN = 403;
+const BAD_REQUEST = 400;
+
 const port = config.port;
 const hosturl = config.url;
 const url = hosturl + ':' + port;
@@ -17,21 +20,21 @@ const url = hosturl + ':' + port;
 describe('Testing userProfileV1()', () => {
   test('Testing if error is returned if both token and uId do not exist', () => {
     requestClear();
-    expect(requestUserProfile('invalid-token', -3)).toStrictEqual({ error: 'error' });
+    expect(requestUserProfile('invalid-token', -3)).toStrictEqual(FORBIDDEN);
   });
 
   test('Testing if error is returned if token does not exist', () => {
     requestClear();
     const testUser1 = createUser('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const uId1 = Number(getUId(testUser1.authUserId));
-    expect(requestUserProfile('invalid-token', uId1)).toStrictEqual({ error: 'error' });
+    expect(requestUserProfile('invalid-token', uId1)).toStrictEqual(FORBIDDEN);
   });
 
   test('Testing if error is returned if uId does not exist', () => {
     requestClear();
     const testUser1 = createUser('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const token1 = testUser1.token;
-    expect(requestUserProfile(token1, -1)).toStrictEqual({ error: 'error' });
+    expect(requestUserProfile(token1, -1)).toStrictEqual(BAD_REQUEST);
   });
 
   test('Testing correct output for when token and uId belong to same person', () => {
@@ -355,7 +358,7 @@ const createUser = (emails: string, passwords: string, name: string, surname: st
 function requestUserProfile(token: string, uId: number) {
   const res = request(
     'GET',
-    `${hosturl}:${port}/user/profile/v2`,
+    `${hosturl}:${port}/user/profile/v3`,
     {
       qs: {
         uId: uId
@@ -365,6 +368,11 @@ function requestUserProfile(token: string, uId: number) {
       },
     }
   );
+
+  if (res.statusCode !== 200) {
+    return res.statusCode;
+  }
+
   expect(res.statusCode).toBe(OK);
   return JSON.parse(String(res.getBody()));
 }

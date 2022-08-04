@@ -1,5 +1,5 @@
 import { getData, setData, dataStoreType, channel, message, user } from './dataStore';
-import { userProfileV2 } from './users';
+import { userProfileV3 } from './users';
 import { channelsListV2 } from './channels';
 import { getUId } from './other';
 import { checkValidToken } from './auth';
@@ -69,7 +69,7 @@ function channelDetailsV3(token: string, channelId: number) {
   const ownerMembersDetails: Array<userOutput> = [];
 
   owners.forEach(uId => {
-    const user = userProfileV2(token, uId).user;
+    const user = userProfileV3(token, uId).user;
     ownerMembersDetails.push(user);
   });
 
@@ -79,7 +79,7 @@ function channelDetailsV3(token: string, channelId: number) {
   const allMembersDetails: Array<userOutput> = [];
 
   members.forEach(uId => {
-    const user = userProfileV2(token, uId).user;
+    const user = userProfileV3(token, uId).user;
     allMembersDetails.push(user);
   });
 
