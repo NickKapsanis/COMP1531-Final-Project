@@ -1,5 +1,12 @@
 import fs from 'fs';
 
+type notification = {
+  channelId: number;
+  dmId: number;
+  notificationMessage: string; 
+}
+
+
 type user = {
   uId: number;
   authUserId : number;
@@ -12,7 +19,9 @@ type user = {
   channels: number[];
   dms: number[];
   isGlobalOwner: 1 | 2; // 1 for global owner 2 for not global
+  notifications: notification[];
 }
+
 type message = {
   messageId : number;
   uId : number;

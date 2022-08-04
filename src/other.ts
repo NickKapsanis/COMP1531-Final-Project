@@ -66,4 +66,16 @@ export function checkValidUid(uId: number) {
   if (data.users?.find(user => user.uId === uId) === undefined) return false;
   else return true;
 }
+
+/*
+notifications/get/v1
+
+Argument:
+  None
+
+Return type:
+  array of 20 latest notifications
+
+*/
+
 export { clearV1, getUId };
