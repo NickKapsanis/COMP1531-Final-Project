@@ -71,8 +71,8 @@ app.delete('/dm/remove/v2', (req, res) => {
   res.json(dmRemoveV2(token, dmId));
 });
 // channelsCreate
-app.post('/channels/create/v2', (req, res) => {
-  const token = String(req.body.token);
+app.post('/channels/create/v3', (req, res) => {
+  const token = String(req.header('token'));
   const name = String(req.body.name);
   const isPublic = Boolean(req.body.isPublic);
   res.json(channelsCreateV1(token, name, isPublic));

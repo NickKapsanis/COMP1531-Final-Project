@@ -563,13 +563,13 @@ function requestAuthUserRegisterV3(email: string, password: string, nameFirst: s
 function requestChannelsCreateV2(token: string, name: string, isPublic: boolean) {
   const res = request(
     'POST',
-    `${url}:${port}/channels/create/v2`,
+    `${url}:${port}/channels/create/v3`,
     {
-      json: {
-        token: token,
-        name: name,
-        isPublic: isPublic,
-      }
+      body: JSON.stringify({name: names, isPublic: publicity }),
+      headers: {
+        token: tokens,
+        'Content-type': 'application/json',
+      },
     }
   );
 
