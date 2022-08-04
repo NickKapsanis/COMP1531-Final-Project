@@ -85,25 +85,25 @@ describe('standupStart', () => {
 
   test('successful return value', () => {
     const startTime: number = Math.floor((new Date()).getTime() / 1000);
-    const data: { finishTime : number } = standupStart(John.token, sampleChannel.channelId, 2);
-    expect(data).toEqual({ finishTime: startTime + 2 });
+    const data: { finishTime : number } = standupStart(John.token, sampleChannel.channelId, 1);
+    expect(data).toEqual({ finishTime: startTime + 1 });
   });
   test('token is invalid', () => {
-    expect(standupStart('gobbledook', sampleChannel.channelId, 2)).toEqual(403);
+    expect(standupStart('gobbledook', sampleChannel.channelId, 1)).toEqual(403);
   });
   test('bad channel Id', () => {
-    expect(standupStart(John.token, -100, 2)).toEqual(400);
+    expect(standupStart(John.token, -100, 1)).toEqual(400);
   });
   test('length is a negative number', () => {
     expect(standupStart(John.token, sampleChannel.channelId, -10)).toEqual(400);
   });
   test('standup is already active in channel', () => {
     standupStart(John.token, sampleChannel.channelId, 2);
-    expect(standupStart(John.token, sampleChannel.channelId, 2)).toEqual(400);
+    expect(standupStart(John.token, sampleChannel.channelId, 1)).toEqual(400);
   });
   test('user is not a member of the channel', () => {
     const Steve = createUser('steve@gmail.com', 'testPassword123', 'Steve', 'Smith');
-    expect(standupStart(Steve.token, sampleChannel.channelId, 2)).toEqual(403);
+    expect(standupStart(Steve.token, sampleChannel.channelId, 1)).toEqual(403);
   });
 });
 
@@ -127,7 +127,7 @@ describe('standupActive', () => {
     expect(standupActive(Steve.token, sampleChannel.channelId)).toEqual(403);
   });
   test('successful return', () => {
-    const finishTime: { finishTime: number } = standupStart(John.token, sampleChannel.channelId, 2);
+    const finishTime: { finishTime: number } = standupStart(John.token, sampleChannel.channelId, 1);
     expect(standupActive(John.token, sampleChannel.channelId)).toEqual({ isActive: true, timeFinish: finishTime.finishTime });
   });
   test('token is invalid', () => {
@@ -151,15 +151,15 @@ describe('standupSend', () => {
   });
 
   test('success', () => {
-    standupStart(John.token, sampleChannel.channelId, 2);
+    standupStart(John.token, sampleChannel.channelId, 1);
     expect(standupSend(John.token, sampleChannel.channelId, 'add this message to the queue')).toEqual({});
   });
   test('bad channel Id', () => {
-    standupStart(John.token, sampleChannel.channelId, 2);
+    standupStart(John.token, sampleChannel.channelId, 1);
     expect(standupSend(John.token, -100, 'add this message to the queue')).toEqual(400);
   });
   test('length of message exceeds 1000 chars (1050 chars)', () => {
-    standupStart(John.token, sampleChannel.channelId, 2);
+    standupStart(John.token, sampleChannel.channelId, 1);
     expect(standupSend(John.token, sampleChannel.channelId, `bljUwrWuzjLodaeOV97GSZ23rlzLz6AyqSZm5V9EgJLxVv8ZIIyQI6HV
     83X78XZaB53wCUVSUeuZpzOr9jpBEPxs4UR1qMZsX2DGR0P1GoRdugJ4F2Ct803XNlNMTFnQ6D5wwaokuKs
     CQquJYLcdDkbFrWW9xZQCglXWzvpJgD3ITaNIddcnpusRhbhv1MsxLpNmUl5yTSAQaGuYDV2IJypWHu3H1XD
@@ -178,19 +178,19 @@ describe('standupSend', () => {
   });
   test('user is not a member of the channel', () => {
     const Steve = createUser('steve@gmail.com', 'testPassword123', 'Steve', 'Smith');
-    standupStart(John.token, sampleChannel.channelId, 2);
+    standupStart(John.token, sampleChannel.channelId, 1);
     expect(standupSend(Steve.token, sampleChannel.channelId, 'message')).toEqual(403);
   });
   test('token is invalid', () => {
-    standupStart(John.token, sampleChannel.channelId, 2);
+    standupStart(John.token, sampleChannel.channelId, 1);
     expect(standupSend('gobbledook', sampleChannel.channelId, 'message')).toEqual(403);
   });
   test('successful run through', async () => {
-    await new Promise((r) => setTimeout(r, 2200));
-    standupStart(John.token, sampleChannel.channelId, 2);
+    await new Promise((r) => setTimeout(r, 1100));
+    standupStart(John.token, sampleChannel.channelId, 1);
     standupSend(John.token, sampleChannel.channelId, 'add this message to the queue');
     standupSend(John.token, sampleChannel.channelId, 'add message number 2 to the queue');
-    await new Promise((r) => setTimeout(r, 2200));
+    await new Promise((r) => setTimeout(r, 1100));
     const data = getData();
     expect(data.channels[0].messages.length).toEqual(1);
   });

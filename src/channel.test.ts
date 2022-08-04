@@ -351,6 +351,12 @@ describe('Testing removeChannelOwnerV2', () => {
     addOwner(bart.token, bartChannel.channelId, homeruId);
     expect(removeOwner(marge.token, bartChannel.channelId, bartuId)).toEqual(403);
   });
+  test('user attempting to remove owner is not a member of the channel', () => {
+    const margeChannel: { channelId: number } = createChannel(marge.token, 'testChannel2', true);
+    channelJoin(homer.token, margeChannel.channelId);
+    addOwner(marge.token, margeChannel.channelId, homeruId);
+    expect(removeOwner(bart.token, margeChannel.channelId, margeuId)).toEqual(403);
+  });
   test('bad token', () => {
     expect(removeOwner('ruh roh', bartChannel.channelId, margeuId)).toEqual(403);
   });

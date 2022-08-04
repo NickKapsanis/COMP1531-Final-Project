@@ -596,9 +596,11 @@ function requestChannelInviteV3(token: string, channelId: number, uId: number) {
     `${url}:${port}/channel/invite/v3`,
     {
       json: {
-        token: token,
         channelId: channelId,
         uId: uId,
+      },
+      headers: {
+        token: token,
       }
     }
   );
