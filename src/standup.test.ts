@@ -2,7 +2,6 @@ import { createChannel, createUser, channelJoin } from './channel.test';
 import request from 'sync-request';
 import config from './config.json';
 import { getData } from './dataStore';
-jest.useFakeTimers();
 
 type userType = {
   token? : string;
@@ -78,6 +77,7 @@ describe('standupStart', () => {
 
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
+    jest.useFakeTimers();
     John = createUser('johnsmith@gmail.com', 'testPassword123', 'John', 'Smith');
     sampleChannel = createChannel(John.token, 'SampleChannel', true);
     channelJoin(John.token, sampleChannel.channelId);
@@ -119,6 +119,7 @@ describe('standupActive', () => {
   let sampleChannel: { channelId: number }, John: userType;
 
   beforeEach(() => {
+    jest.useFakeTimers();
     request('DELETE', url + '/clear/v1');
     John = createUser('johnsmith@gmail.com', 'testPassword123', 'John', 'Smith');
     sampleChannel = createChannel(John.token, 'SampleChannel', true);
@@ -154,6 +155,7 @@ describe('standupSend', () => {
   let sampleChannel: { channelId: number }, John: userType;
 
   beforeEach(() => {
+    jest.useFakeTimers();
     request('DELETE', url + '/clear/v1');
     John = createUser('johnsmith@gmail.com', 'testPassword123', 'John', 'Smith');
     sampleChannel = createChannel(John.token, 'SampleChannel', true);
@@ -208,4 +210,9 @@ describe('standupSend', () => {
     const data = getData();
     expect(data.channels[0].messages.length).toEqual(1);
   });
+});
+
+afterAll(() => {
+  jest.useRealTimers()
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 750);
 });
