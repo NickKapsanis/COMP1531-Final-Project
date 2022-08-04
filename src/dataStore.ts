@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-type notification = {
+export type notification = {
   channelId: number;
   dmId: number;
   notificationMessage: string; 

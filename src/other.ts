@@ -1,5 +1,6 @@
 import { getData, setData, dataStoreType } from './dataStore';
 import HTTPError from 'http-errors';
+import { user, notification, dataStoreType } from './dataStore'
 
 const FORBIDDEN = 403;
 
@@ -73,17 +74,13 @@ export function checkValidUid(uId: number) {
 /*
 notifications/get/v1
 
-Argument:
-  None
+Parameter:
+  token - String
 
 Return type:
-  array of 20 latest notifications
+  array of 20 latest notifications (of type notifications)
 
 */
-
-// A user should not be notified of any reactions to their messages if they are no longer in the channel/DM that the message was sent in.
-// MessageSend, MessageSendDm, ChannelInvite, DmCreate (DmAdd?), message Forward, message Edit, MessageReact
-
 function getNotifications(token: string) {
 
   const data = getData();
@@ -95,6 +92,197 @@ function getNotifications(token: string) {
 
 }
 
+/*
+getTags
+
+Parameter:
+  message - string
+
+output:
+  undefined     - if message doesn't have any tag
+  array of uIds - Returns uIds of all corresponding tagged
+                  handles in message
+
+*/
+export function getTags(message: string) {
+  
+  // should be uinque uIds 
+}
+
+/*
+sendNotificationsAdd()
+Parameter:
+  data            - dataStoreType
+  uIds            - Array of uIds
+  ChannelOrDmid   - DmId / ChannelId
+  senderHandle    - handle of the person who triggers the notification
+                    (sender is the person who adds you to a channel/dm
+                    or sends a message that has tagged another person)
+
+return:
+    none
+*/
+export function sendNotificationsAdd(data: dataStoreType, uIds: Number[], ChannelOrDmid: Number, senderHandle: string) {
+
+  // Sends Notification for adding to channel/dm 
+  for (let i of uIds) {
+    let user = data.users.find(j => j.uId === i);
+    let notification: notification;
+
+    let channel = user.channels.find(j => j === ChannelOrDmid);
+    let dm = user.dms.find(j => j === ChannelOrDmid);
+
+    if (channel === undefined && dm === undefined) {
+      continue;
+    }
+
+    if (channel != undefined) {
+      notification = {
+        channelId: ChannelOrDmid,
+        dmId: -1,
+        notificationMessage: `${senderHandle} added you to ${channel.name}`
+      };
+    }
+    else if (dm != undefined) {
+      notification = {
+        channelId: -1,
+        dmId: ChannelOrDmid,
+        notificationMessage: `${senderHandle} added you to ${dm.name}`
+      };
+    }
+
+    data.users = data.users.filter(j => j.uId !== i);
+
+    user = addNotification(notification, user);
+    data.users.push(user);
+    setData(data);
+
+  }
+
+  return;
+}
+
+/*
+sendNotificationsAdd()
+Parameter:
+  data            - dataStoreType
+  uIds            - Array of uIds
+  ChannelOrDmid   - DmId / ChannelId
+  senderHandle    - handle of the person who triggers the notification
+                    (sender is the person who adds you to a channel/dm
+                    or sends a message that has tagged another person)
+  message            - string
+
+return:
+  none
+*/
+function sendNotificationsTag(data: dataStoreType, uIds: Number[], ChannelOrDmid: Number, senderHandle: string, message: string) {
+  // Sends Notification for tags in channel/dms
+
+  const messageSlice = message.subString(0,20);
+  for (let i of uIds) {
+    let user = data.users.find(j => j.uId === i);
+    let notification: notification;
+
+    let channel = user.channels.find(j => j === ChannelOrDmid);
+    let dm = user.dms.find(j => j === ChannelOrDmid);
+
+    if (channel === undefined && dm === undefined) {
+      continue;
+    }
+
+    if (channel !== undefined) {
+      notification = {
+        channelId: ChannelOrDmid,
+        dmId: -1,
+        notificationMessage: `${senderHandle} tagged you in ${channel.name}: ${messageSlice}`
+      };
+    }
+    else if (dm !== undefined) {
+      notification = {
+        channelId: -1,
+        dmId: ChannelOrDmid,
+        notificationMessage: `${senderHandle} tagged you in ${dm.name}: ${messageSlice}`
+      };
+    }
+
+    data.users = data.users.filter(j => j.uId !== i);
+
+    user = addNotification(notification, user);
+    data.users.push(user);
+    setData(data);
+
+  }
+  return;
+}
+
+/*
+sendNotificationReact
+
+PARAMETERS- 
+  uId(of user who sent the message) - number
+  ChannelOrDmid                     - number
+  reactorHandle                     - string
+
+RETURNS-
+  {}
+*/
+export function sendNotificationReact(uId: number, ChannelOrDmid: number, reactorHandle: strings) {
+  let user = data.users.find(j => j.uId === i);
+  let notification: notification;
+
+  let channel = user.channels.find(j => j === ChannelOrDmid);
+  let dm = user.dms.find(j => j === ChannelOrDmid);
+
+  if (channel === undefined && dm === undefined) {
+    continue;
+  }
+
+  if (channel !== undefined) {
+    notification = {
+      channelId: ChannelOrDmid,
+      dmId: -1,
+      notificationMessage: `${reactorHandle} reacted to your message in ${channel.name}`
+    };
+  }
+  else if (dm !== undefined) {
+    notification = {
+      channelId: -1,
+      dmId: ChannelOrDmid,
+      notificationMessage: `${reactorHandle} reacted to your message in ${dm.name}`
+    };
+  }
+
+  data.users = data.users.filter(j => j.uId !== i);
+
+  user = addNotification(notification, user);
+  data.users.push(user);
+  setData(data);
+
+  return;
+}
+
+/*
+getTags
+
+Parameter:
+  message - string
+
+output:
+  user - Returns user with added notification
+
+*/
+
+export function addNotification(notification: notification, user: user) {
+
+  if (user.notifications.length === 20) {
+    (user.notification).pop();
+  }
+
+  user.notifications.unshift(notification);
+
+  return user;
+}
 
 
 export { clearV1, getUId, getNotifications };

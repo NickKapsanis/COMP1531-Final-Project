@@ -192,6 +192,11 @@ export function dmCreateV1(token: string, uIds: number[]) {
 
   setData(data);
 
+  // Notifcation >>>>>>>>
+  const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
+  sendNotificationsAdd(data, uIds, newDmId, userHandle);
+  //>>>>>>>>>>
+
   return { dmId: newDmId };
 }
 /*

@@ -249,6 +249,13 @@ function channelInviteV2(token: string, channelId: number, uId: number) {
   data.users[data.users.indexOf(userJoining)].channels.push(channelId);
   data.channels[data.channels.indexOf(channel)].allMembers.push(userJoining.uId);
   setData(data);
+
+  // Notifcation >>>>>>>>
+  const uIds = [uId];
+  const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
+  sendNotificationsAdd(data, uIds, channelId, userHandle);
+  //>>>>>>>>>>
+
   return {};
 }
 

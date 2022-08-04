@@ -1,6 +1,7 @@
 import { getData, setData, dataStoreType, user, channel, message, dm } from './dataStore';
 import { channelsListV2 } from './channels';
 import { dmListV1 } from './dm';
+import { getTags, sendNotificationsAdd, sendNotificationsTag, sendNotificationReact } from './other'
 
 type channelOutput = {
   channelId: number;
@@ -63,6 +64,11 @@ export function messageSendV1(token: string, channelId: number, message: string)
   data.channels[channelGivenIndex].messages.unshift(newMessage);
   setData(data);
 
+  // Notifcation >>>>>>>>
+  const uIds = getTags(message);
+  const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
+  sendNotificationsTag(data, uIds, channelId, userHandle, message);
+  //>>>>>>>>>>
   return { messageId: newMessageId };
 }
 
@@ -116,6 +122,12 @@ export function messageSendDmV1(token: string, dmId: number, message: string) {
 
   data.dms[dmGivenIndex].messages.unshift(newMessage);
   setData(data);
+
+  // Notifcation >>>>>>>>
+  const uIds = getTags(message);
+  const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
+  sendNotificationsTag(data, uIds, dmId, userHandle, message);
+  //>>>>>>>>>>
 
   return { messageId: newMessageId };
 }
@@ -293,6 +305,15 @@ function editInChannel(mode: string, token: string, userId: number, isGlobalUser
   }
 
   setData(data);
+  // Notifcation >>>>>>>>
+  if (mode === 'e') {
+    const uIds = getTags(message);
+    const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
+    sendNotificationsTag(data, uIds, channelGiven.channelId, userHandle, message);
+  }
+  //>>>>>>>>>>
+  
+
   return {};
 }
 
@@ -356,6 +377,38 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
     data.dms[dmGivenIndex].messages = removedMessage;
   }
 
+  // Notifcation >>>>>>>>
+  if (mode === 'e') {
+    const uIds = getTags(message);
+    const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
+    sendNotificationsTag(data, uIds, dmGiven.dmId, userHandle, message);
+  }
+  //>>>>>>>>>>
+
   setData(data);
   return {};
 }
+
+/*
+function DummyMessageForward() {
+
+  // Notifcation >>>>>>>>
+  const uIds = getTags(message);
+  const userHandle = data.users.find(user => user.tokens.find(tok => tok === token).handleStr);
+  sendNotificationsTag(data, uIds, forwardedChannel/dm.id, userHandle, message);
+  //>>>>>>>>>>
+
+}
+*/
+
+/*
+function DummyMessageReact() {
+
+  // Notifcation >>>>>>>>
+  const uId = messageOwner.uId; // uId of user to whom the message belongs
+  const reactorHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
+  sendNotificationReact(uId, reactedChannel/dm.id, reactorHandle);
+  //>>>>>>>>>>
+
+}
+*/
