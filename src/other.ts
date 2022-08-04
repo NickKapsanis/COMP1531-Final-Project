@@ -67,10 +67,9 @@ export function checkValidUid(uId: number) {
   else return true;
 }
 
-
 /* SEARCH V1
-* Given a query string, return a collection of messages in all of the channels/DMs 
-* that the user has joined that contain the query (case-insensitive). 
+* Given a query string, return a collection of messages in all of the channels/DMs
+* that the user has joined that contain the query (case-insensitive).
 * There is no expected order for these messages.
 *
 * Parameters
@@ -80,15 +79,5 @@ export function checkValidUid(uId: number) {
 * Result
 * Messages[] - An array of objects with type messages
 */
-function searchV1(token: string, queryStr: string) {
-  let data: dataStoreType = getData();
-  let outputArray: message[] = []; 
-  const user: user = data.users.find(user => user.tokens.find(tok => tok === token));
-
- // let channelIdsuser.channels
-
-
-  return outputArray;
-}
 
 export { clearV1, getUId };

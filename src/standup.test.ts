@@ -2,6 +2,7 @@ import { createChannel, createUser, channelJoin } from './channel.test';
 import request from 'sync-request';
 import config from './config.json';
 import { getData } from './dataStore';
+jest.useFakeTimers();
 
 type userType = {
   token? : string;
@@ -12,7 +13,6 @@ const port = config.port;
 const hosturl = config.url;
 const url = hosturl + ':' + port;
 
-// helper function - calls standupStart through the server
 const standupStart = (token: string, channelId: number, length: number) => {
   const res = request(
     'POST',
@@ -83,9 +83,15 @@ describe('standupStart', () => {
     channelJoin(John.token, sampleChannel.channelId);
   });
 
+  afterEach(() => {
+    jest.runAllTimers();
+  });
+
   test('successful return value', () => {
+    jest.useRealTimers();
     const startTime: number = Math.floor((new Date()).getTime() / 1000);
     expect(standupStart(John.token, sampleChannel.channelId, 0.5)).toEqual({ finishTime: startTime + 0.5 });
+    jest.useFakeTimers();
   });
   test('token is invalid', () => {
     expect(standupStart('gobbledook', sampleChannel.channelId, 0.5)).toEqual(403);
@@ -118,6 +124,10 @@ describe('standupActive', () => {
     sampleChannel = createChannel(John.token, 'SampleChannel', true);
   });
 
+  afterEach(() => {
+    jest.runAllTimers();
+  });
+
   test('bad channel Id', () => {
     expect(standupActive(John.token, -100)).toEqual(400);
   });
@@ -125,9 +135,9 @@ describe('standupActive', () => {
     const Steve = createUser('steve@gmail.com', 'testPassword123', 'Steve', 'Smith');
     expect(standupActive(Steve.token, sampleChannel.channelId)).toEqual(403);
   });
-  test('successful return', async () => {
+  test('successful return', () => {
     const finishTime: { finishTime: number } = standupStart(John.token, sampleChannel.channelId, 0.5);
-    expect(await standupActive(John.token, sampleChannel.channelId)).toEqual({ isActive: true, timeFinish: finishTime.finishTime });
+    expect(standupActive(John.token, sampleChannel.channelId)).toEqual({ isActive: true, timeFinish: finishTime.finishTime });
   });
   test('token is invalid', () => {
     expect(standupActive('gobbledook', sampleChannel.channelId)).toEqual(403);
@@ -147,6 +157,10 @@ describe('standupSend', () => {
     request('DELETE', url + '/clear/v1');
     John = createUser('johnsmith@gmail.com', 'testPassword123', 'John', 'Smith');
     sampleChannel = createChannel(John.token, 'SampleChannel', true);
+  });
+
+  afterEach(() => {
+    jest.runAllTimers();
   });
 
   test('success', () => {
@@ -184,13 +198,15 @@ describe('standupSend', () => {
     standupStart(John.token, sampleChannel.channelId, 0.5);
     expect(standupSend('gobbledook', sampleChannel.channelId, 'message')).toEqual(403);
   });
-  test('successful run through', async () => {
-    await new Promise((r) => setTimeout(r, 1000));
-    standupStart(John.token, sampleChannel.channelId, 0.5)
+  test('successful run through', () => {
+    jest.spyOn(global, 'setTimeout');
+    standupStart(John.token, sampleChannel.channelId, 0.5);
     standupSend(John.token, sampleChannel.channelId, 'add this message to the queue');
     standupSend(John.token, sampleChannel.channelId, 'add message number 2 to the queue');
-    await new Promise((r) => setTimeout(r, 1000));
+    jest.runAllTimers();
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 750);
     const data = getData();
+    console.log(data.channels);
     expect(data.channels[0].messages.length).toEqual(1);
   });
 });
