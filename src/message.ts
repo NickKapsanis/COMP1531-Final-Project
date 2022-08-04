@@ -506,6 +506,7 @@ function reactUnreactMessage(mode: string, token: string, messageId: number, rea
   let messageGiven: message;
   const firstDigit = String(messageId)[0];
 
+
   //case if channel given
   if (firstDigit === '1') {
     // Checking if messageId is valid
@@ -515,55 +516,35 @@ function reactUnreactMessage(mode: string, token: string, messageId: number, rea
     // Checking if user is global owner, otherwise check if member/owner of the message's channel
     if (user.isGlobalOwner === 2) {
       if (channelsMemberOf.find(channel => channel.channelId === channelGiven.channelId) === undefined) {
-        throw HTTPError(BAD_REQ, 'Invalid access to message');
-      } else if (channelGiven.ownerMembers.find(user => user === userId) === undefined) {
-        throw HTTPError(BAD_REQ, 'Invalid access to reacting message');
-      } else if (channelGiven.allMembers.find(user => user === userId) === undefined) {
-        throw HTTPError(BAD_REQ, 'invalid userId!');
+        throw HTTPError(BAD_REQ, 'Invalid access to message, user is not in given channel.');
       }
     }
 
-
     messageGiven = channelGiven.messages.find(message => message.messageId === messageId);
+
   } else if (firstDigit === '2') {
     //case if dm given
     // Checking if messageId is valid
     dmGiven = isMessageValidDm(messageId);
 
-    // Checking if member/owner of the message's channel. doesn't have to be owner though. commented out.
+    // Checking if member/owner of the message's dm. doesn't have to be owner though. commented out.
     if (dmsMemberOf.find(dm => dm.dmId === dmGiven.dmId) === undefined) {
       throw HTTPError(BAD_REQ, 'Invalid access to message');
-    } /*else if (dmGiven.owner !== userId) {
-      throw HTTPError(FORBID, 'Invalid access to reacting message');
-    }*/
+    }
 
     messageGiven = dmGiven.messages.find(message => message.messageId === messageId);
-  }
 
-                                                                                          console.log(channelGiven);
-                                                                                          console.log(messageGiven);
-  //case when nobody has reacted to message so far. creates first react object.
-  if (mode === 'r' && messageGiven.reacts.length === 0) {
-    let uIds: number[] = [userId];
-
-    const newReact = {
-      reactId: reactId,
-      uIds: uIds,
-      isThisUserReacted: true,
-    };
-    messageGiven.reacts.push(newReact);
+  } else {
+    throw HTTPError(BAD_REQ, 'invalid messageId!');
   }
 
   //checks if message has already been reacted/unreacted with
-  if (mode === 'r') {
-    let thumbsUpReact = messageGiven.reacts.find(({reactId}) => reactId === 1);
-    if (thumbsUpReact.uIds.find(uId => uId === userId) !== undefined) {
-      throw HTTPError(BAD_REQ, 'Message already reacted');
-    }
-  } else if (mode === 'u') {
-    let thumbsUpReact = messageGiven.reacts.find(({reactId}) => reactId === 1);
-    if (thumbsUpReact.uIds.find(uId => uId === userId) !== undefined) {
-      throw HTTPError(BAD_REQ, 'Message already unreacted');
+  if (messageGiven.reacts.length !== 0) {
+    if (mode === 'r') {
+      let thumbsUpReact = messageGiven.reacts.find(({reactId}) => reactId === 1);
+      if (thumbsUpReact.uIds.find(uId => uId === userId) !== undefined) {
+        throw HTTPError(BAD_REQ, 'Message already reacted');
+      }
     }
   }
 
@@ -573,30 +554,79 @@ function reactUnreactMessage(mode: string, token: string, messageId: number, rea
   if (firstDigit === '1') {
     const channelGivenIndex = data.channels.findIndex(channel => channel.channelId === channelGiven.channelId);
     messageGivenIndex = channelGiven.messages.findIndex(message => message.messageId === messageId);
-
-      //TODO: change isMessageReacted from =reactId to =!messageGiven.isThisMessageReacted, check IVAN implementation/////////////!!!!!! wb case when nobody reacted yet?
-
-    let thumbsUpReact = data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0];     //find(reactId => reactId === 1);
     
-    thumbsUpReact.reactId = reactId;
-    thumbsUpReact.uIds.push(userId);
-    thumbsUpReact.isThisUserReacted = true;
+    //case when nobody has reacted to message so far. creates first react object.
+    if (mode === 'r' && messageGiven.reacts.length === 0) {
+      let uIds: number[] = [userId];
+      const newReact = {
+        reactId: reactId,
+        uIds: uIds,
+        isThisUserReacted: true,
+      };
+      data.channels[channelGivenIndex].messages[messageGivenIndex].reacts.push(newReact);
+      setData(data);
+      return {};
+    }
+
+
+    if (mode === 'u' && messageGiven.reacts.length === 0) {
+      return {};
+    } else if (mode === 'u' && messageGiven.reacts.length === 1) {
+      if (data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].uIds.length === 1) {
+        data.channels[channelGivenIndex].messages[messageGivenIndex].reacts = [];
+        setData(data);
+        return {};
+      }
+      //don't need to account for >1 reacts.
+      /*data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].uIds.filter(uId => uId = userId);
+      data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted = false;
+      setData(data);
+      return {};*/
+    }
+    //removed since reimplemented above.
+    /*data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].reactId = reactId;
+    data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].uIds.push(userId);
+    data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted = !data.channels[channelGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted;*/
   } else if (firstDigit === '2') {
     //case if dm given
     const dmGivenIndex = data.dms.findIndex(dm => dm.dmId === dmGiven.dmId);
     messageGivenIndex = dmGiven.messages.findIndex(message => message.messageId === messageId);
 
-    //TODO: change isMessageReacted from =reactId to =!messageGiven.isThisMessageReacted, check IVAN implementation/////////////!!!!!!
+    //case when nobody has reacted to message so far. creates first react object.
+    if (mode === 'r' && messageGiven.reacts.length === 0) {
+      let uIds: number[] = [userId];
+      const newReact = {
+        reactId: reactId,
+        uIds: uIds,
+        isThisUserReacted: true,
+      };
+      data.dms[dmGivenIndex].messages[messageGivenIndex].reacts.push(newReact);
+      setData(data);
+      return {};
+    }
 
-    let thumbsUpReact = data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0];     //find(reactId => reactId === 1);
-    thumbsUpReact.reactId = reactId;
-    thumbsUpReact.uIds.push(userId);
-    thumbsUpReact.isThisUserReacted = true;
+
+    if (mode === 'u' && messageGiven.reacts.length === 0) {
+      return {};
+    } else if (mode === 'u' && messageGiven.reacts.length === 1) {
+
+      if (data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].uIds.length === 1) {
+        data.dms[dmGivenIndex].messages[messageGivenIndex].reacts = [];
+        setData(data);
+        return {};
+      }
+      //don't need to account for >1 reacts. 
+      /*data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].uIds.filter(uId => uId = userId);
+      data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted = false;
+      setData(data);
+      return {};*/
+    }
+
+    //removed since reimplemented above.
+    /*data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].reactId = reactId;
+    data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].uIds.push(userId);
+    data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted = !data.dms[dmGivenIndex].messages[messageGivenIndex].reacts[0].isThisUserReacted;*/
   }
-
-  setData(data);
-  return {};
-  
 }
 
 

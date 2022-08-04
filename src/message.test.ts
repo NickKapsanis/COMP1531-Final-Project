@@ -88,7 +88,7 @@ test('Testing invalid reactID', () => {
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
   const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
   requestchannelJoinV2(rufusToken, testCreatedChannelID);
-  const jamesSentMessageID = testRequestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
+  const jamesSentMessageID = requestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
   // james has sent a message.
@@ -123,7 +123,7 @@ test('Testing invalid token', () => {
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
   const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
   requestchannelJoinV2(rufusToken, testCreatedChannelID);
-  const jamesSentMessageID = testRequestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
+  const jamesSentMessageID = requestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
   // james has sent a message.
@@ -151,6 +151,43 @@ test('Testing invalid token', () => {
   //.channels[0].messages[0].isThisMessageReacted).toEqual(true);
 });
 
+test('tests when user is not in the created channel.', () => {
+  requestClear();
+
+  const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+  const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
+  const jamesSentMessageID = requestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+
+  const res = request(
+    'POST',
+    `${url}:${port}/message/react/v1`,
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        token: rufusToken,
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  //const bodyObj = JSON.parse(String(res.getBody()));
+
+  expect(res.statusCode).toBe(400);
+  //expect(bodyObj).toStrictEqual({});
+
+  //now we need to check the message has been reacted to.
+  //.channels[0].messages[0].isThisMessageReacted).toEqual(true);
+});
+
+
+
+
 
 
 
@@ -161,7 +198,7 @@ test('Testing given channel, react to message successfully', () => {
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
   const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
   requestchannelJoinV2(rufusToken, testCreatedChannelID);
-  const jamesSentMessageID = testRequestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
+  const jamesSentMessageID = requestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
   // james has sent a message.
@@ -199,7 +236,7 @@ test('Testing invalid channel/dm ID', () => {
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
   const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
   requestchannelJoinV2(rufusToken, testCreatedChannelID);
-  const jamesSentMessageID = testRequestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
+  const jamesSentMessageID = requestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
   // james has sent a message.
@@ -236,7 +273,9 @@ test('Testing reacting to message already been reacted to in channel', () => {
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
   const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
   requestchannelJoinV2(rufusToken, testCreatedChannelID);
-  const jamesSentMessageID = testRequestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
+  const jamesSentMessageID = requestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
+  
+
 
   // james and rufus are both in the channel at this point.
   // james has sent a message.
@@ -280,6 +319,39 @@ test('Testing reacting to message already been reacted to in channel', () => {
 });
 
 
+test('Testing when user is not in given dm', () => {
+  requestClear();
+
+  const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+  let dmId1 = requestDmCreateV2(jamesToken, [1]);
+  const jamesSentMessageID = requestMessageSendDmV1(jamesToken, dmId1, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+
+  const res = request(
+    'POST',
+    `${url}:${port}/message/react/v1`,
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        token: rufusToken,
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  //const bodyObj = JSON.parse(String(res.getBody()));
+
+  expect(res.statusCode).toBe(400);
+  //expect(bodyObj).toStrictEqual({});
+
+  //now we need to check the message has been reacted to.
+  //expect(data.channels[0].messages[0].isThisMessageReacted).toEqual(true);
+});
 
 
 test('Testing given dm, react to message successfully', () => {
@@ -385,7 +457,7 @@ test('Testing invalid reactID unreact', () => {
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
   const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
   requestchannelJoinV2(rufusToken, testCreatedChannelID);
-  const jamesSentMessageID = testRequestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
+  const jamesSentMessageID = requestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
   // james has sent a message.
@@ -421,7 +493,7 @@ test('Testing invalid channel/dm ID unreact', () => {
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
   const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
   requestchannelJoinV2(rufusToken, testCreatedChannelID);
-  const jamesSentMessageID = testRequestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
+  const jamesSentMessageID = requestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
   // james has sent a message.
@@ -459,7 +531,7 @@ test('Testing invalid token ID', () => {
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
   const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
   requestchannelJoinV2(rufusToken, testCreatedChannelID);
-  const jamesSentMessageID = testRequestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
+  const jamesSentMessageID = requestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
   // james has sent a message.
@@ -498,7 +570,7 @@ test('Testing given channel, and reacted message, unreact to message successfull
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
   const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
   requestchannelJoinV2(rufusToken, testCreatedChannelID);
-  const jamesSentMessageID = testRequestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
+  const jamesSentMessageID = requestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
   // james has sent a message.
@@ -540,6 +612,74 @@ test('Testing given channel, and reacted message, unreact to message successfull
   //now we need to check the message has been reacted to.
   //expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
 });
+
+
+
+test('Testing given channel, and reacted message, trying to unreact twice.', () => {
+  requestClear();
+
+  const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+  const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
+  requestchannelJoinV2(rufusToken, testCreatedChannelID);
+  const jamesSentMessageID = requestMessageSendV1(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+
+  const res1 = request(
+    'POST',
+    `${url}:${port}/message/react/v1`,
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        token: rufusToken,
+        'Content-type': 'application/json',
+      },
+    }
+  );
+
+  const res2 = request(
+    'POST',
+    `${url}:${port}/message/unreact/v1`,
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        token: rufusToken,
+        'Content-type': 'application/json',
+      },
+    }
+  );
+
+  const res3 = request(
+    'POST',
+    `${url}:${port}/message/unreact/v1`,
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        token: rufusToken,
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  //const bodyObj = JSON.parse(String(res2.getBody()));
+
+  expect(res3.statusCode).toBe(200);
+  //expect(bodyObj).toStrictEqual({});
+
+  //now we need to check the message has been reacted to.
+  //expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
+});
+
 
 
 
@@ -589,6 +729,73 @@ test('Testing given dm, and reacted message, unreact to message successfully', (
   //const bodyObj = JSON.parse(String(res2.getBody()));
 
   expect(res2.statusCode).toBe(200);
+  //expect(bodyObj).toStrictEqual({});
+
+  //now we need to check the message has been reacted to.
+  //expect(data.channels[0].messages[0].isThisMessageReacted).not.toEqual(true);
+});
+
+
+
+
+test('Testing given dm, and reacted message, trying to unreact twice.', () => {
+  requestClear();
+
+
+  const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
+  const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
+  let dmId1 = requestDmCreateV2(jamesToken, [1, 2]);
+  const jamesSentMessageID = requestMessageSendDmV1(jamesToken, dmId1, 'I am james, please react rufus');
+
+  // james and rufus are both in the channel at this point.
+  // james has sent a message.
+
+  const res1 = request(
+    'POST',
+    `${url}:${port}/message/react/v1`,
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        token: rufusToken,
+        'Content-type': 'application/json',
+      },
+    }
+  );
+
+  const res2 = request(
+    'POST',
+    `${url}:${port}/message/unreact/v1`,
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        token: rufusToken,
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  const res3 = request(
+    'POST',
+    `${url}:${port}/message/unreact/v1`,
+    {
+      body: JSON.stringify({
+        messageId: jamesSentMessageID,
+        reactId: 1,
+      }),
+      headers: {
+        token: rufusToken,
+        'Content-type': 'application/json',
+      },
+    }
+  );
+  //const bodyObj = JSON.parse(String(res2.getBody()));
+
+  expect(res3.statusCode).toBe(200);
   //expect(bodyObj).toStrictEqual({});
 
   //now we need to check the message has been reacted to.
