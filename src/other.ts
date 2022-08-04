@@ -86,7 +86,7 @@ function searchV1(token: string, queryStr: string) {
   const data: dataStoreType = getData();
   const outputArray: message[] = [];
   const user: user = data.users.find(user => user.tokens.find(tok => tok === token));
-  
+
   if (user === undefined) {
     throw HTTPError(403, 'token is invalid');
   }
@@ -94,24 +94,24 @@ function searchV1(token: string, queryStr: string) {
     throw HTTPError(400, 'invalid queryStr length');
   }
 
-  let channels: channel[] = [];
-  let DMs: dm[] = []
-  for (let channelId of user.channels) {
-    channels.push(getChannel(channelId, data.channels))
+  const channels: channel[] = [];
+  const DMs: dm[] = [];
+  for (const channelId of user.channels) {
+    channels.push(getChannel(channelId, data.channels));
   }
-  for (let DMid of user.dms) {
+  for (const DMid of user.dms) {
     DMs.push(getDMs(DMid, data.dms));
   }
 
-  for (let channel of channels) {
-    for (let message of channel.messages) {
+  for (const channel of channels) {
+    for (const message of channel.messages) {
       if (message.message.toLowerCase().includes(queryStr.toLowerCase())) {
         outputArray.push(message);
       }
     }
   }
-  for (let dm of DMs) {
-    for (let message of dm.messages) {
+  for (const dm of DMs) {
+    for (const message of dm.messages) {
       if (message.message.toLowerCase().includes(queryStr.toLowerCase())) {
         outputArray.push(message);
       }

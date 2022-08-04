@@ -89,16 +89,13 @@ function searchV1(token: string, queryStr: string) {
 }
 
 describe('testing for SearchV1', () => {
-  let homer: userType, homeruId: number, bart: userType, marge: userType, bartuId: number, margeuId: number, bartChannel: { channelId: number };
+  let homer: userType, bart: userType, bartuId: number;
 
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
     homer = createUser('homer@gmail.com', 'testPassword123', 'homer', 'Brown');
     bart = createUser('bart@gmail.com', 'testPassword123', 'bart', 'Hayes');
-    marge = createUser('marge@gmail.com', 'testPassword123', 'marge', 'King');
     bartuId = getUID(bart.authUserId);
-    margeuId = getUID(marge.authUserId);
-    homeruId = getUID(homer.authUserId);
   });
 
   test('bad token', () => {
@@ -122,12 +119,12 @@ describe('testing for SearchV1', () => {
     tKP405NmY3lFhZrag6cXkdSAmEUibz4xNgJmPymwt5EF3geATfdYA8yHzz6K42wx`)).toEqual(400);
   });
   test('successful search', () => {
-    let channelID = createChannel(homer.token, 'channel1', true);
-    let dmID = dmCreateV2(homer.token, [bartuId]);
+    const channelID = createChannel(homer.token, 'channel1', true);
+    const dmID = dmCreateV2(homer.token, [bartuId]);
     messageSendV1(homer.token, channelID.channelId, 'I want to search for something!');
     messageSendDmV1(homer.token, dmID.dmId, 'I also want to search something!');
-    messageSendDmV1(homer.token, dmID.dmId, `This one shouldn't show up`);
-    let searchData: message[] = searchV1(homer.token, 'search')
+    messageSendDmV1(homer.token, dmID.dmId, 'This one shouldn\'t show up');
+    const searchData: message[] = searchV1(homer.token, 'search');
     expect(searchData.length).toEqual(2);
   });
 });

@@ -213,6 +213,6 @@ describe('standupSend', () => {
 });
 
 afterAll(() => {
-  jest.useRealTimers()
+  jest.useRealTimers();
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 750);
 });
