@@ -15,6 +15,10 @@ type dmOutput = {
 
 const REMOVE = 'r';
 const EDIT = 'e';
+const CHANNEL = 'c';
+const DM = 'd';
+const PIN = 'p';
+const UNPIN = 'u';
 
 const FORBID = 403;
 const BAD_REQ = 400;
@@ -40,14 +44,15 @@ export function messageSendV2(token: string, channelId: number, message: string)
   }
 
   const userId: number = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
-  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
 
-  // Checking if valid channelIds were given
-  // Validating if authorised user is a member of the channel
+  // Checking if valid channelId were given
   if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
     throw HTTPError(BAD_REQ, 'Invalid channelId');
-  } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
-    throw HTTPError(FORBID, 'Not a member of channel');
+  }
+
+  // Validating if authorised user is a member of the channel
+  if (isMember(CHANNEL, token, channelId) === false) {
+    throw HTTPError(FORBID, 'Invalid access to channel');
   }
 
   const channelGivenIndex: number = data.channels.findIndex(channel => channel.channelId === channelId);
@@ -57,7 +62,7 @@ export function messageSendV2(token: string, channelId: number, message: string)
     throw HTTPError(BAD_REQ, 'Invalid message length');
   }
 
-  const newMessageId = sendMessage('c', userId, message, channelGivenIndex);
+  const newMessageId = sendMessage(CHANNEL, userId, message, channelGivenIndex);
   return { messageId: newMessageId };
 }
 
@@ -83,14 +88,15 @@ export function messageSendDmV2(token: string, dmId: number, message: string) {
   }
 
   const userId: number = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
-  const dmsMemberOf: Array<dmOutput> = dmListV2(token).dms;
 
   // Checking if valid dmId was given
-  // Validating if authorised user is a member of the DM
   if (data.dms.find(dm => dm.dmId === dmId) === undefined) {
     throw HTTPError(BAD_REQ, 'Invalid dmId');
-  } else if (dmsMemberOf.find(dm => dm.dmId === dmId) === undefined) {
-    throw HTTPError(FORBID, 'Not a member of dm');
+  }
+
+  // Validating if authorised user is a member of the DM
+  if (isMember(DM, token, dmId) === false) {
+    throw HTTPError(FORBID, 'Invalid access to dm');
   }
 
   const dmGivenIndex: number = data.dms.findIndex(dm => dm.dmId === dmId);
@@ -100,7 +106,7 @@ export function messageSendDmV2(token: string, dmId: number, message: string) {
     throw HTTPError(BAD_REQ, 'Invalid message length');
   }
 
-  const newMessageId = sendMessage('d', userId, message, dmGivenIndex);
+  const newMessageId = sendMessage(DM, userId, message, dmGivenIndex);
   return { messageId: newMessageId };
 }
 
@@ -117,9 +123,9 @@ export function messageSendDmV2(token: string, dmId: number, message: string) {
  */
 function generateId(mode: string) {
   let newId: string;
-  if (mode === 'c') {
+  if (mode === CHANNEL) {
     newId = '1' + String(Date.now()) + String(Math.floor(Math.random() * 100));
-  } else if (mode === 'd') {
+  } else if (mode === DM) {
     newId = '2' + String(Date.now()) + String(Math.floor(Math.random() * 100));
   }
 
@@ -228,15 +234,6 @@ function editInChannel(mode: string, token: string, userId: number, isGlobalUser
   const data: dataStoreType = getData();
 
   const channelGiven: channel = isMessageValidChannel(messageId);
-
-  let isMember: boolean;
-  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
-  if (channelsMemberOf.find(channel => channel.channelId === channelGiven.channelId) === undefined) {
-    isMember = false;
-  } else {
-    isMember = true;
-  }
-
   const messageGiven: message = channelGiven.messages.find(message => message.messageId === messageId);
 
   // Checks if user is global owner (who can edit messages), otherwise check further:
@@ -244,7 +241,7 @@ function editInChannel(mode: string, token: string, userId: number, isGlobalUser
     // Checks if user is not owner of channel (who can edit messages), otherwise check further:
     if (channelGiven.ownerMembers.find(owner => owner === userId) === undefined) {
       // Checks if user is part of the channel (i.e. did not leave channel)
-      if (isMember === false) {
+      if (isMember(CHANNEL, token, channelGiven.channelId) === false) {
         throw HTTPError(BAD_REQ, 'Invalid user accessing valid message');
         // Checks if the user (who is a member of channel) is the one wrote message
       } else if (messageGiven.uId !== userId) {
@@ -284,20 +281,11 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
   const data: dataStoreType = getData();
 
   const dmGiven: dm = isMessageValidDm(messageId);
-
-  let isMember: boolean;
-  const dmsMemberOf: Array<dmOutput> = dmListV2(token).dms;
-  if (dmsMemberOf.find(dm => dm.dmId === dmGiven.dmId) === undefined) {
-    isMember = false;
-  } else {
-    isMember = true;
-  }
-
   const messageGiven: message = dmGiven.messages.find(message => message.messageId === messageId);
 
   // If user is not owner of channel: If user is not the person who wrote it then return error
   if (dmGiven.owner !== userId) {
-    if (isMember === false) {
+    if (isMember(DM, token, dmGiven.dmId) === false) {
       throw HTTPError(BAD_REQ, 'Invalid user accessing valid message');
     } else if (messageGiven.uId !== userId) {
       throw HTTPError(FORBID, 'Invalid user accessing message');
@@ -348,6 +336,8 @@ export function messageShareV1(token: string, ogMessageId: number, message: stri
     throw HTTPError(BAD_REQ, 'Invalid id pair');
   } else if (dmId > 0 && channelId !== -1) {
     throw HTTPError(BAD_REQ, 'Invalid id pair');
+  } else if (channelId === -1 && dmId === -1) {
+    throw HTTPError(BAD_REQ, 'Invalid id pair');
   }
 
   // Checking validity of message length
@@ -355,10 +345,8 @@ export function messageShareV1(token: string, ogMessageId: number, message: stri
     throw HTTPError(BAD_REQ, 'Invalid message length');
   }
 
-  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
-  const dmsMemberOf: Array<dmOutput> = dmListV2(token).dms;
-
-  // Checking if ogMessageId is valid and if user is part of the channel/dm
+  // Checking if ogMessageId is valid, if user is part of the channel/dm and
+  // if valid find message.
   let ogChannel: channel;
   let ogDm: dm;
   let ogMessage: message;
@@ -366,7 +354,7 @@ export function messageShareV1(token: string, ogMessageId: number, message: stri
   if (firstDigit === '1') {
     ogChannel = isMessageValidChannel(ogMessageId);
 
-    if (channelsMemberOf.find(channel => channel.channelId === ogChannel.channelId) === undefined) {
+    if (isMember(CHANNEL, token, ogChannel.channelId) === false) {
       throw HTTPError(BAD_REQ, 'Invalid access to ogChannel');
     }
 
@@ -374,7 +362,7 @@ export function messageShareV1(token: string, ogMessageId: number, message: stri
   } else if (firstDigit === '2') {
     ogDm = isMessageValidDm(ogMessageId);
 
-    if (dmsMemberOf.find(dm => dm.dmId === ogDm.dmId) === undefined) {
+    if (isMember(DM, token, ogDm.dmId) === false) {
       throw HTTPError(BAD_REQ, 'Invalid access to ogDm');
     }
 
@@ -382,56 +370,32 @@ export function messageShareV1(token: string, ogMessageId: number, message: stri
   }
 
   // Checking validity of channelId or dmId
-  let sharedMessageId;
+  let sharedMessageId: number;
   if (dmId === -1) {
     const channelGivenIndex = data.channels.findIndex(channel => channel.channelId === channelId);
     if (channelGivenIndex === -1) {
       throw HTTPError(BAD_REQ, 'Invalid channelId');
     }
 
-    if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
+    if (isMember(CHANNEL, token, channelId) === false) {
       throw HTTPError(FORBID, 'Invalid access to channel');
     }
 
-    sharedMessageId = sendMessage('c', userId, message, channelGivenIndex, ogMessage.message);
-    return { sharedMessageId: sharedMessageId };
+    sharedMessageId = sendMessage(CHANNEL, userId, message, channelGivenIndex, ogMessage.message);
   } else if (channelId === -1) {
     const dmGivenIndex = data.dms.findIndex(dm => dm.dmId === dmId);
     if (dmGivenIndex === -1) {
       throw HTTPError(BAD_REQ, 'Invalid dmId');
     }
 
-    if (dmsMemberOf.find(dm => dm.dmId === dmId) === undefined) {
+    if (isMember(DM, token, dmId) === false) {
       throw HTTPError(FORBID, 'Invalid access to dm');
     }
 
-    sharedMessageId = sendMessage('d', userId, message, dmGivenIndex, ogMessage.message);
-    return { sharedMessageId: sharedMessageId };
-  }
-}
-
-export function messageSendLaterV1(token: string, channelId: number, message: string, timeSent: number) {
-  const timeRemain: number = Math.ceil(timeSent - Math.floor(Date.now() / 1000)) * 1000;
-  if (timeRemain < 0) {
-    throw HTTPError(BAD_REQ, 'Invalid time');
+    sharedMessageId = sendMessage(DM, userId, message, dmGivenIndex, ogMessage.message);
   }
 
-  sleep(timeRemain);
-  return messageSendV2(token, channelId, message);
-}
-
-export function messageSendLaterDmV1(token: string, dmId: number, message: string, timeSent: number) {
-  const timeRemain: number = Math.ceil(timeSent - Math.floor(Date.now() / 1000)) * 1000;
-  if (timeRemain < 0) {
-    throw HTTPError(BAD_REQ, 'Invalid time');
-  }
-
-  sleep(timeRemain);
-  return messageSendDmV2(token, dmId, message);
-}
-
-function sleep(timeRemain: number) {
-  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeRemain);
+  return { sharedMessageId: sharedMessageId };
 }
 
 /**
@@ -445,7 +409,7 @@ function sleep(timeRemain: number) {
  *      { }         object     Successful message pin
  */
 export function messagePinV1(token: string, messageId: number) {
-  return pinMessage('p', token, messageId);
+  return pinMessage(PIN, token, messageId);
 }
 
 /**
@@ -459,9 +423,21 @@ export function messagePinV1(token: string, messageId: number) {
  *      { }         object     Successful message unpin
  */
 export function messageUnPinV1(token: string, messageId: number) {
-  return pinMessage('u', token, messageId);
+  return pinMessage(UNPIN, token, messageId);
 }
 
+/**
+ * Helper function for messagePin and messageUnPin. Given valid
+ * token and messageId, pins or unpins message according to mode.
+ *
+ * Arguments:
+ *      mode:       string     Either 'p' (pin) or 'u' (unpin)
+ *      token:      string     The user's unique identifier
+ *      messageId:  number     The message's unique identifier
+ *
+ * Returns:
+ *      { }         object     Successful message unpin
+ */
 function pinMessage(mode: string, token: string, messageId: number) {
   const data: dataStoreType = getData();
 
@@ -474,10 +450,6 @@ function pinMessage(mode: string, token: string, messageId: number) {
   const user: user = data.users.find(user => user.tokens.find(tok => tok === token));
   const userId: number = user.uId;
 
-  // Finding the channels and dms the user is a member of
-  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
-  const dmsMemberOf: Array<dmOutput> = dmListV2(token).dms;
-
   let channelGiven: channel;
   let dmGiven: dm;
   let messageGiven: message;
@@ -485,34 +457,34 @@ function pinMessage(mode: string, token: string, messageId: number) {
   if (firstDigit === '1') {
     // Checking if messageId is valid
     channelGiven = isMessageValidChannel(messageId);
+    messageGiven = channelGiven.messages.find(message => message.messageId === messageId);
 
-    // Checking if user is global owner, otherwise check if member/owner of the message's channel
-    if (user.isGlobalOwner === 2) {
-      if (channelsMemberOf.find(channel => channel.channelId === channelGiven.channelId) === undefined) {
-        throw HTTPError(BAD_REQ, 'Invalid access to message');
-      } else if (channelGiven.ownerMembers.find(user => user === userId) === undefined) {
-        throw HTTPError(FORBID, 'Invalid access to pinning message');
+    // Checking if user is global owner
+    if (user.isGlobalOwner !== 1) {
+      // Checks if user is member of the channel
+      if (isMember(CHANNEL, token, channelGiven.channelId) === false) {
+        throw HTTPError(BAD_REQ, 'Invalid user accessing valid message');
+        // Checks if user is not owner of channel (who can pin messages)
+      } else if (channelGiven.ownerMembers.find(owner => owner === userId) === undefined) {
+        throw HTTPError(FORBID, 'Invalid permissions to pin message');
       }
     }
-
-    messageGiven = channelGiven.messages.find(message => message.messageId === messageId);
   } else if (firstDigit === '2') {
     // Checking if messageId is valid
     dmGiven = isMessageValidDm(messageId);
+    messageGiven = dmGiven.messages.find(message => message.messageId === messageId);
 
     // Checking if member/owner of the message's channel
-    if (dmsMemberOf.find(dm => dm.dmId === dmGiven.dmId) === undefined) {
+    if (isMember(DM, token, dmGiven.dmId) === false) {
       throw HTTPError(BAD_REQ, 'Invalid access to message');
     } else if (dmGiven.owner !== userId) {
-      throw HTTPError(FORBID, 'Invalid access to pinning message');
+      throw HTTPError(FORBID, 'Invalid permissions to pin message');
     }
-
-    messageGiven = dmGiven.messages.find(message => message.messageId === messageId);
   }
 
-  if (mode === 'p' && messageGiven.isPinned === true) {
+  if (mode === PIN && messageGiven.isPinned === true) {
     throw HTTPError(BAD_REQ, 'Message already pinned');
-  } else if (mode === 'u' && messageGiven.isPinned === false) {
+  } else if (mode === UNPIN && messageGiven.isPinned === false) {
     throw HTTPError(BAD_REQ, 'Message already unpinned');
   }
 
@@ -533,7 +505,111 @@ function pinMessage(mode: string, token: string, messageId: number) {
   return {};
 }
 
-/// Helper Functions ///
+/**
+ * Given a valid channelId, message and timeSent, the message is sent at the time specified.
+ *
+ * Arguments:
+ *      token:      string     The user's unique identifier
+ *      channelId:  number     The channel's unique identifier
+ *      message:    string     The message to be sent
+ *      timeSent:   number     The time to send message
+ *
+ * Returns:
+ *      { messageId: <number> } object     Successful message send
+ */
+export function messageSendLaterV1(token: string, channelId: number, message: string, timeSent: number) {
+  const timeRemain: number = Math.ceil(timeSent - Math.floor(Date.now() / 1000)) * 1000;
+  if (timeRemain < 0) {
+    throw HTTPError(BAD_REQ, 'Invalid time');
+  }
+
+  sleep(CHANNEL, timeRemain);
+  return messageSendV2(token, channelId, message);
+}
+
+/**
+ * Given a valid dmId, message and timeSent, the message is sent at the time specified.
+ *
+ * Arguments:
+ *      token:      string     The user's unique identifier
+ *      dmId:       number     The dm's unique identifier
+ *      message:    string     The message to be sent
+ *      timeSent:   number     The time to send message
+ *
+ * Returns:
+ *      { messageId: <number> } object     Successful message send
+ */
+export function messageSendLaterDmV1(token: string, dmId: number, message: string, timeSent: number) {
+  const timeRemain: number = Math.ceil(timeSent - Math.floor(Date.now() / 1000)) * 1000;
+  if (timeRemain < 0) {
+    throw HTTPError(BAD_REQ, 'Invalid time');
+  }
+
+  const data: dataStoreType = getData();
+  if (data.dms.find(dm => dm.dmId === dmId) === undefined) {
+    throw HTTPError(BAD_REQ, 'Invalid dmId');
+  }
+
+  const messageId: number | undefined = sleep(DM, timeRemain, dmId);
+  if (messageId !== undefined) {
+    return { messageId: messageId };
+  }
+
+  return messageSendDmV2(token, dmId, message);
+}
+
+/**
+ * Helper function for messageSendLaterV1 and messageSendLaterDmV1. Given a time period
+ * in seconds, pauses execution of above functions for the time period.
+ *
+ * Arguments:
+ *      timeRemain:   number     The time period in seconds
+ */
+function sleep(mode: string, timeRemain: number, id?: number) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, timeRemain);
+
+  if (mode === DM) {
+    const data: dataStoreType = getData();
+    if (data.dms.find(dm => dm.dmId === id) === undefined) {
+      return generateId(mode);
+    }
+  }
+}
+
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////        Helper Functions       /////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Helper function to check if the user is a member of the channel or dm.
+ *
+ * Arguments:
+ *      mode:               string     Either 'c' (channel) or 'd' (dm)
+ *      token:              number     The user's unique session identifer
+ *      id:                 number     The channel/dm's unique identifier
+ *
+ * Returns:
+ *      true/false:         boolean
+ */
+function isMember(mode: string, token: string, id: number) {
+  if (mode === CHANNEL) {
+    const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
+
+    if (channelsMemberOf.find(channel => channel.channelId === id) === undefined) {
+      return false;
+    }
+  } else if (mode === DM) {
+    const dmsMemberOf: Array<dmOutput> = dmListV2(token).dms;
+
+    if (dmsMemberOf.find(dm => dm.dmId === id) === undefined) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 /**
  * Helper function for messageSend, messageSendDm and messageShare
@@ -559,12 +635,7 @@ function sendMessage(mode: string, userId: number, message: string, index: numbe
     }
   }
 
-  let newMessageId: number;
-  if (mode === 'c') {
-    newMessageId = generateId(mode);
-  } else if (mode === 'd') {
-    newMessageId = generateId(mode);
-  }
+  const newMessageId: number = generateId(mode);
 
   const newMessage: message = {
     messageId: newMessageId,
@@ -574,9 +645,9 @@ function sendMessage(mode: string, userId: number, message: string, index: numbe
     isPinned: false,
   };
 
-  if (mode === 'c') {
+  if (mode === CHANNEL) {
     data.channels[index].messages.unshift(newMessage);
-  } else if (mode === 'd') {
+  } else if (mode === DM) {
     data.dms[index].messages.unshift(newMessage);
   }
 

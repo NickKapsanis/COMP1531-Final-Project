@@ -528,12 +528,14 @@ describe('Tests for message/share/v1', () => {
     expect(res3.statusCode).toBe(BAD_REQ);
   });
 
-  test('Case 2: Neither channelId nor dmId are -1', () => {
+  test('Case 2: Neither channelId nor dmId are -1 or both are -1', () => {
     // Token 2 is sharing messageId to channel2 and dm1 but not -1
     const res1 = requestMessageShareV1(token2, messageId1, 'Attach message', channelId1, -100);
     const res2 = requestMessageShareV1(token2, messageId1, 'Attach message', -100, dmId1);
+    const res3 = requestMessageShareV1(token2, messageId1, 'Attach message', -1, -1);
     expect(res1.statusCode).toBe(BAD_REQ);
     expect(res2.statusCode).toBe(BAD_REQ);
+    expect(res3.statusCode).toBe(BAD_REQ);
   });
 
   test('Case 3: ogMessageId refers to message in a channel/dm user not member of', () => {
@@ -796,9 +798,15 @@ describe('Tests for message/sendlaterdm/v1', () => {
     expect(bodyObj.messageId).toStrictEqual(expect.any(Number));
   });
 
-  // test('Case 7: DM is removed before the message has sent', () => {
-  // how to test?
-  // });
+  test('Case 7: DM is removed before the message has sent', () => {
+    const timeSent = Math.floor(Date.now() / 1000) + 1;
+    const res = requestMessageSendLaterDmV1(token1, dmId1, 'Message 1', timeSent);
+    requestDmRemoveV2(token1, dmId1);
+    expect(res.statusCode).toBe(OK);
+
+    const bodyObj = JSON.parse(String(res.getBody()));
+    expect(bodyObj.messageId).toStrictEqual(expect.any(Number));
+  });
 
   test('Case 8: invalid token', () => {
     const timeSent = Math.floor(Date.now() / 1000) + 1;
@@ -834,7 +842,9 @@ describe('Tests for message/pin/v1', () => {
   let dmId1: number;
   let messageId1: number;
   let messageId2: number;
-  let messageId3: number;
+  // let messageId3: number;
+  let messageId4: number;
+  // let messageId5: number;
 
   beforeEach(() => {
     //  channelId1: [owners: 1][members: 1,2] channelId2: [owners: 1, 2][members: 2, 3] (because token1 is a global owner)
@@ -850,8 +860,10 @@ describe('Tests for message/pin/v1', () => {
     requestChannelInviteV2(token2, channelId2, 3);
 
     messageId1 = requestMessageSendV2(token1, channelId1, 'Message C1.1');
-    messageId2 = requestMessageSendV2(token3, channelId2, 'Message C2.1');
-    messageId3 = requestMessageSendDmV2(token2, dmId1, 'Message D1.1');
+    messageId2 = requestMessageSendV2(token2, channelId2, 'Message C2.1');
+    // messageId3 = requestMessageSendV2(token3, channelId2, 'Message C2.2');
+    messageId4 = requestMessageSendDmV2(token2, dmId1, 'Message D1.1');
+    // messageId5 = requestMessageSendDmV2(token3, dmId1, 'Message D1.2');
   });
 
   afterEach(() => {
@@ -866,7 +878,7 @@ describe('Tests for message/pin/v1', () => {
 
   test('Case 2: messageId refers to message in a dm user not member of', () => {
     // Token1 is pinning messageId1 which is in different channel
-    const res = requestMessagePinV1(token1, messageId3);
+    const res = requestMessagePinV1(token1, messageId4);
     expect(res.statusCode).toBe(BAD_REQ);
   });
 
@@ -879,15 +891,15 @@ describe('Tests for message/pin/v1', () => {
     expect(res.statusCode).toBe(BAD_REQ);
   });
 
-  test('Case 4: user no owner permissions in channel', () => {
+  test('Case 4: user with no owner permissions in channel', () => {
     // Token 3 (not owner) pins messageId2
     const res = requestMessagePinV1(token3, messageId2);
     expect(res.statusCode).toBe(FORBID);
   });
 
-  test('Case 5: user no owner permissions in dm', () => {
+  test('Case 5: user with no owner permissions in dm', () => {
     // Token 3 (not owner) pins messageId3
-    const res = requestMessagePinV1(token3, messageId3);
+    const res = requestMessagePinV1(token3, messageId4);
     expect(res.statusCode).toBe(FORBID);
   });
 
@@ -902,7 +914,7 @@ describe('Tests for message/pin/v1', () => {
 
   test('Case 7: sucessful pin, (dm)', () => {
     // Token 2 (owner of dm) pins messageId3
-    const res = requestMessagePinV1(token2, messageId3);
+    const res = requestMessagePinV1(token2, messageId4);
     expect(res.statusCode).toBe(OK);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -962,7 +974,7 @@ describe('Tests for message/unpin/v1', () => {
     requestChannelInviteV2(token2, channelId2, 3);
 
     messageId1 = requestMessageSendV2(token1, channelId1, 'Message C1.1');
-    messageId2 = requestMessageSendV2(token3, channelId2, 'Message C2.1');
+    messageId2 = requestMessageSendV2(token2, channelId2, 'Message C2.1');
     messageId3 = requestMessageSendDmV2(token2, dmId1, 'Message D1.1');
     requestMessagePinV1(token1, messageId1);
     requestMessagePinV1(token1, messageId2);
@@ -1212,6 +1224,23 @@ function requestDmMessageV2(token: string, dmId: number, start: number) {
   );
 
   return JSON.parse(String(res.getBody())).messages;
+}
+
+function requestDmRemoveV2(token: string, dmId: number) {
+  const res = request(
+    'DELETE',
+    `${url}:${port}/dm/remove/v2`,
+    {
+      qs: {
+        dmId: dmId,
+      },
+      headers: {
+        token: token,
+      },
+    }
+  );
+
+  return JSON.parse(String(res.getBody()));
 }
 
 function requestMessageSendDmV2(token: string, dmId: number, message: string) {
