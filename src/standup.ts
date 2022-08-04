@@ -145,7 +145,6 @@ function finishStandup(channelId: number, user: user) {
     }
     // last message shouldn't print a newline afterwards
     finalOutput += channel.standupMessageBank[(channel.standupMessageBank.length) - 1];
-    console.log(finalOutput);
   } else {
     return;
   }
