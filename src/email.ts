@@ -1,21 +1,20 @@
-import { getData } from "./dataStore";
 
 const nodemailer = require('nodemailer');
-var transporter = nodemailer.createTransport({
-    // was having lots of issues with maximum sessions and emails so these limit
-    maxConnections: 3,
-    pool: true,
-    //defie the host and login to the email to send from
-    host: "smtp-mail.outlook.com", // hostname
-    secureConnection: false, // TLS requires secureConnection to be false
-    port: 587, // port for secure SMTP
-    tls: {
-       ciphers:'SSLv3'
-    },
-    auth: {
-        user: 'm13aboost.passwordreset@hotmail.com',
-        pass: 'ThisIsATestingAccount123'
-    }
+const transporter = nodemailer.createTransport({
+  // was having lots of issues with maximum sessions and emails so these limit
+  maxConnections: 1,
+  pool: true,
+  // defie the host and login to the email to send from
+  host: 'smtp-mail.outlook.com', // hostname
+  secureConnection: false, // TLS requires secureConnection to be false
+  port: 587, // port for secure SMTP
+  tls: {
+    ciphers: 'SSLv3'
+  },
+  auth: {
+    user: 'm13aboost.passwordreset@hotmail.com',
+    pass: 'ThisIsATestingAccount123'
+  }
 });
   // defines the transport oobject that nodemailer uses
   // to send emails, currently set to mailtrap SMTP server
@@ -28,7 +27,7 @@ var transporter = nodemailer.createTransport({
 //       pass: '52934923474d4e'
 //     }
 //   });
-//actual transporter object for use with email.
+// actual transporter object for use with email.
 // const transporter = nodemailer.createTransport({
 //     service: 'SendPulse',
 //     auth: {
@@ -40,22 +39,21 @@ var transporter = nodemailer.createTransport({
 // email reset code will check when the last call was made to send an email, and wait 11 seconds to avoid triggering spam filter
 // and getting the email blocked.
 export function emailResetCode(email: string, newResetcode: string, timeToWait: number) {
+  // execute the rest after timeToWait;
+  setTimeout(() => {
+    // define the message to be sent
+    const message = {
+      from: 'm13aboost.passwordreset@hotmail.com',
+      to: email,
+      subject: 'UNSW Treats Passoword Reset Requested',
+      text: newResetcode
+    };
 
-    // execute the rest after timeToWait;
-    setTimeout(() => {   
-        // define the message to be sent
-        const message = {
-        from: 'm13aboost.passwordreset@hotmail.com',
-        to: email,
-        subject: 'UNSW Treats Passoword Reset Requested',
-        text: newResetcode
-        };
-
-        transporter.sendMail(message, function(error, info){
-        if(error){
-            return console.log(error);
-        }
-        console.log('message sent: ' + info.response);
-        });
-    }, timeToWait);
+    transporter.sendMail(message, function(error: any, info: any) {
+      if (error) {
+        return console.log(error);
+      }
+      console.log('message sent: ' + info.response);
+    });
+  }, timeToWait);
 }

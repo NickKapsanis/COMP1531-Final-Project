@@ -34,17 +34,18 @@ type channel = {
   ownerMembers : number[]; // array of all owners user Id's
   messages?: message[];
 }
-type dataStoreType = {
-  users? : user[];
-  channels? : channel[];
-  dms? : dm[];
-  passwordReset? : passwordReset[];
-}
 type passwordReset = {
   code: string,
   userEmail: string,
   timeToWait: number,
   timeStamp: number,
+}
+
+type dataStoreType = {
+  users? : user[];
+  channels? : channel[];
+  dms? : dm[];
+  passwordReset? : passwordReset[];
 }
 
 const data: dataStoreType = {
