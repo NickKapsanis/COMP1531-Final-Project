@@ -1840,8 +1840,10 @@ function requestChannelLeaveV2(token: string, channelId: number) {
     `${url}:${port}/channel/leave/v2`,
     {
       json: {
-        token: token,
         channelId: channelId,
+      },
+      headers: {
+        token: token,
       }
     }
   );
