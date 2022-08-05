@@ -1,5 +1,5 @@
 import { getData, setData, dataStoreType, user, channel, message, dm } from './dataStore';
-import { channelsListV2 } from './channels';
+import { channelsListV3 } from './channels';
 import { dmListV2 } from './dm';
 import HTTPError from 'http-errors';
 
@@ -631,7 +631,7 @@ function reactUnreactMessage(mode: string, token: string, messageId: number, rea
   const userId: number = user.uId;
 
   // Finding the channels and dms the user is a member of
-  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
+  const channelsMemberOf: Array<channelOutput> = channelsListV3(token).channels;
   const dmsMemberOf: Array<dmOutput> = dmListV2(token).dms;
 
   let channelGiven: channel;
@@ -773,7 +773,7 @@ function reactUnreactMessage(mode: string, token: string, messageId: number, rea
  */
 function isMember(mode: string, token: string, id: number) {
   if (mode === CHANNEL) {
-    const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
+    const channelsMemberOf: Array<channelOutput> = channelsListV3(token).channels;
 
     if (channelsMemberOf.find(channel => channel.channelId === id) === undefined) {
       return false;
@@ -785,7 +785,6 @@ function isMember(mode: string, token: string, id: number) {
       return false;
     }
   }
-
   return true;
 }
 

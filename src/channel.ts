@@ -1,6 +1,6 @@
 import { getData, setData, dataStoreType, channel, message, user } from './dataStore';
 import { userProfileV3 } from './users';
-import { channelsListV2 } from './channels';
+import { channelsListV3 } from './channels';
 import { getUId } from './other';
 import { checkValidToken } from './auth';
 import HTTPError from 'http-errors';
@@ -51,7 +51,7 @@ function channelDetailsV3(token: string, channelId: number) {
     throw HTTPError(FORBID, 'Invalid token');
   }
 
-  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
+  const channelsMemberOf: Array<channelOutput> = channelsListV3(token).channels;
 
   // Checking if valid channelIds were given
   if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
@@ -114,7 +114,7 @@ function channelMessagesV3(token: string, channelId: number, start: number) {
     throw HTTPError(FORBID, 'Invalid token');
   }
 
-  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
+  const channelsMemberOf: Array<channelOutput> = channelsListV3(token).channels;
 
   // Checking validity of 'channelId' input
   if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
@@ -355,22 +355,28 @@ function removeChannelOwnerV2(token: string, channelId: number, uId: number) {
 *                                       or valid channelId given member is not a part of.
 *   {}                   empty object   Successful run
 */
-function channelsLeaveV1(token: string, channelId: number) {
-  if (!checkValidToken(token)) return { error: 'error' };
+function channelsLeaveV2(token: string, channelId: number) {
+  console.log('token is: ' + token);
+  if (!checkValidToken(token)) throw HTTPError(FORBID, 'Invalid token');
 
   const data = getData();
 
   const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
 
-  const user = data.users.find(i => i.authUserId === authUserId);
-  if (user === undefined) { return { error: 'error' }; }
+  // don't need this line anymore
+  // const user = data.users.find(i => i.authUserId === authUserId);
 
-  // the channelsListV1, which uses getUId function already does error checking within.
-  const channelsArray = channelsListV2(token).channels;
+  // the channelsListV3, which uses getUId function already does error checking within.
+  const channelsArray = channelsListV3(token).channels;
   const uId = getUId(authUserId);
 
-  if (channelsArray.length === 0) {
-    return { error: 'error' };
+  if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
+    throw HTTPError(BAD_REQ, 'Invalid channel');
+  }
+
+  // case given user wasn't a part of channel.
+  if (channelsArray.find(channel => channel.channelId === channelId) === undefined) {
+    throw HTTPError(FORBID, 'member isnt part of channel');
   }
 
   // loops through all channels given member is a part of, removes member.
@@ -391,8 +397,6 @@ function channelsLeaveV1(token: string, channelId: number) {
       }
     }
   }
-  // case given user wasn't a part of channel.
-  return { error: 'error' };
 }
 
-export { channelJoinV3, channelInviteV3, addChannelOwnerV2, removeChannelOwnerV2, getChannel, channelDetailsV3, channelMessagesV3, channelsLeaveV1 };
+export { channelJoinV3, channelInviteV3, addChannelOwnerV2, removeChannelOwnerV2, getChannel, channelDetailsV3, channelMessagesV3, channelsLeaveV2 };

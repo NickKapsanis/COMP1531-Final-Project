@@ -21,15 +21,14 @@ Arguments:
 Return Value:
     channelsArray: array    - an array of all channels user is in.
 */
-function channelsListV2(token: string) {
-  if (!checkValidToken(token)) return { error: 'error' };
+function channelsListV3(token: string) {
+  if (!checkValidToken(token)) throw HTTPError(FORBIDDEN, 'invalid token.');
 
   const data = getData();
 
   const authUserId = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
 
   const user = data.users.find(i => i.authUserId === authUserId);
-  if (user === undefined) { return { error: 'error' }; }
 
   let numChannels = 0;
   const channelsArray = [];
@@ -67,15 +66,14 @@ function channelsListV2(token: string) {
   Return Value:
       allChannelsArray: array    - an array of all channels.
   */
-function channelsListallV2(token: string) {
-  if (!checkValidToken(token)) return { error: 'error' };
+function channelsListallV3(token: string) {
+  if (!checkValidToken(token)) throw HTTPError(FORBIDDEN, 'invalid token.');
 
   const data = getData();
 
-  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
-
-  const user = data.users.find(i => i.authUserId === authUserId);
-  if (user === undefined) { return { error: 'error' }; }
+  // don't need this code anymore
+  // const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
+  // const user = data.users.find(i => i.authUserId === authUserId);
 
   const allChannelsArray = [];
 
@@ -145,4 +143,4 @@ function channelsCreateV3(token: string, name: string, isPublic: boolean) {
   return { channelId: newChannelId };
 }
 
-export { channelsCreateV3, channelsListV2, channelsListallV2 };
+export { channelsCreateV3, channelsListV3, channelsListallV3 };

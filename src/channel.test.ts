@@ -370,35 +370,51 @@ describe('Testing removeChannelOwnerV2', () => {
 /// /////////Tests for channelLeaveV1()//////////
 /// /////////////////////////////////////////////
 
+test('tests invalid token case', () => {
+  request('DELETE', url + '/clear/v1');
+
+  const james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
+
+  const testCreatedChannel = createChannel(james.token, 'testChannel1', true).channelId;
+
+  const res = request(
+    'POST',
+    url + '/channel/leave/v2',
+    {
+      body: JSON.stringify({
+        channelId: testCreatedChannel,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+        token: 'someInvalidToken',
+      },
+    }
+  );
+  expect(res.statusCode).toBe(FORBID);
+});
+
 test('tests the case that user isnt in the given channel', () => {
   request('DELETE', url + '/clear/v1');
 
   const james = createUser('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufus = createUser('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
 
-  const testCreatedChannel = createChannel(james.token, 'testChannel1', true);
+  const testCreatedChannel = createChannel(james.token, 'testChannel1', true).channelId;
 
   const res = request(
     'POST',
-    url + '/channel/leave/v1',
+    url + '/channel/leave/v2',
     {
       body: JSON.stringify({
-        token: rufus.token,
         channelId: testCreatedChannel,
       }),
       headers: {
         'Content-type': 'application/json',
+        token: rufus.token,
       },
     }
   );
-
-  const bodyObj = JSON.parse(res.body as string);
-  const JamesChannels = channelsListV2(james.token).channels;
-  // console.log(JamesChannels);
-
-  expect(JamesChannels[0].channelId).toEqual(testCreatedChannel.channelId);
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toEqual({ error: 'error' });
+  expect(res.statusCode).toBe(FORBID);
 });
 
 test('tests the case with only given user in channel', () => {
@@ -409,24 +425,18 @@ test('tests the case with only given user in channel', () => {
 
   const res = request(
     'POST',
-    url + '/channel/leave/v1',
+    url + '/channel/leave/v2',
     {
       body: JSON.stringify({
-        token: james.token,
         channelId: testCreatedChannel,
       }),
       headers: {
         'Content-type': 'application/json',
+        token: james.token,
       },
     }
   );
-
-  const bodyObj = JSON.parse(res.body as string);
-  const JamesChannels = channelsListV2(james.token).channels;
-
-  expect(JamesChannels).toEqual([]);
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toEqual({});
+  expect(res.statusCode).toBe(OK);
 });
 
 test('tests the general case, channel with multiple people.', () => {
@@ -441,24 +451,18 @@ test('tests the general case, channel with multiple people.', () => {
 
   const res = request(
     'POST',
-    url + '/channel/leave/v1',
+    url + '/channel/leave/v2',
     {
       body: JSON.stringify({
-        token: rufus.token,
         channelId: testCreatedChannel,
       }),
       headers: {
+        token: rufus.token,
         'Content-type': 'application/json',
       },
     }
   );
-
-  const bodyObj = JSON.parse(res.body as string);
-  const rufusChannels = channelsListV2(rufus.token).channels;
-
-  expect(rufusChannels).toEqual([]);
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toEqual({});
+  expect(res.statusCode).toBe(OK);
 });
 
 test('tests the multiple channels and multiple people.', () => {
@@ -477,24 +481,18 @@ test('tests the multiple channels and multiple people.', () => {
 
   const res = request(
     'POST',
-    url + '/channel/leave/v1',
+    url + '/channel/leave/v2',
     {
       body: JSON.stringify({
-        token: james.token,
         channelId: testCreatedChannel,
       }),
       headers: {
+        token: james.token,
         'Content-type': 'application/json',
       },
     }
   );
-
-  const bodyObj = JSON.parse(res.body as string);
-  const jamesChannels = channelsListV2(james.token).channels;
-
-  expect(jamesChannels[0].channelId).toEqual(secondTestCreatedChannel);
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toEqual({});
+  expect(res.statusCode).toBe(OK);
 });
 
 // assumption - both global and channel owners can add and remove themselves as channel owners
@@ -508,9 +506,9 @@ test('tests the multiple channels and multiple people.', () => {
 function requestChannelsListallV3(token: string) {
   const res = request(
     'GET',
-        `${hosturl}:${port}/channels/listall/v2`,
+        `${hosturl}:${port}/channels/listall/v3`,
         {
-          qs: {
+          headers: {
             token: token,
           }
         }
@@ -658,16 +656,6 @@ const removeOwner = (tokens: string, channelIds: number, uIds: number) => {
   if (res.statusCode !== 200) {
     return res.statusCode;
   }
-  return JSON.parse(String(res.getBody()));
-};
-
-const channelsListV2 = (tokens: string) => {
-  const res = request(
-    'GET', url + '/channels/list/v2',
-    {
-      qs: { token: tokens },
-    }
-  );
   return JSON.parse(String(res.getBody()));
 };
 

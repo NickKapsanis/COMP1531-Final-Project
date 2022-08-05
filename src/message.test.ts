@@ -1792,11 +1792,11 @@ function requestChannelsCreateV3(token: string, name: string, isPublic: boolean)
 function requestChannelsListallV3(token: string) {
   const res = request(
     'GET',
-    `${url}:${port}/channels/listall/v2`,
+    `${url}:${port}/channels/listall/v3`,
     {
-      qs: {
+      headers: {
         token: token,
-      }
+      },
     }
   );
 
@@ -1837,11 +1837,13 @@ function requestchannelJoinV3(tokens: string, channelIds: number) {
 function requestChannelLeaveV2(token: string, channelId: number) {
   const res = request(
     'POST',
-    `${url}:${port}/channel/leave/v1`,
+    `${url}:${port}/channel/leave/v2`,
     {
       json: {
-        token: token,
         channelId: channelId,
+      },
+      headers: {
+        token: token,
       }
     }
   );
