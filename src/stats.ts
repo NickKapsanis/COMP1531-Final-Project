@@ -40,7 +40,14 @@ export function userStatsV1(token: string) {
     }
 
     userStats.involvementRate = involvementRate;
-    return {userStats: userStats};
+
+    userStatsOutput = {
+        channelsJoined: userStats.channelsJoined,
+        dmsJoined: userStats.dmsJoined, 
+        messagesSent: userStats.messagesSent,
+        involvementRate: userStats.involvementRate
+    }
+    return {userStats: userStatsOutput};
 
 }
 
@@ -60,8 +67,16 @@ export function usersStatsV1(token: string) {
         }
     }
     
-    workspace.utilizationRate = count / data.users.length;
+    if (data.users.length === 0) {
+        workspaceStats.utilizationRate = 0;
+        return { workspaceStats: workspaceStats};
+    }
+    else if (count / data.users.length > 1) {
+        workspaceStats.utilizationRate = 1;
+        return { workspaceStats: workspaceStats};
+    }
 
+    workspaceStats.utilizationRate = count / data.users.length;
     return { workspaceStats: workspaceStats};
 
 }

@@ -196,6 +196,21 @@ function channelJoinV2(token: string, channelId: number) {
   data.users[data.users.indexOf(data.users[userIndex])].channels.push(channelId);
   data.channels[data.channels.indexOf(channel)].allMembers.push(data.users[userIndex].uId);
   setData(data);
+
+  // Analytics 
+  const time = Date.now();
+  // User Stats
+  const uId = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
+  const userStats = data.userStats.find(i => i.uId === uId);
+
+  data.userStats = data.userStats.filter(i => i.uId !== uId);
+  
+  const numChannelsJoined = userStats.channelsJoined[userStats.channelsJoined.length - 1].numChannelsJoined + 1;
+  userStats.channelsJoined.push({numChannelsJoined: numChannelsJoined, timeStamp: time})
+  data.userStats.push(userStats);
+
+  setData(data);
+
   return {};
 }
 
@@ -249,6 +264,21 @@ function channelInviteV2(token: string, channelId: number, uId: number) {
   data.users[data.users.indexOf(userJoining)].channels.push(channelId);
   data.channels[data.channels.indexOf(channel)].allMembers.push(userJoining.uId);
   setData(data);
+
+  // Analytics 
+  const time = Date.now();
+  // User Stats
+  const userStats = data.userStats.find(i => i.uId === uId);
+
+  data.userStats = data.userStats.filter(i => i.uId !== uId);
+  
+  const numChannelsJoined = userStats.channelsJoined[userStats.channelsJoined.length - 1].numChannelsJoined + 1;
+  userStats.channelsJoined.push({numChannelsJoined: numChannelsJoined, timeStamp: time})
+  data.userStats.push(userStats);
+
+  setData(data);
+
+
   return {};
 }
 
@@ -410,6 +440,21 @@ function channelsLeaveV1(token: string, channelId: number) {
           data.channels[foundChannelIndex] = foundChannel;
 
           setData(data);
+
+          // Analytics 
+          const time = Date.now();
+          // User Stats
+          const uId = user.uId;
+          const userStats = data.userStats.find(i => i.uId === uId);
+
+          data.userStats = data.userStats.filter(i => i.uId !== uId);
+  
+          const numChannelsJoined = userStats.channelsJoined[userStats.channelsJoined.length - 1].numChannelsJoined - 1;
+          userStats.channelsJoined.push({numChannelsJoined: numChannelsJoined, timeStamp: time})
+          data.userStats.push(userStats);
+
+          setData(data);
+
           return {};
         }
       }

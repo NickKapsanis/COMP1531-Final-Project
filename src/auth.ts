@@ -125,6 +125,31 @@ export function authRegisterV1(email: string, password: string, nameFirst: strin
   // put the new user into data and set the data.
   data.users.push(newUser);
   setData(data);
+
+  // Analytics
+  const time = Date.now();
+  // userStats
+  const userStats = {
+    uId: newUid,
+    channelsJoined: [{numChannelsJoined: 0, timeStamp: time}],
+    dmsJoined: [{numDmsJoined: 0, timeStamp: time}], 
+    messagesSent: [{numMessagesSent: 0, timeStamp: time}], 
+    involvementRate: 0
+  }
+  data.userStats.push(userStats);
+
+  // Workspace Stats
+  if (isGlobalOwner == 1) {
+    const workspaceStats = {
+      channelsExist: [{numChannelsExist: 0, timeStamp: time}], 
+      dmsExist: [{numDmsExist: 0, timeStamp: time}],
+      messagesExist: [{numMessagesExist: 0, timeStamp: time}],
+      utilizationRate: 0
+    }
+    data.workspaceStats.push(workspaceStats);
+  }
+
+  setData(data);
   // now log in the new user, and return token and authuserId as per authLogin
   return authLoginV1(newUser.email, newUser.password);
 }

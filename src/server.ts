@@ -189,8 +189,6 @@ app.put('/user/profile/sethandle/v1', (req, res) => {
 });
 
 
-
-
 // channelDetailsV2
 app.get('/channel/details/v2', (req, res) => {
   const token = String(req.query.token);
@@ -237,6 +235,19 @@ app.put('/message/edit/v1', (req, res) => {
   const { token, messageId, message } = req.body;
   res.json(messageEditV1(token, messageId, message));
 });
+
+// userStats
+app.get('/user/stats/v1', (req, res) => {
+  const token = String(req.header('token'));
+  res.json(userStatsV1(token));
+});
+
+//usersStats
+app.get('/users/stats/v1', (req, res) => {
+  const token = String(req.header('token'));
+  res.json(usersStatsV1(token));
+});
+
 
 // handles errors nicely
 app.use(errorHandler());

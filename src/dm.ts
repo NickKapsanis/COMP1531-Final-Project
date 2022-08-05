@@ -82,6 +82,19 @@ export function dmLeaveV1(token: string, dmId: number) {
   }
   // now set the modified data
   setData(data);
+
+  // Analytics 
+  const time = Date.now();
+  // UserStats
+  const userStats = data.userStats.find(i => i.uId === userId);
+
+  data.userStats = data.userStats.filter(i => i.uId !== userId);
+  
+  const numDmsJoined = userStats.dmsJoined[userStats.dmsJoined.length - 1].numDmsJoined - 1;
+  userStats.dmsJoined.push({numDmsJoined: numDmsJoined, timeStamp: time})
+  data.userStats.push(userStats);
+  setData(data);
+
   return {};
 }
 /*
@@ -192,6 +205,25 @@ export function dmCreateV1(token: string, uIds: number[]) {
 
   setData(data);
 
+  // Analytics 
+  const time = Date.now();
+  // User Stats
+  for (let u of uIds) {
+    const userStats = data.userStats.find(i => i.uId === u);
+
+    data.userStats = data.userStats.filter(i => i.uId !== u);
+  
+    const numDmsJoined = userStats.dmsJoined[userStats.dmsJoined.length - 1].numDmsJoined + 1;
+    userStats.dmsJoined.push({numDmsJoined: numDmsJoined, timeStamp: time})
+    data.userStats.push(userStats);
+  }
+  
+  // Workspace stats
+  const numDmsExist = workspaceStats.dmsExist[workspaceStats.dmsExist.length - 1].numDmsExist + 1;
+  data.workspaceStats.dmsExist.push({numDmsExist: numDmsExist, timeStamp: time})
+
+  setData(data);
+
   return { dmId: newDmId };
 }
 /*
@@ -259,10 +291,37 @@ export function dmRemoveV1(token: string, dmId: number) {
     data.users.push(user);
   }
 
+  // For analytics
+  const numMessages = dm.messages.length;
+  let uIds = dm.allMembers;
+  uIds.push(dm.owner);
+
   data.dms = data.dms.filter(i => i.dmId !== dmId);
+  setData(data);
+
+  // Analytics
+  const time = Date.now();
+  for (let u of uIds) {
+    const userStats = data.userStats.find(i => i.uId === u);
+
+    data.userStats = data.userStats.filter(i => i.uId !== u);
+  
+    const numDmsJoined = userStats.dmsJoined[userStats.dmsJoined.length - 1].numDmsJoined - 1;
+    userStats.dmsJoined.push({numDmsJoined: numDmsJoined, timeStamp: time})
+    data.userStats.push(userStats);
+  }
+
+  // Workspace stats
+  const numDmsExist = workspaceStats.dmsExist[workspaceStats.dmsExist.length - 1].numDmsExist - 1;
+  data.workspaceStats.dmsExist.push({numDmsExist: numDmsExist, timeStamp: time});
+
+  const numMessagesExist = workspaceStats.messagesExist[workspaceStats.messagesExist.length - 1].numMessagesExist - numMessages;
+  data.workspaceStats.messagesExist.push({numMessagesExist: numMessagesExist, timeStamp: time});
+
   setData(data);
   return {};
 }
+
 // helper function returns true or false if the input dmId is or is not a valid dmId in the datastore repectivly.
 function checkValidDmId(dmId: number) {
   const data = getData();
@@ -272,6 +331,7 @@ function checkValidDmId(dmId: number) {
     return false;
   }
 }
+
 // helper function returns true or false if the input token authuser is or is not a member of the dmId
 function isMemberOf(dmId: number, token: string) {
   const data = getData();
@@ -283,6 +343,7 @@ function isMemberOf(dmId: number, token: string) {
     return false;
   }
 }
+
 // helper function returns true or false if the input token authUSer is or is not a memebr of the dmId
 function isOwnerOf(dmId: number, token: string) {
   const data = getData();
@@ -294,6 +355,7 @@ function isOwnerOf(dmId: number, token: string) {
     return false;
   }
 }
+
 // helper function returns userId of authUserId returns -1 if the authUserId is not in the datastore.
 export function giveUid(authUserId: number) {
   const userId = getData().users?.find(user => user.authUserId === authUserId)?.uId;

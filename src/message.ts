@@ -63,6 +63,25 @@ export function messageSendV1(token: string, channelId: number, message: string)
   data.channels[channelGivenIndex].messages.unshift(newMessage);
   setData(data);
 
+  // Analytics 
+  const time = Date.now();
+  // User Stats
+  const uId = userId;
+  const userStats = data.userStats.find(i => i.uId === uId);
+
+  data.userStats = data.userStats.filter(i => i.uId !== uId);
+  
+  const numMessagesSent = userStats.messagesSent[userStats.messagesSent.length - 1].numMessagesSent + 1;
+  userStats.messagesSent.push({numMessagesSent: numMessagesSent, timeStamp: time})
+  data.userStats.push(userStats);
+
+  // Workspace stats
+  const numMessagesExist = workspaceStats.messagesExist[workspaceStats.messagesExist.length - 1].numMessagesExist + 1;
+  data.workspaceStats.messagesExist.push({numMessagesExist: numMessagesExist, timeStamp: time})
+
+  setData(data);
+
+
   return { messageId: newMessageId };
 }
 
@@ -115,6 +134,24 @@ export function messageSendDmV1(token: string, dmId: number, message: string) {
   };
 
   data.dms[dmGivenIndex].messages.unshift(newMessage);
+  setData(data);
+
+  // Analytics 
+  const time = Date.now();
+  // User Stats
+  const uId = userId;
+  const userStats = data.userStats.find(i => i.uId === uId);
+
+  data.userStats = data.userStats.filter(i => i.uId !== uId);
+  
+  const numMessagesSent = userStats.messagesSent[userStats.messagesSent.length - 1].numMessagesSent + 1;
+  userStats.messagesSent.push({numMessagesSent: numMessagesSent, timeStamp: time})
+  data.userStats.push(userStats);
+
+  // Workspace stats
+  const numMessagesExist = workspaceStats.messagesExist[workspaceStats.messagesExist.length - 1].numMessagesExist + 1;
+  data.workspaceStats.messagesExist.push({numMessagesExist: numMessagesExist, timeStamp: time})
+
   setData(data);
 
   return { messageId: newMessageId };
@@ -293,6 +330,17 @@ function editInChannel(mode: string, token: string, userId: number, isGlobalUser
   }
 
   setData(data);
+  // Analytics 
+  const time = Date.now();
+  if (mode === 'r') {
+    // Workspace stats
+    const numMessagesExist = workspaceStats.messagesExist[workspaceStats.messagesExist.length - 1].numMessagesExist - 1;
+    data.workspaceStats.messagesExist.push({numMessagesExist: numMessagesExist, timeStamp: time})
+
+    setData(data);
+  }
+
+
   return {};
 }
 
@@ -357,5 +405,14 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
   }
 
   setData(data);
+  // Analytics 
+  const time = Date.now();
+  if (mode === 'r') {
+    // Workspace stats
+    const numMessagesExist = workspaceStats.messagesExist[workspaceStats.messagesExist.length - 1].numMessagesExist - 1;
+    data.workspaceStats.messagesExist.push({numMessagesExist: numMessagesExist, timeStamp: time})
+
+    setData(data);
+  }
   return {};
 }

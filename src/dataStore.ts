@@ -51,10 +51,10 @@ type messagesSentType = {
 } 
 
 type userStatsType = {
-  uId: number,
-  channelsJoined: channelsJoinedType[],
-  dmsJoined: dmsJoinedType[], 
-  messagesSent: messagesSentType[], 
+  uId: number;
+  channelsJoined: channelsJoinedType[];
+  dmsJoined: dmsJoinedType[]; 
+  messagesSent: messagesSentType[]; 
   involvementRate: number;
 }
 
