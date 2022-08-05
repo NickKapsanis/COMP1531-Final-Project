@@ -37,16 +37,25 @@ type channel = {
   standupActiveTime : { isActive: boolean, timeFinish?: number };
   standupMessageBank : string[];
 }
+type passwordReset = {
+  code: string,
+  userEmail: string,
+  timeToWait: number,
+  timeStamp: number,
+}
+
 type dataStoreType = {
   users? : user[];
   channels? : channel[];
   dms? : dm[];
+  passwordReset? : passwordReset[];
 }
 
 const data: dataStoreType = {
   users: [],
   channels: [],
   dms: [],
+  passwordReset: [],
 };
 
 type userType = {

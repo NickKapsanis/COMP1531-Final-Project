@@ -4,9 +4,9 @@ import morgan from 'morgan';
 import config from './config.json';
 import { dmDetailsV2, dmLeaveV2, dmMessagesV2 } from './dm';
 import { dmCreateV2, dmListV2, dmRemoveV2 } from './dm';
+import { authRegisterV3, authLoginV3, authLogoutV2, authPasswordresetRequestV1, authPasswordresetResetV1 } from './auth';
 import { channelsCreateV3, channelsListV2, channelsListallV2 } from './channels';
 import { channelJoinV3, channelInviteV3, addChannelOwnerV2, removeChannelOwnerV2, channelsLeaveV1 } from './channel';
-import { authRegisterV3, authLoginV3, authLogoutV2 } from './auth';
 import cors from 'cors';
 import { usersAllV2, userProfileV3 } from './users';
 import { clearV1, getUId, searchV1 } from './other';
@@ -93,6 +93,20 @@ app.post('/auth/logout/v2', (req, res) => {
   const token = req.header('token');
   res.json(authLogoutV2(token));
 });
+
+// authPasswordresetRequestV1
+app.post('/auth/passwordreset/request/v1', (req, res) => {
+  const email = req.body.email;
+  res.json(authPasswordresetRequestV1(email));
+});
+
+// authPasswordresetResetV1
+app.post('/auth/passwordreset/reset/v1', (req, res) => {
+  const resetCode = req.body.resetCode;
+  const newPassword = req.body.newPassword;
+  res.json(authPasswordresetResetV1(resetCode, newPassword));
+});
+
 // clearV1()
 app.delete('/clear/v1', (req, res) => {
   res.json(clearV1());
