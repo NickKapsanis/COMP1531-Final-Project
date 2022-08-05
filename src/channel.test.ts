@@ -11,9 +11,11 @@ const hosturl = config.url;
 const url = hosturl + ':' + port;
 
 const OK = 200;
+const BAD_REQ = 400;
+const FORBID = 403;
 
-// Testing for channelDetailsV1
-describe('Testing channelDetailsV1', () => {
+// Testing for channelDetailsV3
+describe('Testing channelDetailsV3', () => {
   let token1: string;
   let token2: string;
   let channelId1: number;
@@ -32,7 +34,7 @@ describe('Testing channelDetailsV1', () => {
 
   test('Case 1: channelId does not refer to valid channel', () => {
     // Finding an invalid channelId to pass in
-    const allChannels = requestChannelsListallV2(token1).channels;
+    const allChannels = requestChannelsListallV3(token1).channels;
     let invalidId = 199;
     for (const i in allChannels) {
       if (invalidId === allChannels[i].channelId) {
@@ -40,23 +42,17 @@ describe('Testing channelDetailsV1', () => {
       }
     }
 
-    const res = requestChannelDetailsV2(token1, invalidId);
-    const bodyObj = JSON.parse(String(res.getBody()));
-
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = requestChannelDetailsV3(token1, invalidId);
+    expect(res.statusCode).toBe(BAD_REQ);
   });
 
-  test('Case 2: authorised user is not a member of channel', () => {
-    const res = requestChannelDetailsV2(token1, channelId2);
-    const bodyObj = JSON.parse(String(res.getBody()));
-
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+  test('Case 2: user is not a member of channel', () => {
+    const res = requestChannelDetailsV3(token1, channelId2);
+    expect(res.statusCode).toBe(FORBID);
   });
 
   test('Case 3: Deals with all valid arguments', () => {
-    const res = requestChannelDetailsV2(token1, channelId1);
+    const res = requestChannelDetailsV3(token1, channelId1);
     const bodyObj = JSON.parse(String(res.getBody()));
 
     expect(res.statusCode).toBe(OK);
@@ -69,30 +65,29 @@ describe('Testing channelDetailsV1', () => {
   });
 
   test('Case 4: Deals with invalid token', () => {
-    const res = requestChannelDetailsV2('invalid-token', channelId1);
-    const bodyObj = JSON.parse(String(res.getBody()));
-
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = requestChannelDetailsV3('invalid-token', channelId1);
+    expect(res.statusCode).toBe(FORBID);
   });
 });
 
 // Helper function for HTTP calls for channelDetailsV2
-function requestChannelDetailsV2(token: string, channelId: number) {
+function requestChannelDetailsV3(token: string, channelId: number) {
   return request(
     'GET',
-        `${hosturl}:${port}/channel/details/v2`,
-        {
-          qs: {
-            token: token,
-            channelId: channelId,
-          }
-        }
+    `${hosturl}:${port}/channel/details/v3`,
+    {
+      qs: {
+        channelId: channelId,
+      },
+      headers: {
+        token: token,
+      },
+    }
   );
 }
 
-// Tests for channelMessagesV1
-describe('Testing channelMessagesV1', () => {
+// Tests for channelMessagesV3
+describe('Testing channelMessagesV3', () => {
   let token1: string;
   let token2: string;
   let channelId1: number;
@@ -111,7 +106,7 @@ describe('Testing channelMessagesV1', () => {
 
   test('Case 1: channelId does not refer to valid channel', () => {
     // Finding an invalid channelId to pass in
-    const allChannels = requestChannelsListallV2(token1).channels;
+    const allChannels = requestChannelsListallV3(token1).channels;
     let invalidId = 199;
     for (const i in allChannels) {
       if (invalidId === allChannels[i].channelId) {
@@ -120,34 +115,25 @@ describe('Testing channelMessagesV1', () => {
     }
 
     const start = 0;
-    const res = requestChannelMessagesV2(token1, invalidId, start);
-    const bodyObj = JSON.parse(String(res.getBody()));
-
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = requestChannelMessagesV3(token1, invalidId, start);
+    expect(res.statusCode).toBe(BAD_REQ);
   });
 
   test('Case 2: authorised user is not a member of channel', () => {
     const start = 0;
-    const res = requestChannelMessagesV2(token1, channelId2, start);
-    const bodyObj = JSON.parse(String(res.getBody()));
-
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = requestChannelMessagesV3(token1, channelId2, start);
+    expect(res.statusCode).toBe(FORBID);
   });
 
   test('Case 3: start is greater than total messages in channel', () => {
     const start = 1;
-    const res = requestChannelMessagesV2(token1, channelId1, start);
-    const bodyObj = JSON.parse(String(res.getBody()));
-
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = requestChannelMessagesV3(token1, channelId1, start);
+    expect(res.statusCode).toBe(BAD_REQ);
   });
 
   test('Case 4: All valid arguments', () => {
     const start = 0;
-    const res = requestChannelMessagesV2(token1, channelId1, start);
+    const res = requestChannelMessagesV3(token1, channelId1, start);
     const bodyObj = JSON.parse(String(res.getBody()));
 
     expect(res.statusCode).toBe(OK);
@@ -163,7 +149,7 @@ describe('Testing channelMessagesV1', () => {
       requestMessageSendV2(token1, channelId1, `${i}`);
     }
     const start = 0;
-    const res = requestChannelMessagesV2(token1, channelId1, start);
+    const res = requestChannelMessagesV3(token1, channelId1, start);
     const bodyObj = JSON.parse(String(res.getBody()));
 
     expect(res.statusCode).toBe(OK);
@@ -175,34 +161,33 @@ describe('Testing channelMessagesV1', () => {
 
   test('Case 6: Deals with invalid token', () => {
     const start = 0;
-    const res = requestChannelMessagesV2('invalid-token', channelId1, start);
-    const bodyObj = JSON.parse(String(res.getBody()));
-
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({ error: 'error' });
+    const res = requestChannelMessagesV3('invalid-token', channelId1, start);
+    expect(res.statusCode).toBe(FORBID);
   });
 });
 
 // Helper function for HTTP calls for channelMessagesV2
-function requestChannelMessagesV2(token: string, channelId: number, start: number) {
+function requestChannelMessagesV3(token: string, channelId: number, start: number) {
   return request(
     'GET',
-          `${hosturl}:${port}/channel/messages/v2`,
-          {
-            qs: {
-              token: token,
-              channelId: channelId,
-              start: start,
-            }
-          }
+    `${hosturl}:${port}/channel/messages/v3`,
+    {
+      qs: {
+        channelId: channelId,
+        start: start,
+      },
+      headers: {
+        token: token,
+      },
+    }
   );
 }
 
 /// /////////////////////////////////////////////
-/// //     Tests for channelJoinV2()        /////
+/// //     Tests for channelJoinV3()        /////
 /// /////////////////////////////////////////////
 
-describe('Testing channelJoinV2', () => {
+describe('Testing channelJoinV3', () => {
   let james: userType, rufus: userType;
   let publicChannel: { channelId: number }, privateChannel: { channelId: number }, rufusPrivateChannel: { channelId: number };
 
@@ -217,13 +202,16 @@ describe('Testing channelJoinV2', () => {
   });
 
   test('channelId does not refer to a valid channel', () => {
-    expect(channelJoin(rufus.token, -100)).toEqual({ error: 'error' });
+    expect(channelJoin(rufus.token, -100)).toEqual(400);
+  });
+  test('bad token', () => {
+    expect(channelJoin('yippee', publicChannel.channelId)).toEqual(403);
   });
   test('the user is already a channel member', () => {
-    expect(channelJoin(james.token, publicChannel.channelId)).toEqual({ error: 'error' });
+    expect(channelJoin(james.token, publicChannel.channelId)).toEqual(400);
   });
   test('the channel is private and user is not global owner', () => {
-    expect(channelJoin(rufus.token, privateChannel.channelId)).toEqual({ error: 'error' });
+    expect(channelJoin(rufus.token, privateChannel.channelId)).toEqual(403);
   });
   test('the channel is private and the user is a global owner', () => {
     expect(channelJoin(james.token, rufusPrivateChannel.channelId)).toEqual({});
@@ -234,10 +222,10 @@ describe('Testing channelJoinV2', () => {
 });
 
 /// /////////////////////////////////////////////
-/// //     Tests for channelInviteV2()      /////
+/// //     Tests for channelInviteV3()      /////
 /// /////////////////////////////////////////////
 
-describe('Testing channelInviteV2', () => {
+describe('Testing channelInviteV3', () => {
   let tom: userType, ralph: userType, alex: userType, general: { channelId: number }, ralphChannel: { channelId: number }, ralphuId: number;
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
@@ -251,17 +239,20 @@ describe('Testing channelInviteV2', () => {
   });
 
   test('channelId does not refer to a valid channel', () => {
-    expect(channelInvite(tom.token, -100, ralphuId)).toEqual({ error: 'error' });
+    expect(channelInvite(tom.token, -100, ralphuId)).toEqual(400);
   });
-  test('user joining does not exist', () => {
-    expect(channelInvite(tom.token, general.channelId, -100)).toEqual({ error: 'error' });
+  test('bad uId', () => {
+    expect(channelInvite(tom.token, general.channelId, -100)).toEqual(400);
+  });
+  test('bad token', () => {
+    expect(channelInvite('arghh', general.channelId, -100)).toEqual(403);
   });
   test('trying to invite existing channel member', () => {
     channelJoin(alex.token, ralphChannel.channelId);
-    expect(channelInvite(alex.token, general.channelId, ralphuId)).toEqual({ error: 'error' });
+    expect(channelInvite(alex.token, ralphChannel.channelId, ralphuId)).toEqual(400);
   });
   test('user inviting is not a member of the channel', () => {
-    expect(channelInvite(alex.token, general.channelId, ralphuId)).toEqual({ error: 'error' });
+    expect(channelInvite(alex.token, general.channelId, ralphuId)).toEqual(403);
   });
   test('successful case', () => {
     expect(channelInvite(tom.token, general.channelId, ralphuId)).toEqual({});
@@ -269,11 +260,11 @@ describe('Testing channelInviteV2', () => {
 });
 
 /// /////////////////////////////////////////////
-/// //     Tests for addChannelOwnerV1()    /////
+/// //     Tests for addChannelOwnerV2()    /////
 /// /////////////////////////////////////////////
 
-describe('Testing addChannelOwnerV1', () => {
-  let steven: userType, richard: userType, lily: userType, lilyuId: number, richardChannel: { channelId: number }, publicChannel: { channelId: number };
+describe('Testing addChannelOwnerV2', () => {
+  let steven: userType, stevenuId:number, richard: userType, lily: userType, lilyuId: number, richardChannel: { channelId: number }, publicChannel: { channelId: number };
 
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
@@ -282,6 +273,7 @@ describe('Testing addChannelOwnerV1', () => {
     richard = createUser('richard@gmail.com', 'testPassword123', 'richard', 'Hayes');
     lily = createUser('lily@gmail.com', 'testPassword123', 'lily', 'King');
     lilyuId = getUID(lily.authUserId);
+    stevenuId = getUID(steven.authUserId);
 
     publicChannel = createChannel(steven.token, 'testChannel1', true);
     richardChannel = createChannel(richard.token, 'testChannel2', true);
@@ -290,17 +282,30 @@ describe('Testing addChannelOwnerV1', () => {
     channelJoin(richard.token, publicChannel.channelId);
   });
 
-  test('channelId does not refer to a valid channel', () => {
-    expect(addOwner(richard.token, -100, lilyuId)).toEqual({ error: 'error' });
+  test('bad ChannelID', () => {
+    expect(addOwner(richard.token, -100, lilyuId)).toEqual(400);
   });
-  test('user becoming owner is an invalid user', () => {
-    expect(addOwner(richard.token, richardChannel.channelId, -100)).toEqual({ error: 'error' });
+  test('bad UID', () => {
+    expect(addOwner(richard.token, richardChannel.channelId, -100)).toEqual(400);
   });
   test('user becoming owner is not a member of the channel', () => {
-    expect(addOwner(richard.token, richardChannel.channelId, lilyuId)).toEqual({ error: 'error' });
+    expect(addOwner(richard.token, richardChannel.channelId, lilyuId)).toEqual(400);
+  });
+  test('user is already a channel owner', () => {
+    channelJoin(lily.token, richardChannel.channelId);
+    addOwner(richard.token, richardChannel.channelId, lilyuId);
+    expect(addOwner(richard.token, richardChannel.channelId, lilyuId)).toEqual(400);
   });
   test('the user adding the new owner is not a global owner or channel owner, but is in the channel', () => {
-    expect(addOwner(richard.token, publicChannel.channelId, lilyuId)).toEqual({ error: 'error' });
+    channelJoin(lily.token, richardChannel.channelId);
+    channelJoin(steven.token, richardChannel.channelId);
+    expect(addOwner(lily.token, richardChannel.channelId, stevenuId)).toEqual(403);
+  });
+  test('the user adding the new owner is a global owner but is not in the channel', () => {
+    expect(addOwner(richard.token, publicChannel.channelId, lilyuId)).toEqual(403);
+  });
+  test('bad token', () => {
+    expect(addOwner('gabagoo', publicChannel.channelId, lilyuId)).toEqual(403);
   });
   test('successful case', () => {
     expect(addOwner(steven.token, publicChannel.channelId, lilyuId)).toEqual({});
@@ -308,11 +313,11 @@ describe('Testing addChannelOwnerV1', () => {
 });
 
 /// /////////////////////////////////////////////
-/// //   Tests for removeChannelOwnerV1()   /////
+/// //   Tests for removeChannelOwnerV2()   /////
 /// /////////////////////////////////////////////
 
-describe('Testing removeChannelOwnerV1', () => {
-  let homer: userType, bart: userType, marge: userType, bartuId: number, margeuId: number, bartChannel: { channelId: number };
+describe('Testing removeChannelOwnerV2', () => {
+  let homer: userType, homeruId: number, bart: userType, marge: userType, bartuId: number, margeuId: number, bartChannel: { channelId: number };
 
   beforeEach(() => {
     request('DELETE', url + '/clear/v1');
@@ -322,26 +327,38 @@ describe('Testing removeChannelOwnerV1', () => {
     marge = createUser('marge@gmail.com', 'testPassword123', 'marge', 'King');
     bartuId = getUID(bart.authUserId);
     margeuId = getUID(marge.authUserId);
+    homeruId = getUID(homer.authUserId);
 
     bartChannel = createChannel(bart.token, 'testChannel2', true);
     channelJoin(marge.token, bartChannel.channelId);
     channelJoin(homer.token, bartChannel.channelId);
   });
 
-  test('channelId does not refer to a valid channel', () => {
-    expect(removeOwner(homer.token, -100, bartuId)).toEqual({ error: 'error' });
+  test('bad ChannelID', () => {
+    expect(removeOwner(homer.token, -100, bartuId)).toEqual(400);
   });
-  test('user being removed as owner does not exist', () => {
-    expect(removeOwner(homer.token, bartChannel.channelId, -100)).toEqual({ error: 'error' });
+  test('bad UID', () => {
+    expect(removeOwner(homer.token, bartChannel.channelId, -100)).toEqual(400);
   });
   test('trying to remove an owner who is the only channel owner', () => {
-    expect(removeOwner(homer.token, bartChannel.channelId, bartuId)).toEqual({ error: 'error' });
+    expect(removeOwner(homer.token, bartChannel.channelId, bartuId)).toEqual(400);
   });
   test('user being removed as owner is not currently owner', () => {
-    expect(removeOwner(bart.token, bartChannel.channelId, margeuId)).toEqual({ error: 'error' });
+    expect(removeOwner(bart.token, bartChannel.channelId, margeuId)).toEqual(400);
   });
+  // doesn't work
   test('user attempting to remove owner lacks permissions', () => {
-    expect(removeOwner(marge.token, bartChannel.channelId, bartuId)).toEqual({ error: 'error' });
+    addOwner(bart.token, bartChannel.channelId, homeruId);
+    expect(removeOwner(marge.token, bartChannel.channelId, bartuId)).toEqual(403);
+  });
+  test('user attempting to remove owner is not a member of the channel', () => {
+    const margeChannel: { channelId: number } = createChannel(marge.token, 'testChannel2', true);
+    channelJoin(homer.token, margeChannel.channelId);
+    addOwner(marge.token, margeChannel.channelId, homeruId);
+    expect(removeOwner(bart.token, margeChannel.channelId, margeuId)).toEqual(403);
+  });
+  test('bad token', () => {
+    expect(removeOwner('ruh roh', bartChannel.channelId, margeuId)).toEqual(403);
   });
   test('successful case', () => {
     addOwner(bart.token, bartChannel.channelId, margeuId);
@@ -488,7 +505,7 @@ test('tests the multiple channels and multiple people.', () => {
 /// /////////////////////////////////////////////////////////////////////////////
 /// /////////////////////////////////////////////////////////////////////////////
 
-function requestChannelsListallV2(token: string) {
+function requestChannelsListallV3(token: string) {
   const res = request(
     'GET',
         `${hosturl}:${port}/channels/listall/v2`,
@@ -560,10 +577,11 @@ const createUser = (emails: string, passwords: string, name: string, surname: st
 const createChannel = (tokens: string, names: string, publicity: boolean) => {
   const res = request(
     'POST',
-    url + '/channels/create/v2',
+    url + '/channels/create/v3',
     {
-      body: JSON.stringify({ token: tokens, name: names, isPublic: publicity }),
+      body: JSON.stringify({ name: names, isPublic: publicity }),
       headers: {
+        token: tokens,
         'Content-type': 'application/json',
       },
     }
@@ -571,55 +589,75 @@ const createChannel = (tokens: string, names: string, publicity: boolean) => {
   return JSON.parse(String(res.getBody()));
 };
 
-// goes through server to call channelJoinV2
+// goes through server to call channelJoinV3
 const channelJoin = (tokens: string, channelIds: number) => {
   const res = request(
-    'POST', url + '/channel/join/v2',
+    'POST', url + '/channel/join/v3',
     {
-      body: JSON.stringify({ token: tokens, channelId: channelIds }),
+      body: JSON.stringify({ channelId: channelIds }),
       headers: {
+        token: tokens,
         'Content-type': 'application/json',
       },
     }
   );
+  if (res.statusCode !== 200) {
+    return res.statusCode;
+  }
   return JSON.parse(String(res.getBody()));
 };
 
-// goes through server to call channelInviteV2
+// goes through server to call channelInviteV3
 const channelInvite = (tokens: string, channelIds: number, uIds: number) => {
   const res = request(
-    'POST', url + '/channel/invite/v2',
+    'POST', url + '/channel/invite/v3',
     {
-      body: JSON.stringify({ token: tokens, channelId: channelIds, uId: uIds }),
+      body: JSON.stringify({ channelId: channelIds, uId: uIds }),
       headers: {
+        token: tokens,
         'Content-type': 'application/json',
       },
     }
   );
+  if (res.statusCode !== 200) {
+    return res.statusCode;
+  }
   return JSON.parse(String(res.getBody()));
 };
 
-// goes through server to call addOwnerV1
+// goes through server to call addOwnerV2
 const addOwner = (tokens: string, channelIds: number, uIds: number) => {
   const res = request(
-    'POST', url + '/channel/addowner/v1',
+    'POST', url + '/channel/addowner/v2',
     {
-      body: JSON.stringify({ token: tokens, channelId: channelIds, uId: uIds }),
-      headers: { 'Content-type': 'application/json' }
+      body: JSON.stringify({ channelId: channelIds, uId: uIds }),
+      headers: {
+        'Content-type': 'application/json',
+        token: tokens,
+      },
     }
   );
+  if (res.statusCode !== 200) {
+    return res.statusCode;
+  }
   return JSON.parse(String(res.getBody()));
 };
 
-// goes through server to call removeOwnerV1
+// goes through server to call removeOwnerV2
 const removeOwner = (tokens: string, channelIds: number, uIds: number) => {
   const res = request(
-    'POST', url + '/channel/removeowner/v1',
+    'POST', url + '/channel/removeowner/v2',
     {
-      body: JSON.stringify({ token: tokens, channelId: channelIds, uId: uIds }),
-      headers: { 'Content-type': 'application/json' }
+      body: JSON.stringify({ channelId: channelIds, uId: uIds }),
+      headers: {
+        'Content-type': 'application/json',
+        token: tokens,
+      }
     }
   );
+  if (res.statusCode !== 200) {
+    return res.statusCode;
+  }
   return JSON.parse(String(res.getBody()));
 };
 
@@ -633,4 +671,4 @@ const channelsListV2 = (tokens: string) => {
   return JSON.parse(String(res.getBody()));
 };
 
-export { createChannel, createUser, channelJoin, getUID };
+export { createChannel, createUser, channelJoin, getUID, userType };

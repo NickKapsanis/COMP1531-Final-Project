@@ -40,6 +40,8 @@ type channel = {
   allMembers : number[]; // array of all memebrs user Id's
   ownerMembers : number[]; // array of all owners user Id's
   messages?: message[];
+  standupActiveTime : { isActive: boolean, timeFinish?: number };
+  standupMessageBank : string[];
 }
 type dataStoreType = {
   users? : user[];
@@ -52,6 +54,11 @@ const data: dataStoreType = {
   channels: [],
   dms: [],
 };
+
+type userType = {
+  token? : string;
+  authUserId? : number;
+}
 
 // Use get() to access the data
 // if the data.json file does not exist, create it by setting it with the data definition above and read from the created file.
@@ -72,4 +79,4 @@ function setData(newData: dataStoreType) {
 }
 
 export { getData, setData };
-export { user, message, channel, dm, dataStoreType };
+export { user, message, channel, dm, dataStoreType, userType };

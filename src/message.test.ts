@@ -23,11 +23,12 @@ describe('Tests for message/send/v2', () => {
   let channelId2: number;
 
   beforeEach(() => {
+    requestClear();
     //  Channels token[x] is member of: token1: [1], token2: [2]
     token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
-    channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
-    channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
+    channelId1 = requestChannelsCreateV3(token1, 'Channel 1', true);
+    channelId2 = requestChannelsCreateV3(token2, 'Channel 2', true);
   });
 
   afterEach(() => {
@@ -197,12 +198,12 @@ describe('Tests for message/edit/v2', () => {
     token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
     token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adam');
 
-    channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
-    channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
+    channelId1 = requestChannelsCreateV3(token1, 'Channel 1', true);
+    channelId2 = requestChannelsCreateV3(token2, 'Channel 2', true);
 
     // Invite token2 into Channel 1 and token3 into Channel 2
-    requestChannelInviteV2(token1, channelId1, 2); // TODO: change uID... getUId helper function?
-    requestChannelInviteV2(token2, channelId2, 3);
+    requestChannelInviteV3(token1, channelId1, 2); // TODO: change uID... getUId helper function?
+    requestChannelInviteV3(token2, channelId2, 3);
 
     messageId1 = requestMessageSendV2(token1, channelId1, 'Message 1.1');
     messageId2 = requestMessageSendV2(token2, channelId1, 'Message 1.2');
@@ -261,7 +262,7 @@ describe('Tests for message/edit/v2', () => {
 
   test('Case 8: successful message edit (in channels)', () => {
     const res = requestMessageEditV2(token1, messageId1, 'Edited Message 1.1');
-    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV3(token1, channelId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -272,7 +273,7 @@ describe('Tests for message/edit/v2', () => {
 
   test('Case 9: successful message edit (empty message string)', () => {
     const res = requestMessageEditV2(token1, messageId1, '');
-    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV3(token1, channelId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -283,7 +284,7 @@ describe('Tests for message/edit/v2', () => {
 
   test('Case 10: successful message edit (with global permissions)', () => {
     const res = requestMessageEditV2(token1, messageId3, 'Edited Message 2.1');
-    const messages: Array<message | undefined> = requestChannelMessageV2(token2, channelId2, 0); // Assumption: global owner cannot access channelMessagesV2
+    const messages: Array<message | undefined> = requestChannelMessageV3(token2, channelId2, 0); // Assumption: global owner cannot access channelMessagesV3
     const editedMessage: message = messages.find(message => message.messageId === messageId3);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -341,12 +342,12 @@ describe('Tests for message/remove/v2 (for input and channels)', () => {
     token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
     token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adam');
 
-    channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
-    channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
+    channelId1 = requestChannelsCreateV3(token1, 'Channel 1', true);
+    channelId2 = requestChannelsCreateV3(token2, 'Channel 2', true);
 
     // Invite token2 into Channel 1
-    requestChannelInviteV2(token1, channelId1, 2);
-    requestChannelInviteV2(token2, channelId2, 3); // TODO: change uID
+    requestChannelInviteV3(token1, channelId1, 2);
+    requestChannelInviteV3(token2, channelId2, 3); // TODO: change uID
     messageId1 = requestMessageSendV2(token1, channelId1, 'Message 1.1');
     // messageId2 = requestMessageSendV2(token2, channelId1, 'Message 1.2');
     messageId3 = requestMessageSendV2(token2, channelId2, 'Message 2.1');
@@ -383,7 +384,7 @@ describe('Tests for message/remove/v2 (for input and channels)', () => {
 
   test('Case 6: successful message remove (channel)', () => {
     const res = requestMessageRemoveV2(token1, messageId1);
-    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV3(token1, channelId1, 0);
     const removedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -498,14 +499,14 @@ describe('Tests for message/share/v1', () => {
     token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
     token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adam');
-    channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
-    channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
+    channelId1 = requestChannelsCreateV3(token1, 'Channel 1', true);
+    channelId2 = requestChannelsCreateV3(token2, 'Channel 2', true);
     dmId1 = requestDmCreateV2(token2, [2, 3]);
     dmId2 = requestDmCreateV2(token1, [1, 2]);
 
     // Invite token2 into Channel 1
-    requestChannelInviteV2(token1, channelId1, 2);
-    requestChannelInviteV2(token2, channelId2, 3);
+    requestChannelInviteV3(token1, channelId1, 2);
+    requestChannelInviteV3(token2, channelId2, 3);
     messageId1 = requestMessageSendV2(token1, channelId1, 'CMessage 1.1');
     messageId2 = requestMessageSendV2(token2, channelId1, 'CMessage 1.2');
     messageId3 = requestMessageSendV2(token2, channelId2, 'CMessage 2.1');
@@ -576,7 +577,7 @@ describe('Tests for message/share/v1', () => {
     const bodyObj = JSON.parse(String(res.getBody()));
     expect(bodyObj.sharedMessageId).toStrictEqual(expect.any(Number));
 
-    const messages: Array<message | undefined> = requestChannelMessageV2(token2, channelId2, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV3(token2, channelId2, 0);
     const sharedMessage: message = messages.find(message => message.messageId === bodyObj.sharedMessageId);
     expect(sharedMessage.message.includes('Attach message')).toStrictEqual(true);
   });
@@ -638,7 +639,7 @@ describe('Tests for message/sendlater/v1', () => {
   beforeEach(() => {
     token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
-    channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
+    channelId1 = requestChannelsCreateV3(token1, 'Channel 1', true);
   });
 
   afterEach(() => {
@@ -850,13 +851,13 @@ describe('Tests for message/pin/v1', () => {
     token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
     token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adam');
-    channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
-    channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
+    channelId1 = requestChannelsCreateV3(token1, 'Channel 1', true);
+    channelId2 = requestChannelsCreateV3(token2, 'Channel 2', true);
     dmId1 = requestDmCreateV2(token2, [2, 3]);
 
     // Invite token2 into Channel 1 and token3 into Channel 2
-    requestChannelInviteV2(token1, channelId1, 2);
-    requestChannelInviteV2(token2, channelId2, 3);
+    requestChannelInviteV3(token1, channelId1, 2);
+    requestChannelInviteV3(token2, channelId2, 3);
 
     messageId1 = requestMessageSendV2(token1, channelId1, 'Message C1.1');
     messageId2 = requestMessageSendV2(token2, channelId2, 'Message C2.1');
@@ -964,13 +965,13 @@ describe('Tests for message/unpin/v1', () => {
     token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
     token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adam');
-    channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
-    channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
+    channelId1 = requestChannelsCreateV3(token1, 'Channel 1', true);
+    channelId2 = requestChannelsCreateV3(token2, 'Channel 2', true);
     dmId1 = requestDmCreateV2(token2, [2, 3]);
 
     // Invite token2 into Channel 1 and token3 into Channel 2
-    requestChannelInviteV2(token1, channelId1, 2);
-    requestChannelInviteV2(token2, channelId2, 3);
+    requestChannelInviteV3(token1, channelId1, 2);
+    requestChannelInviteV3(token2, channelId2, 3);
 
     messageId1 = requestMessageSendV2(token1, channelId1, 'Message C1.1');
     messageId2 = requestMessageSendV2(token2, channelId2, 'Message C2.1');
@@ -1065,8 +1066,8 @@ test('Testing invalid reactID', () => {
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
-  requestchannelJoinV2(rufusToken, testCreatedChannelID);
+  const testCreatedChannelID = requestChannelsCreateV3(jamesToken, 'testChannel1', true);
+  requestchannelJoinV3(rufusToken, testCreatedChannelID);
   const jamesSentMessageID = requestMessageSendV2(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -1100,8 +1101,8 @@ test('Testing invalid token', () => {
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
-  requestchannelJoinV2(rufusToken, testCreatedChannelID);
+  const testCreatedChannelID = requestChannelsCreateV3(jamesToken, 'testChannel1', true);
+  requestchannelJoinV3(rufusToken, testCreatedChannelID);
   const jamesSentMessageID = requestMessageSendV2(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -1135,7 +1136,7 @@ test('tests when user is not in the created channel.', () => {
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
+  const testCreatedChannelID = requestChannelsCreateV3(jamesToken, 'testChannel1', true);
   const jamesSentMessageID = requestMessageSendV2(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -1169,8 +1170,8 @@ test('Testing given channel, react to message successfully', () => {
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
-  requestchannelJoinV2(rufusToken, testCreatedChannelID);
+  const testCreatedChannelID = requestChannelsCreateV3(jamesToken, 'testChannel1', true);
+  requestchannelJoinV3(rufusToken, testCreatedChannelID);
   const jamesSentMessageID = requestMessageSendV2(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -1204,8 +1205,8 @@ test('Testing invalid channel/dm ID', () => {
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
-  requestchannelJoinV2(rufusToken, testCreatedChannelID);
+  const testCreatedChannelID = requestChannelsCreateV3(jamesToken, 'testChannel1', true);
+  requestchannelJoinV3(rufusToken, testCreatedChannelID);
   const jamesSentMessageID = requestMessageSendV2(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -1241,8 +1242,8 @@ test('Testing reacting to message already been reacted to in channel', () => {
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
-  requestchannelJoinV2(rufusToken, testCreatedChannelID);
+  const testCreatedChannelID = requestChannelsCreateV3(jamesToken, 'testChannel1', true);
+  requestchannelJoinV3(rufusToken, testCreatedChannelID);
   const jamesSentMessageID = requestMessageSendV2(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -1414,8 +1415,8 @@ test('Testing invalid reactID unreact', () => {
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
-  requestchannelJoinV2(rufusToken, testCreatedChannelID);
+  const testCreatedChannelID = requestChannelsCreateV3(jamesToken, 'testChannel1', true);
+  requestchannelJoinV3(rufusToken, testCreatedChannelID);
   const jamesSentMessageID = requestMessageSendV2(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -1449,8 +1450,8 @@ test('Testing invalid channel/dm ID unreact', () => {
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
-  requestchannelJoinV2(rufusToken, testCreatedChannelID);
+  const testCreatedChannelID = requestChannelsCreateV3(jamesToken, 'testChannel1', true);
+  requestchannelJoinV3(rufusToken, testCreatedChannelID);
   const jamesSentMessageID = requestMessageSendV2(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -1486,8 +1487,8 @@ test('Testing invalid token ID', () => {
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
-  requestchannelJoinV2(rufusToken, testCreatedChannelID);
+  const testCreatedChannelID = requestChannelsCreateV3(jamesToken, 'testChannel1', true);
+  requestchannelJoinV3(rufusToken, testCreatedChannelID);
   const jamesSentMessageID = requestMessageSendV2(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -1522,8 +1523,8 @@ test('Testing given channel, and reacted message, unreact to message successfull
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
-  requestchannelJoinV2(rufusToken, testCreatedChannelID);
+  const testCreatedChannelID = requestChannelsCreateV3(jamesToken, 'testChannel1', true);
+  requestchannelJoinV3(rufusToken, testCreatedChannelID);
   const jamesSentMessageID = requestMessageSendV2(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -1573,8 +1574,8 @@ test('Testing given channel, and reacted message, trying to unreact twice.', () 
 
   const jamesToken = requestAuthUserRegisterV3('james@gmail.com', 'testPassword123', 'James', 'Brown');
   const rufusToken = requestAuthUserRegisterV3('rufus@gmail.com', 'testPassword123', 'Rufus', 'Green');
-  const testCreatedChannelID = requestChannelsCreateV2(jamesToken, 'testChannel1', true);
-  requestchannelJoinV2(rufusToken, testCreatedChannelID);
+  const testCreatedChannelID = requestChannelsCreateV3(jamesToken, 'testChannel1', true);
+  requestchannelJoinV3(rufusToken, testCreatedChannelID);
   const jamesSentMessageID = requestMessageSendV2(jamesToken, testCreatedChannelID, 'I am james, please react rufus');
 
   // james and rufus are both in the channel at this point.
@@ -1772,16 +1773,16 @@ function requestAuthUserRegisterV3(email: string, password: string, nameFirst: s
   return JSON.parse(String(res.getBody())).token;
 }
 
-function requestChannelsCreateV2(token: string, name: string, isPublic: boolean) {
+function requestChannelsCreateV3(token: string, name: string, isPublic: boolean) {
   const res = request(
     'POST',
-    `${url}:${port}/channels/create/v2`,
+    `${url}:${port}/channels/create/v3`,
     {
-      json: {
+      body: JSON.stringify({ name: name, isPublic: isPublic }),
+      headers: {
         token: token,
-        name: name,
-        isPublic: isPublic,
-      }
+        'Content-type': 'application/json',
+      },
     }
   );
 
@@ -1802,28 +1803,30 @@ function requestChannelsListallV3(token: string) {
   return JSON.parse(String(res.getBody())).channels;
 }
 
-function requestChannelInviteV2(token: string, channelId: number, uId: number) {
+function requestChannelInviteV3(token: string, channelId: number, uId: number) {
   const res = request(
     'POST',
-    `${url}:${port}/channel/invite/v2`,
+    `${url}:${port}/channel/invite/v3`,
     {
       json: {
-        token: token,
         channelId: channelId,
         uId: uId,
-      }
-    }
-  );
+      },
+      headers: {
+        token: token,
+      },
+    });
 
   return JSON.parse(String(res.getBody()));
 }
 
-function requestchannelJoinV2(tokens: string, channelIds: number) {
+function requestchannelJoinV3(tokens: string, channelIds: number) {
   const res = request(
-    'POST', `${url}:${port}/channel/join/v2`,
+    'POST', `${url}:${port}/channel/join/v3`,
     {
-      body: JSON.stringify({ token: tokens, channelId: channelIds }),
+      body: JSON.stringify({ channelId: channelIds }),
       headers: {
+        token: tokens,
         'Content-type': 'application/json',
       },
     }
@@ -1863,15 +1866,17 @@ function requestDmLeaveV2(token: string, dmId: number) {
   return JSON.parse(String(res.getBody()));
 }
 
-function requestChannelMessageV2(token: string, channelId: number, start: number) {
+function requestChannelMessageV3(token: string, channelId: number, start: number) {
   const res = request(
     'GET',
-    `${url}:${port}/channel/messages/v2`,
+    `${url}:${port}/channel/messages/v3`,
     {
       qs: {
-        token: token,
         channelId: channelId,
         start: start,
+      },
+      headers: {
+        token: token,
       }
     }
   );
