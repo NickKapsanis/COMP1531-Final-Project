@@ -1,6 +1,7 @@
 import { dataStoreType, getData, setData } from './dataStore';
 import HTTPError from 'http-errors';
-import { checkValidToken } from './auth';
+import { authLogoutV2, checkValidToken } from './auth';
+import { checkValidUid } from './other';
 
 const FORBID = 403;
 const BAD_REQ = 400;
@@ -33,11 +34,11 @@ export function adminUserpermissionChangeV1(uId: number, permissionId: number, t
   if (!checkValidToken(token)) { // token is invalid
     throw HTTPError(FORBID, 'Invalid Token');
   }
+  if (!checkValidUid(uId)) {
+    throw HTTPError(BAD_REQ, 'Invalid uId');
+  }
   if (!isGlobalOwner(tokenToUid(token, data), data)) {
     throw HTTPError(FORBID, 'Must be a global owner to change permissions');
-  }
-  if (!isValidUid(uId, data)) {
-    throw HTTPError(BAD_REQ, 'Invalid uId');
   }
   if (countGlobalOwners(data) <= 1 && isGlobalOwner(uId, data)) {
     throw HTTPError(BAD_REQ, 'Cannot remove only global owner');
@@ -85,15 +86,66 @@ Return Value:
 
     Returns {} on no error throw
 */
-export function adminUserRemoveV1(uID: number, token: string) {
+export function adminUserRemoveV1(uId: number, token: string) {
+  // input check
+  const data = getData();
+  if (!checkValidToken(token)) { // token is invalid
+    throw HTTPError(FORBID, 'Invalid Token');
+  }
+  if (!checkValidUid(uId)) { // uId is invalid
+    throw HTTPError(BAD_REQ, 'Invalid uId');
+  }
+  if (!isGlobalOwner(tokenToUid(token, data), data)) {
+    throw HTTPError(FORBID, 'Must be a global owner to remove a user');
+  }
+  if (countGlobalOwners(data) <= 1 && isGlobalOwner(uId, data)) {
+    throw HTTPError(BAD_REQ, 'Cannot remove only global owner');
+  }
+  // now that above tests are passed, remove the user.
+  const user = data.users.find(user => user.uId === uId);
+  // edit all messages sent by user to be 'Removed user'
+  // go through all channels messages, changing any authored by user
+  for (const channel of data.channels) {
+    for (const message of channel.messages) {
+      if (message.uId === uId) {
+        message.message = 'Removed user';
+      }
+    }
+  }
+  // edit all dm messages sent by user to be 'Removed user'
+  for (const dm of data.dms) {
+    for (const message of dm.messages) {
+      if (message.uId === uId) {
+        message.message = 'Removed user';
+      }
+    }
+  }
+  // remove from all channels
+  for (const channel of data.channels) {
+    channel.allMembers.splice(channel.allMembers.findIndex(Id => Id === uId));
+    if (channel.ownerMembers.findIndex(Id => Id === uId) !== undefined) {
+      channel.ownerMembers.splice(channel.ownerMembers.findIndex(Id => Id === uId));
+    }
+  }
+  // remove from all dms
+  for (const dm of data.dms) {
+    dm.allMembers.splice(dm.allMembers.findIndex(Id => Id === uId));
+    if (dm.owner === uId) {
+      let own: number;
+      dm.owner = own;
+    }
+  }
+  // change names
+  user.nameFirst = 'Removed';
+  user.nameLast = 'user';
+  // change activeUser to false.
+  user.isActiveUser = false;
+  // now log out the user from all logins
+  for (const token of user.tokens) authLogoutV2(token);
+  setData(data);
   return {};
 }
 
-// helper function, checks if uId is valid returns boolean
-function isValidUid(uId: number, data: dataStoreType) {
-  if (data.users.find(user => user.uId === uId) === undefined) return false;
-  else return true;
-}
 // helper, counts num of globalOwners
 function countGlobalOwners(data: dataStoreType) {
   return data.users.filter(user => user.isGlobalOwner === 1).length;

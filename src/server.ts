@@ -250,7 +250,7 @@ app.put('/message/edit/v1', (req, res) => {
 // adminUserRemoveV1
 app.delete('/admin/user/remove/v1', (req, res) => {
   const token = req.header('token');
-  const uId = req.body.uId;
+  const uId = Number(req.query.uId);
   res.json(adminUserRemoveV1(uId, token));
 });
 

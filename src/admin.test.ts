@@ -4,7 +4,6 @@ import { channelJoin, createChannel, getUID, requestChannelMessagesV3 } from './
 import config from './config.json';
 import { registerUser, requestDmCreate } from './dm.test';
 import { requestMessageSendDmV1, requestMessageSendV1 } from './message.test';
-import { usersAll } from './users.test';
 
 const port = config.port;
 const hosturl = config.url;
@@ -104,16 +103,6 @@ describe('testing /admin/user/remove/v1', () => {
   afterEach(() => {
     request('DELETE', url + '/clear/v1');
   });
-  /// ////////////////////////////set up the datastore/////////////////////////////////////////
-  const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
-  const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
-  const user1Uid = getUID(user1.authUserId);
-  const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
-  channelJoin(user1.token, channelId);
-  requestMessageSendV1(user1.token, channelId, 'This is a test message, should be replaced');
-  const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody()));
-  requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
-  /// /////////////////////////////////////////////////////////////////////////////////////////
 
   test('uID not Valid', () => {
     /// ////////////////////////////set up the datastore/////////////////////////////////////////
@@ -142,7 +131,6 @@ describe('testing /admin/user/remove/v1', () => {
     const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody()));
     requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
     /// /////////////////////////////////////////////////////////////////////////////////////////
-
     const res = userRemove(globalOwnerUid, globalOwner.token);
     expect(res.statusCode).toBe(BAD_REQ);
   });
@@ -151,7 +139,8 @@ describe('testing /admin/user/remove/v1', () => {
     /// ////////////////////////////set up the datastore/////////////////////////////////////////
     const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
     const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
-    const globalOwnerUid = getUID(globalOwner.authUserId);
+    const user2 = registerUser('testingUser3@gmail.com', '1234567', 'FirstName3', 'LastName3');
+    const user2Uid = getUID(user2.authUserId);
     const user1Uid = getUID(user1.authUserId);
     const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
     channelJoin(user1.token, channelId);
@@ -160,7 +149,7 @@ describe('testing /admin/user/remove/v1', () => {
     requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
     /// /////////////////////////////////////////////////////////////////////////////////////////
 
-    const res = userRemove(globalOwnerUid, user1.token);
+    const res = userRemove(user2Uid, user1.token);
     expect(res.statusCode).toBe(FORBID);
   });
   test('bad token', () => {
@@ -183,25 +172,23 @@ describe('testing /admin/user/remove/v1', () => {
     /// ////////////////////////////set up the datastore/////////////////////////////////////////
     const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
     const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
-    const globalOwnerUid = getUID(globalOwner.authUserId);
     const user1Uid = getUID(user1.authUserId);
     const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
     channelJoin(user1.token, channelId);
     requestMessageSendV1(user1.token, channelId, 'This is a test message, should be replaced');
-    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody()));
+    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody())).dmId;
     requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
     /// /////////////////////////////////////////////////////////////////////////////////////////
     // this tests the removal process by server status code
-    const res = userRemove(globalOwnerUid, 'notAToken');
+    const res = userRemove(user1Uid, globalOwner.token);
     expect(res.statusCode).toBe(OKAY);
     expect(JSON.parse(String(res.getBody()))).toEqual({});
 
     // now need to check that user has been appropriatly removed
-    expect(usersAll(globalOwner.token.users.length)).toBe(1);
-    const userProfile = requestUserProfile(globalOwner.token, user1Uid);
+    const userProfile = requestUserProfile(globalOwner.token, user1Uid).user;
     expect(userProfile.nameFirst).toBe('Removed');
     expect(userProfile.nameLast).toBe('user');
-    expect(JSON.parse(String(requestChannelMessagesV3(globalOwner.token, channelId, 0).getBody())).messages[0].message).toBe('Removed user');
+    expect((JSON.parse(String(requestChannelMessagesV3(globalOwner.token, channelId, 0).getBody()))).messages[0].message).toBe('Removed user');
     expect(requestDmMessages(dmId, 0, globalOwner.token).messages[0].message).toBe('Removed user');
     registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
   });
@@ -211,7 +198,7 @@ describe('testing /admin/user/remove/v1', () => {
 function userRemove(uId: number, token: string) {
   return request(
     'DELETE',
-    url + 'admin/user/remove/v1',
+    url + '/admin/user/remove/v1',
     {
       qs: {
         uId: uId,

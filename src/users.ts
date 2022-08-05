@@ -213,7 +213,7 @@ function usersAllV1(token: string) {
   if (!checkValidToken(token)) return { error: 'error' };
   const outputArray: { uId: number, email: string, nameFirst: string, nameLast: string, handleStr: string}[] = [];
   const data = getData();
-  for (const user of data.users) {
+  for (const user of data.users.filter(user => user.isActiveUser === true)) {
     outputArray.push(
       {
         uId: user.uId,

@@ -27,7 +27,7 @@ Return Value:
 */
 export function authLoginV3(email: string, password: string) {
   const data: dataStoreType = getData();
-  if (!containsEmail(email, data)) { // email does not belong to a user
+  if (!activeHasEmail(email, data)) { // email does not belong to an active user
     throw HTTPError(BAD_REQ, 'Incorrect Email');
   }
   const user: user = data.users.find(u => u.email === email);
@@ -146,6 +146,7 @@ export function authRegisterV3(email: string, password: string, nameFirst: strin
     channels: [],
     dms: [],
     isGlobalOwner: isGlobalOwner,
+    isActiveUser: true,
   };
   // put the new user into data and set the data.
   data.users.push(newUser);
@@ -165,10 +166,15 @@ Return Value:
     Returns False if emailToCheck does not exist with a registred user
 */
 export function containsEmail(emailToCheck: string, data: dataStoreType) {
-  const users: user[] = data.users;
-  // checks if an element is equal to the emailToCheck
-  const contains = (element: user) => element.email === emailToCheck;
-  return users.some(contains);
+  // checks if a user exits with the email, if user does not exist, return false
+  if (data.users.find(user => user.email === emailToCheck) === undefined) return false;
+  // checks if a user does exist with email but is not active, the email does not exist and can be used again
+  else if (data.users.find(user => user.email === emailToCheck).isActiveUser === false) return false;
+  else return true;
+}
+function activeHasEmail(email: string, data: dataStoreType) {
+  if (data.users.filter(user => user.isActiveUser === true).find(user => user.email === email) === undefined) return false;
+  else return true;
 }
 /*
 containsHandle takes the datastore object and a handle to check if the handle is already registred to a user.

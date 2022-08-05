@@ -125,7 +125,7 @@ export function dmMessagesV2(token: string, dmId: number, start: number) {
     throw HTTPError(BAD_REQ, 'Invalid DMID');
   }
   // this check relys on the dmId and token to be valid
-  if (!isMemberOf(dmId, token)) { // if the user is not authorised
+  if (!isMemberOf(dmId, token) && !isOwnerOf(dmId, token)) { // if the user is not authorised
     throw HTTPError(FORBID, 'User is not a member or owner of the DM');
   }
   const data = getData();
