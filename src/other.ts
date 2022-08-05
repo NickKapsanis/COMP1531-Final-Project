@@ -139,13 +139,13 @@ function getDMs(DMid: number, DMsArray: dm[]) {
 
 /*
 function getTags(message: string) {
-  if
+  const tagsArray: string[] = message.split('@');
 
   const users: user[] = getData().users;
   for (let user of users) {
-    if (user.handleStr)
+    for (tag of )
+    if (tagsArray.contains())
   }
-}
 */
 
 export { clearV1, getUId, searchV1 };

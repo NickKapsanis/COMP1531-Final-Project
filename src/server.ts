@@ -255,7 +255,6 @@ app.post('/standup/send/v1', (req, res) => {
   res.json(standupSendV1(token, channelId, message));
 });
 
-
 // handles errors nicely
 app.use(errorHandler());
 
