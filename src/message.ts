@@ -389,10 +389,12 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
   return {};
 }
 
-/*
-function DummyMessageForward() {
 
-  // Notifcation >>>>>>>>
+
+/*
+function DummyMessageShare() {
+
+  // Notification >>>>>>>>
   const uIds = getTags(message);
   const userHandle = data.users.find(user => user.tokens.find(tok => tok === token).handleStr);
   sendNotificationsTag(data, uIds, forwardedChannel/dm.id, userHandle, message);
@@ -404,7 +406,7 @@ function DummyMessageForward() {
 /*
 function DummyMessageReact() {
 
-  // Notifcation >>>>>>>>
+  // Notification >>>>>>>>
   const uId = messageOwner.uId; // uId of user to whom the message belongs
   const reactorHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
   sendNotificationReact(uId, reactedChannel/dm.id, reactorHandle);

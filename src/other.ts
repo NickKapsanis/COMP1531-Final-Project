@@ -105,8 +105,19 @@ output:
 
 */
 export function getTags(message: string) {
-  
-  // should be uinque uIds 
+  let uIdArray: number[] = []
+ 
+  const tagsArray: string[] = message.split('@');
+  const users: user[] = getData().users;
+  for (let user of users) {
+    for (let tag of tagsArray) {
+      if (tag.includes(user.handleStr)) {
+        if (uIdArray.find(user.uId) === undefined) {
+          uIdArray.push(user.uId);
+        }
+      }
+    }
+ }
 }
 
 /*
