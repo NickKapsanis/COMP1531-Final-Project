@@ -4,6 +4,9 @@ import { getUId } from './other';
 import { channelsListType } from './channels';
 
 const OK = 200;
+const FORBIDDEN = 403;
+const BAD_REQUEST = 400;
+
 const port = config.port;
 const hosturl = config.url;
 const url = hosturl + ':' + port;
@@ -207,19 +210,19 @@ describe('Testing channelsCreateV1()', () => {
     const user = createUser('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const token = user.token;
     const output = createChannel(token, '', true);
-    expect(output).toStrictEqual({ error: 'error' });
+    expect(output).toStrictEqual(BAD_REQUEST);
   });
 
   test('Testing if error is returned when name length > 20', () => {
     const user = createUser('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const token = user.token;
     const output = createChannel(token, 'thisIsAVeryLongChannelNameWhichIsInvalid', true);
-    expect(output).toStrictEqual({ error: 'error' });
+    expect(output).toStrictEqual(BAD_REQUEST);
   });
 
   test('Testing if error is returned when token is invalid', () => {
     const output = createChannel('invalid-token', 'testChannelName', true);
-    expect(output).toStrictEqual({ error: 'error' });
+    expect(output).toStrictEqual(FORBIDDEN);
   });
 
   test('Testing correct input - Checking if channel is created', () => {
@@ -314,13 +317,19 @@ const createUser = (emails: string, passwords: string, name: string, surname: st
 export const createChannel = (tokens: string, names: string, publicity: boolean) => {
   const res = request(
     'POST',
-    url + '/channels/create/v2',
+    url + '/channels/create/v3',
     {
-      body: JSON.stringify({ token: tokens, name: names, isPublic: publicity }),
+      body: JSON.stringify({ name: names, isPublic: publicity }),
       headers: {
+        token: tokens,
         'Content-type': 'application/json',
       },
     }
   );
+
+  if (res.statusCode !== 200) {
+    return (res.statusCode);
+  }
+
   return JSON.parse(String(res.getBody()));
 };
