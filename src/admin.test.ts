@@ -3,7 +3,7 @@ import { channelJoin, createChannel, getUID, requestChannelMessagesV3 } from './
 // import { PORT, HOST } from './server';
 import config from './config.json';
 import { registerUser, requestDmCreate } from './dm.test';
-import { requestMessageSendDmV1, requestMessageSendV1 } from './message.test';
+import { requestMessageSendDmV2, requestMessageSendV2 } from './message.test';
 
 const port = config.port;
 const hosturl = config.url;
@@ -111,9 +111,9 @@ describe('testing /admin/user/remove/v1', () => {
     const user1Uid = getUID(user1.authUserId);
     const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
     channelJoin(user1.token, channelId);
-    requestMessageSendV1(user1.token, channelId, 'This is a test message, should be replaced');
-    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody()));
-    requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
+    requestMessageSendV2(user1.token, channelId, 'This is a test message, should be replaced');
+    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody())).dmId;
+    requestMessageSendDmV2(user1.token, dmId, 'This is a test DM message, should be replaced');
     /// /////////////////////////////////////////////////////////////////////////////////////////
 
     const res = userRemove(9898, globalOwner.token);
@@ -127,9 +127,9 @@ describe('testing /admin/user/remove/v1', () => {
     const user1Uid = getUID(user1.authUserId);
     const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
     channelJoin(user1.token, channelId);
-    requestMessageSendV1(user1.token, channelId, 'This is a test message, should be replaced');
-    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody()));
-    requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
+    requestMessageSendV2(user1.token, channelId, 'This is a test message, should be replaced');
+    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody())).dmId;
+    requestMessageSendDmV2(user1.token, dmId, 'This is a test DM message, should be replaced');
     /// /////////////////////////////////////////////////////////////////////////////////////////
     const res = userRemove(globalOwnerUid, globalOwner.token);
     expect(res.statusCode).toBe(BAD_REQ);
@@ -144,9 +144,9 @@ describe('testing /admin/user/remove/v1', () => {
     const user1Uid = getUID(user1.authUserId);
     const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
     channelJoin(user1.token, channelId);
-    requestMessageSendV1(user1.token, channelId, 'This is a test message, should be replaced');
-    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody()));
-    requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
+    requestMessageSendV2(user1.token, channelId, 'This is a test message, should be replaced');
+    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody())).dmId;
+    requestMessageSendDmV2(user1.token, dmId, 'This is a test DM message, should be replaced');
     /// /////////////////////////////////////////////////////////////////////////////////////////
 
     const res = userRemove(user2Uid, user1.token);
@@ -160,9 +160,9 @@ describe('testing /admin/user/remove/v1', () => {
     const user1Uid = getUID(user1.authUserId);
     const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
     channelJoin(user1.token, channelId);
-    requestMessageSendV1(user1.token, channelId, 'This is a test message, should be replaced');
-    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody()));
-    requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
+    requestMessageSendV2(user1.token, channelId, 'This is a test message, should be replaced');
+    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody())).dmId;
+    requestMessageSendDmV2(user1.token, dmId, 'This is a test DM message, should be replaced');
     /// /////////////////////////////////////////////////////////////////////////////////////////
 
     const res = userRemove(globalOwnerUid, 'notAToken');
@@ -175,9 +175,9 @@ describe('testing /admin/user/remove/v1', () => {
     const user1Uid = getUID(user1.authUserId);
     const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
     channelJoin(user1.token, channelId);
-    requestMessageSendV1(user1.token, channelId, 'This is a test message, should be replaced');
+    requestMessageSendV2(user1.token, channelId, 'This is a test message, should be replaced');
     const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody())).dmId;
-    requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
+    requestMessageSendDmV2(user1.token, dmId, 'This is a test DM message, should be replaced');
     /// /////////////////////////////////////////////////////////////////////////////////////////
     // this tests the removal process by server status code
     const res = userRemove(user1Uid, globalOwner.token);

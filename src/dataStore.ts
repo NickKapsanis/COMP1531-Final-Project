@@ -14,11 +14,18 @@ type user = {
   isGlobalOwner: 1 | 2; // 1 for global owner 2 for not global
   isActiveUser: boolean;
 }
+type react = {
+  reactId : number;
+  uIds : number[];
+  isThisUserReacted : boolean;
+}
 type message = {
   messageId : number;
   uId : number;
   timeSent : number; // unix timestamp
   message : string;
+  isPinned: boolean;
+  reacts : react[];
 }
 type dm = {
     dmId: number;

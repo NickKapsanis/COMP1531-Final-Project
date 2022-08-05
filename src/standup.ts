@@ -161,6 +161,8 @@ function finishStandup(channelId: number, user: user) {
     uId: UId,
     timeSent: Math.floor(Date.now() / 1000),
     message: finalOutput,
+    isPinned: false,
+    reacts: [],
   };
 
   const index: number = data.channels.indexOf(channel);
