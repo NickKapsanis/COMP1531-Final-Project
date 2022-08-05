@@ -15,31 +15,77 @@ const BAD_REQ = 400;
 const OKAY = 200;
 
 describe('testing admin/userpermission/change/v1', () => {
-  request('DELETE', url + '/clear/v1');
-  const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
-  const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
-  const globalOwnerUid = getUID(globalOwner.authUserId);
-  const user1Uid = getUID(user1.authUserId);
-  test.each([
-    { uId: 9898, permissionId: 1, token: globalOwner.token, bad: 'uID not Valid' },
-    { uId: user1Uid, permissionId: 5, token: globalOwner.token, bad: 'permission ID invalid' },
-    { uId: user1Uid, permissionId: 2, token: globalOwner.token, bad: 'user already has permission level' },
-    { uId: globalOwnerUid, permissionId: 2, token: globalOwner.token, bad: 'only 1 global owner, cannot demote' },
-  ])('$bad', (
-    { uId, permissionId, token }
-  ) => {
-    const res = changePermission(uId, permissionId, token);
+  beforeEach(() => {
+    request('DELETE', url + '/clear/v1');
+  });
+  afterEach(() => {
+    request('DELETE', url + '/clear/v1');
+  });
+  test('uID not Valid', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+
+    const res = changePermission(9898, 1, globalOwner.token);
+    expect(res.statusCode).toBe(BAD_REQ);
+  });
+  test('permission ID invalid', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
+    const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const user1Uid = getUID(user1.authUserId);
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+
+    const res = changePermission(user1Uid, 5, globalOwner.token);
+    expect(res.statusCode).toBe(BAD_REQ);
+  });
+  test('user already has permission level', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
+    const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const user1Uid = getUID(user1.authUserId);
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+
+    const res = changePermission(user1Uid, 2, globalOwner.token);
+    expect(res.statusCode).toBe(BAD_REQ);
+  });
+  test('only 1 global owner, cannot demote', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
+    registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const globalOwnerUid = getUID(globalOwner.authUserId);
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+
+    const res = changePermission(globalOwnerUid, 2, globalOwner.token);
     expect(res.statusCode).toBe(BAD_REQ);
   });
   test('authUser is not a global owner', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
+    const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const globalOwnerUid = getUID(globalOwner.authUserId);
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+
     const res = changePermission(globalOwnerUid, 2, user1.token);
     expect(res.statusCode).toBe(FORBID);
   });
   test('invalid token', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
+    const globalOwnerUid = getUID(globalOwner.authUserId);
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+
     const res = changePermission(globalOwnerUid, 2, 'notAToken');
     expect(res.statusCode).toBe(FORBID);
   });
   test('non global owner is promoted to global owner and hence demotes og globalowner', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
+    const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const globalOwnerUid = getUID(globalOwner.authUserId);
+    const user1Uid = getUID(user1.authUserId);
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+
     const res1 = changePermission(user1Uid, 1, globalOwner.token);
     expect(res1.statusCode).toBe(OKAY);
     expect(JSON.parse(String(res1.getBody()))).toEqual({});
@@ -52,35 +98,99 @@ describe('testing admin/userpermission/change/v1', () => {
 /// //////////////////////////////////////////////////////////////////////////
 /// //////////////////////////////////////////////////////////////////////////
 describe('testing /admin/user/remove/v1', () => {
-  request('DELETE', url + '/clear/v1');
+  beforeEach(() => {
+    request('DELETE', url + '/clear/v1');
+  });
+  afterEach(() => {
+    request('DELETE', url + '/clear/v1');
+  });
+  /// ////////////////////////////set up the datastore/////////////////////////////////////////
   const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
   const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
-  const globalOwnerUid = getUID(globalOwner.authUserId);
   const user1Uid = getUID(user1.authUserId);
   const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
   channelJoin(user1.token, channelId);
   requestMessageSendV1(user1.token, channelId, 'This is a test message, should be replaced');
   const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody()));
   requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
+  /// /////////////////////////////////////////////////////////////////////////////////////////
 
-  test.each([
-    { uId: 9898, token: globalOwner.token, bad: 'uID not Valid' },
-    { uId: globalOwnerUid, token: globalOwner.token, bad: 'only 1 global owner, cannot remove' },
-  ])('$bad', (
-    { uId, token }
-  ) => {
-    const res = userRemove(uId, token);
+  test('uID not Valid', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
+    const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const user1Uid = getUID(user1.authUserId);
+    const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
+    channelJoin(user1.token, channelId);
+    requestMessageSendV1(user1.token, channelId, 'This is a test message, should be replaced');
+    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody()));
+    requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+
+    const res = userRemove(9898, globalOwner.token);
     expect(res.statusCode).toBe(BAD_REQ);
   });
+  test('only 1 global owner, cannot remove', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
+    const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const globalOwnerUid = getUID(globalOwner.authUserId);
+    const user1Uid = getUID(user1.authUserId);
+    const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
+    channelJoin(user1.token, channelId);
+    requestMessageSendV1(user1.token, channelId, 'This is a test message, should be replaced');
+    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody()));
+    requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+
+    const res = userRemove(globalOwnerUid, globalOwner.token);
+    expect(res.statusCode).toBe(BAD_REQ);
+  });
+
   test('authUser is not a global owner', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
+    const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const globalOwnerUid = getUID(globalOwner.authUserId);
+    const user1Uid = getUID(user1.authUserId);
+    const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
+    channelJoin(user1.token, channelId);
+    requestMessageSendV1(user1.token, channelId, 'This is a test message, should be replaced');
+    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody()));
+    requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+
     const res = userRemove(globalOwnerUid, user1.token);
     expect(res.statusCode).toBe(FORBID);
   });
   test('bad token', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
+    const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const globalOwnerUid = getUID(globalOwner.authUserId);
+    const user1Uid = getUID(user1.authUserId);
+    const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
+    channelJoin(user1.token, channelId);
+    requestMessageSendV1(user1.token, channelId, 'This is a test message, should be replaced');
+    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody()));
+    requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+
     const res = userRemove(globalOwnerUid, 'notAToken');
     expect(res.statusCode).toBe(FORBID);
   });
   test('user is removed', () => {
+    /// ////////////////////////////set up the datastore/////////////////////////////////////////
+    const globalOwner = registerUser('testingUser1@gmail.com', '1234567', 'GlobalOwner', 'LastName1');
+    const user1 = registerUser('testingUser2@gmail.com', '1234567', 'FirstName2', 'LastName2');
+    const globalOwnerUid = getUID(globalOwner.authUserId);
+    const user1Uid = getUID(user1.authUserId);
+    const channelId = createChannel(globalOwner.token, 'Channel1', true).channelId;
+    channelJoin(user1.token, channelId);
+    requestMessageSendV1(user1.token, channelId, 'This is a test message, should be replaced');
+    const dmId = JSON.parse(String(requestDmCreate(globalOwner.token, [user1Uid]).getBody()));
+    requestMessageSendDmV1(user1.token, dmId, 'This is a test DM message, should be replaced');
+    /// /////////////////////////////////////////////////////////////////////////////////////////
     // this tests the removal process by server status code
     const res = userRemove(globalOwnerUid, 'notAToken');
     expect(res.statusCode).toBe(OKAY);
