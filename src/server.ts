@@ -11,7 +11,7 @@ import cors from 'cors';
 import { usersAllV2, userProfileV3 } from './users';
 import { clearV1, getUId, searchV1, getNotifications } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
-import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
+import { messageSendV2, messageSendDmV2, messageRemoveV2, messageEditV2, messageShareV1, messageSendLaterV1, messageSendLaterDmV1, messagePinV1, messageUnPinV1, messageReactV1, messageUnReactV1 } from './message';
 import { channelDetailsV3, channelMessagesV3 } from './channel';
 import errorHandler from 'middleware-http-errors';
 import { standupActiveV1, standupSendV1, standupStartV1 } from './standup';
@@ -228,25 +228,77 @@ app.post('/channel/leave/v1', (req, res) => {
   res.json(channelsLeaveV1(data.token, data.channelId));
 });
 // messegeSendV1
-app.post('/message/send/v1', (req, res) => {
-  const { token, channelId, message } = req.body;
-  res.json(messageSendV1(token, channelId, message));
+app.post('/message/send/v2', (req, res) => {
+  const token = String(req.header('token'));
+  const { channelId, message } = req.body;
+  res.json(messageSendV2(token, channelId, message));
 });
-// messegeSendDmV1
-app.post('/message/senddm/v1', (req, res) => {
-  const { token, dmId, message } = req.body;
-  res.json(messageSendDmV1(token, dmId, message));
+
+// messegeSendDmV2
+app.post('/message/senddm/v2', (req, res) => {
+  const token = String(req.header('token'));
+  const { dmId, message } = req.body;
+  res.json(messageSendDmV2(token, dmId, message));
 });
 // messageRemoveV1
-app.delete('/message/remove/v1', (req, res) => {
-  const token = String(req.query.token);
+app.delete('/message/remove/v2', (req, res) => {
+  const token = String(req.header('token'));
   const messageId = Number(req.query.messageId);
-  res.json(messageRemoveV1(token, messageId));
+  res.json(messageRemoveV2(token, messageId));
 });
 // messageEditV1
-app.put('/message/edit/v1', (req, res) => {
-  const { token, messageId, message } = req.body;
-  res.json(messageEditV1(token, messageId, message));
+app.put('/message/edit/v2', (req, res) => {
+  const token = String(req.header('token'));
+  const { messageId, message } = req.body;
+  res.json(messageEditV2(token, messageId, message));
+});
+
+app.post('/message/share/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const { ogMessageId, message, channelId, dmId } = req.body;
+  res.json(messageShareV1(token, ogMessageId, message, channelId, dmId));
+});
+
+// messageSendLaterV1
+app.post('/message/sendlater/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const { channelId, message, timeSent } = req.body;
+  res.json(messageSendLaterV1(token, channelId, message, timeSent));
+});
+
+// messageSendLaterDmV1
+app.post('/message/sendlaterdm/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const { dmId, message, timeSent } = req.body;
+  res.json(messageSendLaterDmV1(token, dmId, message, timeSent));
+});
+
+// messagePinV1
+app.post('/message/pin/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const { messageId } = req.body;
+  res.json(messagePinV1(token, messageId));
+});
+
+// messageUnPinV1
+app.post('/message/unpin/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const { messageId } = req.body;
+  res.json(messageUnPinV1(token, messageId));
+});
+
+// messageReactV1
+app.post('/message/react/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const { messageId, reactId } = req.body;
+  res.json(messageReactV1(token, messageId, reactId));
+});
+
+// messageUnReactV1
+app.post('/message/unreact/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const { messageId, reactId } = req.body;
+  res.json(messageUnReactV1(token, messageId, reactId));
 });
 
 // notifications/get
