@@ -139,7 +139,7 @@ function finishStandup(channelId: number, user: user) {
   const channel: channel = getChannel(channelId, data.channels);
   let finalOutput = '';
 
-  if (channelId === undefined) {
+  if (channel === undefined) {
     return;
   }
 
