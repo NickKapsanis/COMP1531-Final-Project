@@ -1,8 +1,9 @@
 import { getData, setData, dataStoreType, channel, message, user } from './dataStore';
-import { userProfileV2 } from './users';
+import { userProfileV3 } from './users';
 import { channelsListV2 } from './channels';
 import { getUId } from './other';
 import { checkValidToken } from './auth';
+import HTTPError from 'http-errors';
 
 type userOutput = {
   uId: number;
@@ -23,6 +24,9 @@ type messagesOutput = {
   end: number;
 }
 
+const FORBID = 403;
+const BAD_REQ = 400;
+
 /**
  * Returns the basic details about the channel (such as its name, public status,
  * owners and members) given a channelId and authUserId.
@@ -39,21 +43,21 @@ type messagesOutput = {
  *        allMembers
  *      }
  */
-function channelDetailsV2(token: string, channelId: number) {
+function channelDetailsV3(token: string, channelId: number) {
   const data: dataStoreType = getData();
 
   // Token validation
   if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Invalid token');
   }
 
   const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
 
   // Checking if valid channelIds were given
   if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid channelId');
   } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Not a member of channel');
   }
 
   // Finding the given channel
@@ -65,7 +69,7 @@ function channelDetailsV2(token: string, channelId: number) {
   const ownerMembersDetails: Array<userOutput> = [];
 
   owners.forEach(uId => {
-    const user = userProfileV2(token, uId).user;
+    const user = userProfileV3(token, uId).user;
     ownerMembersDetails.push(user);
   });
 
@@ -75,7 +79,7 @@ function channelDetailsV2(token: string, channelId: number) {
   const allMembersDetails: Array<userOutput> = [];
 
   members.forEach(uId => {
-    const user = userProfileV2(token, uId).user;
+    const user = userProfileV3(token, uId).user;
     allMembersDetails.push(user);
   });
 
@@ -102,21 +106,21 @@ function channelDetailsV2(token: string, channelId: number) {
  *                                      where messages is an array of objects,
  *                                      start and end are integers.
  */
-function channelMessagesV2(token: string, channelId: number, start: number) {
+function channelMessagesV3(token: string, channelId: number, start: number) {
   const data: dataStoreType = getData();
 
   // Token validation
   if (data.users.find(user => user.tokens.find(tok => tok === token)) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Invalid token');
   }
 
   const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
 
   // Checking validity of 'channelId' input
   if (data.channels.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid channelId');
   } else if (channelsMemberOf.find(channel => channel.channelId === channelId) === undefined) {
-    return { error: 'error' };
+    throw HTTPError(FORBID, 'Not a member of channel');
   }
 
   const channelGiven: channel = data.channels.find(channel => channel.channelId === channelId);
@@ -124,7 +128,7 @@ function channelMessagesV2(token: string, channelId: number, start: number) {
   // Checking validity of 'start' input
   let end: number;
   if (start > channelGiven.messages.length) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQ, 'Invalid start');
   } else if (start + 50 > channelGiven.messages.length) {
     end = -1;
   } else {
@@ -165,40 +169,31 @@ function getChannel(channelId: number, channelsArray: channel[]) {
 *   {error: 'error'}     object         Error message when given invalid input
 *   {}                   empty object   Successful run
 */
-function channelJoinV2(token: string, channelId: number) {
+function channelJoinV3(token: string, channelId: number) {
   const data: dataStoreType = getData();
-  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
-  const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
+  const user: user = data.users.find(user => user.tokens.find(tok => tok === token));
   const channel: channel = getChannel(channelId, data.channels);
 
-  // error when we can't find a valid user or channel
+  // error conditions
   if (channel === undefined) {
-    return { error: 'error' };
+    throw HTTPError(400, 'bad channel ID');
   }
-
-  if (authUserId === undefined) {
-    return { error: 'error' };
+  if (user === undefined) {
+    throw HTTPError(403, 'token is invalid');
   }
-
-  if (userIndex === undefined) {
-    return { error: 'error' };
+  if (user.channels.includes(channelId)) {
+    throw HTTPError(400, 'authorized user is already a member of the channel');
   }
-
-  // error when the authorized user is already a member of the channel
-  if (data.users[userIndex].channels.includes(channelId)) {
-    return { error: 'error' };
-  }
-
-  // error when the channel is private, and the user is not already a member or a global owner
   if (!channel.isPublic) {
-    if (data.users[userIndex].isGlobalOwner !== 1) {
-      return { error: 'error' };
+    if (user.isGlobalOwner !== 1) {
+      throw HTTPError(403, 'channel is private, and the user is not already a member or a global owner');
     }
   }
 
+  const userIndex: number = data.users.indexOf(user);
   // update dataStore.js
-  data.users[data.users.indexOf(data.users[userIndex])].channels.push(channelId);
-  data.channels[data.channels.indexOf(channel)].allMembers.push(data.users[userIndex].uId);
+  data.users[userIndex].channels.push(channelId);
+  data.channels[data.channels.indexOf(channel)].allMembers.push(user.uId);
   setData(data);
   return {};
 }
@@ -217,11 +212,10 @@ function channelJoinV2(token: string, channelId: number) {
 *   {error: 'error'}     object         Error message when given invalid input
 *   {}                   empty object   Successful run
 */
-function channelInviteV2(token: string, channelId: number, uId: number) {
+function channelInviteV3(token: string, channelId: number, uId: number) {
   const data: dataStoreType = getData();
   const channel: channel = getChannel(channelId, data.channels);
-  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
-  const userInviting: user = data.users[data.users.findIndex(user => user.authUserId === authUserId)];
+  const userInviting: user = data.users.find(user => user.tokens.find(tok => tok === token));
   let userJoining: user;
   for (const user of data.users) {
     if (uId === user.uId) {
@@ -229,27 +223,21 @@ function channelInviteV2(token: string, channelId: number, uId: number) {
     }
   }
 
-  // error when we can't find a valid user or channel ID
-  if (userJoining === undefined) {
-    return { error: 'error' };
-  }
-
-  if (userInviting === undefined) {
-    return { error: 'error' };
-  }
-
+  // error conditions
   if (channel === undefined) {
-    return { error: 'error' };
+    throw HTTPError(400, 'bad channel ID');
   }
-
-  // error when uId refers to user already in channel
+  if (userInviting === undefined) {
+    throw HTTPError(403, 'token is invalid');
+  }
+  if (userJoining === undefined) {
+    throw HTTPError(400, 'bad user joining UID');
+  }
   if (userJoining.channels.includes(channelId)) {
-    return { error: 'error' };
+    throw HTTPError(400, 'uId refers to user already in channel');
   }
-
-  // error when authUserId is not a member of the channel
   if (!userInviting.channels.includes(channelId)) {
-    return { error: 'error' };
+    throw HTTPError(403, 'user inviting is not a member of the channel');
   }
 
   // updating dataStore.js
@@ -272,42 +260,31 @@ function channelInviteV2(token: string, channelId: number, uId: number) {
 *   {error: 'error'}     object         Error message when given invalid input
 *   {}                   empty object   Successful run
 */
-function addChannelOwnerV1(token: string, channelId: number, uId: number) {
+function addChannelOwnerV2(token: string, channelId: number, uId: number) {
   const data: dataStoreType = getData();
   const channel: channel = getChannel(channelId, data.channels);
-  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
-  const userGivingOwner: user = data.users[data.users.findIndex(user => user.authUserId === authUserId)];
+  const userGivingOwner: user = data.users.find(user => user.tokens.find(tok => tok === token));
   const userBecomingOwnerIndex: number = data.users.findIndex(user => user.uId === uId);
   const userBecomingOwner: user = data.users[userBecomingOwnerIndex];
 
-  // error when channelId fails to find a valid channel
+  // error conditions
   if (channel === undefined) {
-    return { error: 'error' };
+    throw HTTPError(400, 'bad channel ID');
   }
-
-  // error when uId doesn't find a valid user
-  if (userBecomingOwner === undefined) {
-    return { error: 'error' };
-  }
-
-  // error when authUserId doesn't find a valid user
   if (userGivingOwner === undefined) {
-    return { error: 'error' };
+    throw HTTPError(403, 'token is invalid');
   }
-
-  // error when the user becoming owner is not a member of the channel
+  if (userBecomingOwner === undefined) {
+    throw HTTPError(400, 'bad UID');
+  }
   if (!userBecomingOwner.channels.includes(channelId)) {
-    return { error: 'error' };
+    throw HTTPError(400, 'user becoming owner is not a member of the channel');
   }
-
-  // error when the user is already a channel owner
   if (channel.ownerMembers.includes(uId)) {
-    return { error: 'error' };
+    throw HTTPError(400, 'user is already a channel owner');
   }
-
-  // error when the user adding is not an existing channel owner or global owner
   if (!(channel.ownerMembers.includes(userGivingOwner.uId)) && (userGivingOwner.isGlobalOwner !== 1)) {
-    return { error: 'error' };
+    throw HTTPError(403, 'invalid permissions');
   }
 
   data.channels[data.channels.indexOf(channel)].ownerMembers.push(uId);
@@ -328,47 +305,34 @@ function addChannelOwnerV1(token: string, channelId: number, uId: number) {
 *   {error: 'error'}     object         Error message when given invalid input
 *   {}                   empty object   Successful run
 */
-function removeChannelOwnerV1(token: string, channelId: number, uId: number) {
+function removeChannelOwnerV2(token: string, channelId: number, uId: number) {
   const data: dataStoreType = getData();
-  const authUserId: number = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
+  const userRemovingOwner: user = data.users.find(user => user.tokens.find(tok => tok === token));
   const channel: channel = getChannel(channelId, data.channels);
-  const userRemovingOwner: user = data.users[data.users.findIndex(user => user.authUserId === authUserId)];
   const userBeingRemovedIndex: number = data.users.findIndex(user => user.uId === uId);
   const userBeingRemoved: user = data.users[userBeingRemovedIndex];
 
-  // error when channelId fails to find a valid channel
+  // error conditions
   if (channel === undefined) {
-    return { error: 'error' };
+    throw HTTPError(400, 'bad channel ID');
   }
-
-  // error when uId doesn't find a valid user
-  if (userBeingRemoved === undefined) {
-    return { error: 'error' };
-  }
-
-  // error when authUserId doesn't find a valid user
   if (userRemovingOwner === undefined) {
-    return { error: 'error' };
+    throw HTTPError(403, 'token is invalid');
   }
-
-  // error when uId is not an owner of the channel
+  if (userBeingRemoved === undefined) {
+    throw HTTPError(400, 'bad UID');
+  }
   if (!channel.ownerMembers.includes(uId)) {
-    return { error: 'error' };
+    throw HTTPError(400, 'uId is not an owner of the channel');
   }
-
-  // error when uId refers to a user who is currently the only owner of the channel
   if (channel.ownerMembers.length === 1) {
-    return { error: 'error' };
+    throw HTTPError(400, 'user is currently the only owner of the channel');
   }
-
-  // error when the user removing owner is not a member of the channel
   if (!userRemovingOwner.channels.includes(channelId)) {
-    return { error: 'error' };
+    throw HTTPError(403, 'user removing owner is not a member of the channel');
   }
-
-  // error when the user removing the channel owner is not a global owner and channel owner
-  if (!(userRemovingOwner.isGlobalOwner === 1) && !channel.ownerMembers.includes(userRemovingOwner.uId)) {
-    return { error: 'error' };
+  if (userRemovingOwner.isGlobalOwner !== 1 && !(channel.ownerMembers.includes(userRemovingOwner.uId))) {
+    throw HTTPError(403, 'invalid permissions');
   }
 
   const index: number = data.channels.indexOf(channel);
@@ -431,4 +395,4 @@ function channelsLeaveV1(token: string, channelId: number) {
   return { error: 'error' };
 }
 
-export { channelJoinV2, channelInviteV2, addChannelOwnerV1, removeChannelOwnerV1, getChannel, channelDetailsV2, channelMessagesV2, channelsLeaveV1 };
+export { channelJoinV3, channelInviteV3, addChannelOwnerV2, removeChannelOwnerV2, getChannel, channelDetailsV3, channelMessagesV3, channelsLeaveV1 };

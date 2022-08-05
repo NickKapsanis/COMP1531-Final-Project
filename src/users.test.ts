@@ -6,6 +6,9 @@ import request from 'sync-request';
 import config from './config.json';
 
 const OK = 200;
+const FORBIDDEN = 403;
+const BAD_REQUEST = 400;
+
 const port = config.port;
 const hosturl = config.url;
 const url = hosturl + ':' + port;
@@ -17,21 +20,21 @@ const url = hosturl + ':' + port;
 describe('Testing userProfileV1()', () => {
   test('Testing if error is returned if both token and uId do not exist', () => {
     requestClear();
-    expect(requestUserProfileV2('invalid-token', -3)).toStrictEqual({ error: 'error' });
+    expect(requestUserProfile('invalid-token', -3)).toStrictEqual(FORBIDDEN);
   });
 
   test('Testing if error is returned if token does not exist', () => {
     requestClear();
     const testUser1 = createUser('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const uId1 = Number(getUId(testUser1.authUserId));
-    expect(requestUserProfileV2('invalid-token', uId1)).toStrictEqual({ error: 'error' });
+    expect(requestUserProfile('invalid-token', uId1)).toStrictEqual(FORBIDDEN);
   });
 
   test('Testing if error is returned if uId does not exist', () => {
     requestClear();
     const testUser1 = createUser('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const token1 = testUser1.token;
-    expect(requestUserProfileV2(token1, -1)).toStrictEqual({ error: 'error' });
+    expect(requestUserProfile(token1, -1)).toStrictEqual(BAD_REQUEST);
   });
 
   test('Testing correct output for when token and uId belong to same person', () => {
@@ -39,7 +42,7 @@ describe('Testing userProfileV1()', () => {
     const testUser1 = createUser('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const uId1 = Number(getUId(testUser1.authUserId));
     const token1 = testUser1.token;
-    const userProfile1 = requestUserProfileV2(token1, uId1);
+    const userProfile1 = requestUserProfile(token1, uId1);
 
     // testing that correct information is being returned of the user
     expect(userProfile1.user.uId).toStrictEqual(uId1);
@@ -54,7 +57,7 @@ describe('Testing userProfileV1()', () => {
     const testUser2 = createUser('correct@email.com', 'testPassword123', 'correctFirstName', 'correctLastName');
     const uId2 = Number(getUId(testUser2.authUserId));
     const token1 = testUser1.token;
-    const userProfile2 = requestUserProfileV2(token1, uId2);
+    const userProfile2 = requestUserProfile(token1, uId2);
 
     // testing that correct information is being returned of the user
     expect(userProfile2.user.uId).toStrictEqual(uId2);
@@ -72,8 +75,8 @@ test('Testing if changing nothing still returns same name.', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
-  let aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+  let aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
+  let aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
   const res = request(
     'PUT',
@@ -91,8 +94,8 @@ test('Testing if changing nothing still returns same name.', () => {
   );
   const bodyObj = JSON.parse(res.getBody() as string);
 
-  aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
-  aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+  aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
+  aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toStrictEqual({});
@@ -105,8 +108,8 @@ test('Testing changing only first name.', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
-  let aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+  let aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
+  let aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
   const res = request(
     'PUT',
@@ -125,8 +128,8 @@ test('Testing changing only first name.', () => {
 
   const bodyObj = JSON.parse(String(res.getBody()));
 
-  aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
-  aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+  aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
+  aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toStrictEqual({});
@@ -139,8 +142,8 @@ test('Testing changing only last name.', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
-  let aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+  let aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
+  let aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
   const res = request(
     'PUT',
@@ -158,8 +161,8 @@ test('Testing changing only last name.', () => {
   );
   const bodyObj = JSON.parse(String(res.getBody()));
 
-  aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
-  aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+  aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
+  aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toStrictEqual({});
@@ -172,8 +175,8 @@ test('Testing changing both names.', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
-  let aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+  let aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
+  let aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
   const res = request(
     'PUT',
@@ -192,8 +195,8 @@ test('Testing changing both names.', () => {
 
   const bodyObj = JSON.parse(String(res.getBody()));
 
-  aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
-  aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+  aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
+  aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toStrictEqual({});
@@ -209,7 +212,7 @@ test('Testing if changing nothing still returns same email.', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+  let aliceEmail = requestUserProfile(alice.token, aliceUid).user.email;
 
   const res = request(
     'PUT',
@@ -226,7 +229,7 @@ test('Testing if changing nothing still returns same email.', () => {
   );
   const bodyObj = JSON.parse(String(res.getBody()));
 
-  aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+  aliceEmail = requestUserProfile(alice.token, aliceUid).user.email;
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toStrictEqual({});
@@ -238,7 +241,7 @@ test('Testing changing email.', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+  let aliceEmail = requestUserProfile(alice.token, aliceUid).user.email;
 
   const res = request(
     'PUT',
@@ -255,7 +258,7 @@ test('Testing changing email.', () => {
   );
   const bodyObj = JSON.parse(String(res.getBody()));
 
-  aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+  aliceEmail = requestUserProfile(alice.token, aliceUid).user.email;
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toStrictEqual({});
@@ -270,7 +273,7 @@ test('Testing if changing nothing still returns same handle.', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+  let aliceHandle = requestUserProfile(alice.token, aliceUid).user.handleStr;
 
   const res = request(
     'PUT',
@@ -287,7 +290,7 @@ test('Testing if changing nothing still returns same handle.', () => {
   );
   const bodyObj = JSON.parse(String(res.getBody()));
 
-  aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+  aliceHandle = requestUserProfile(alice.token, aliceUid).user.handleStr;
 
   expect(res.statusCode).toBe(200);
   expect(aliceHandle).toEqual('alicesmith');
@@ -299,7 +302,7 @@ test('Testing changing handle.', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+  let aliceHandle = requestUserProfile(alice.token, aliceUid).user.handleStr;
 
   const res = request(
     'PUT',
@@ -316,7 +319,7 @@ test('Testing changing handle.', () => {
   );
   const bodyObj = JSON.parse(String(res.getBody()));
 
-  aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+  aliceHandle = requestUserProfile(alice.token, aliceUid).user.handleStr;
 
   expect(res.statusCode).toBe(200);
   expect(bodyObj).toStrictEqual({});
@@ -351,18 +354,25 @@ const createUser = (emails: string, passwords: string, name: string, surname: st
   return JSON.parse(String(res.getBody()));
 };
 
-// helper function - calls requestUserProfileV2()
-function requestUserProfileV2(token: string, uId: number) {
+// helper function - calls requestUserProfile()
+function requestUserProfile(token: string, uId: number) {
   const res = request(
     'GET',
-    `${hosturl}:${port}/user/profile/v2`,
+    `${hosturl}:${port}/user/profile/v3`,
     {
       qs: {
-        token: token,
         uId: uId
+      },
+      headers: {
+        token: token
       },
     }
   );
+
+  if (res.statusCode !== 200) {
+    return res.statusCode;
+  }
+
   expect(res.statusCode).toBe(OK);
   return JSON.parse(String(res.getBody()));
 }
@@ -401,10 +411,10 @@ describe('Testing usersAllV1 - should all work if other functions work', () => {
   });
 });
 
-const usersAll = (tokens: string) => {
+export const usersAll = (tokens: string) => {
   const res = request(
-    'GET', url + '/users/all/v1',
-    { qs: { token: tokens } }
+    'GET', url + '/users/all/v2',
+    { headers: { token: tokens } }
   );
   return JSON.parse(String(res.getBody()));
 };

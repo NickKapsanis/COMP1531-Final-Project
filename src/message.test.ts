@@ -20,6 +20,7 @@ describe('Tests for message/send/V1', () => {
   let channelId2: number;
 
   beforeEach(() => {
+    requestClear();
     //  Channels token[x] is member of: token1: [1], token2: [2]
     token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
     token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
@@ -222,8 +223,8 @@ describe('Tests for message/edit/V1', () => {
     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
 
     // Invite token2 into Channel 1 and token3 into Channel 2
-    requestChannelInviteV2(token1, channelId1, 2); // TODO: change uID... getUId helper function?
-    requestChannelInviteV2(token2, channelId2, 3);
+    requestChannelInviteV3(token1, channelId1, 2); // TODO: change uID... getUId helper function?
+    requestChannelInviteV3(token2, channelId2, 3);
 
     messageId1 = requestMessageSendV1(token1, channelId1, 'Message 1.1');
     messageId2 = requestMessageSendV1(token2, channelId1, 'Message 1.2');
@@ -300,7 +301,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 8: successful message edit (in channels)', () => {
     const res = requestMessageEditV1(token1, messageId1, 'Edited Message 1.1');
-    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV3(token1, channelId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -311,7 +312,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 9: successful message edit (empty message string)', () => {
     const res = requestMessageEditV1(token1, messageId1, '');
-    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV3(token1, channelId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -322,7 +323,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 10: successful message edit (with global permissions)', () => {
     const res = requestMessageEditV1(token1, messageId3, 'Edited Message 2.1');
-    const messages: Array<message | undefined> = requestChannelMessageV2(token2, channelId2, 0); // Assumption: global owner cannot access channelMessagesV2
+    const messages: Array<message | undefined> = requestChannelMessageV3(token2, channelId2, 0); // Assumption: global owner cannot access channelMessagesV3
     const editedMessage: message = messages.find(message => message.messageId === messageId3);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -382,8 +383,8 @@ describe('Tests for message/remove/V1 (for input and channels)', () => {
     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
 
     // Invite token2 into Channel 1
-    requestChannelInviteV2(token1, channelId1, 2);
-    requestChannelInviteV2(token2, channelId2, 3); // TODO: change uID
+    requestChannelInviteV3(token1, channelId1, 2);
+    requestChannelInviteV3(token2, channelId2, 3); // TODO: change uID
 
     messageId1 = requestMessageSendV1(token1, channelId1, 'Message 1.1');
     messageId2 = requestMessageSendV1(token2, channelId1, 'Message 1.2');
@@ -436,7 +437,7 @@ describe('Tests for message/remove/V1 (for input and channels)', () => {
 
   test('Case 6: successful message remove (channel)', () => {
     const res = requestMessageRemoveV1(token1, messageId1);
-    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV3(token1, channelId1, 0);
     const removedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -562,13 +563,13 @@ function requestAuthUserRegisterV3(email: string, password: string, nameFirst: s
 function requestChannelsCreateV2(token: string, name: string, isPublic: boolean) {
   const res = request(
     'POST',
-    `${url}:${port}/channels/create/v2`,
+    `${url}:${port}/channels/create/v3`,
     {
-      json: {
+      body: JSON.stringify({ name: name, isPublic: isPublic }),
+      headers: {
         token: token,
-        name: name,
-        isPublic: isPublic,
-      }
+        'Content-type': 'application/json',
+      },
     }
   );
 
@@ -589,15 +590,17 @@ function requestChannelsListallV2(token: string) {
   return JSON.parse(String(res.getBody())).channels;
 }
 
-function requestChannelInviteV2(token: string, channelId: number, uId: number) {
+function requestChannelInviteV3(token: string, channelId: number, uId: number) {
   const res = request(
     'POST',
-    `${url}:${port}/channel/invite/v2`,
+    `${url}:${port}/channel/invite/v3`,
     {
       json: {
-        token: token,
         channelId: channelId,
         uId: uId,
+      },
+      headers: {
+        token: token,
       }
     }
   );
@@ -637,15 +640,17 @@ function requestDmLeaveV2(token: string, dmId: number) {
   return JSON.parse(String(res.getBody()));
 }
 
-function requestChannelMessageV2(token: string, channelId: number, start: number) {
+function requestChannelMessageV3(token: string, channelId: number, start: number) {
   const res = request(
     'GET',
-    `${url}:${port}/channel/messages/v2`,
+    `${url}:${port}/channel/messages/v3`,
     {
       qs: {
-        token: token,
         channelId: channelId,
         start: start,
+      },
+      headers: {
+        token: token,
       }
     }
   );
@@ -653,7 +658,7 @@ function requestChannelMessageV2(token: string, channelId: number, start: number
   return JSON.parse(String(res.getBody())).messages;
 }
 
-function requestMessageSendV1(token: string, channelId: number, message: string) {
+export function requestMessageSendV1(token: string, channelId: number, message: string) {
   const res = request(
     'POST',
     `${url}:${port}/message/send/v1`,
@@ -704,7 +709,7 @@ function requestDmMessageV2(token: string, dmId: number, start: number) {
   return JSON.parse(String(res.getBody())).messages;
 }
 
-function requestMessageSendDmV1(token: string, dmId: number, message: string) {
+export function requestMessageSendDmV1(token: string, dmId: number, message: string) {
   const res = request(
     'POST',
         `${url}:${port}/message/senddm/v1`,

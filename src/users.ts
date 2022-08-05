@@ -1,3 +1,8 @@
+import HTTPError from 'http-errors';
+
+const FORBIDDEN = 403;
+const BAD_REQUEST = 400;
+
 type user = {
   uId: number,
   email: string,
@@ -9,6 +14,7 @@ type user = {
 import { getData, setData } from './dataStore';
 import isEmail from 'validator/lib/isEmail';
 import { checkValidToken } from './auth';
+import { checkValidUid } from './other';
 
 /*
 Given an authUserId and a uId, the function userProfileV1
@@ -32,25 +38,32 @@ returns the user information of the corresponding uId
     }
 */
 
-function userProfileV2(token: string, uId: number) {
+function userProfileV3(token: string, uId: number) {
   const data = getData();
-  const user1 = data.users.find(user => user.tokens.find(t => t === token));
-  const user2 = data.users.find(i => i.uId === uId);
+  if (!checkValidToken(token)) { // token is invalid
+    throw HTTPError(FORBIDDEN, 'Invalid Token');
+  }
+  if (!checkValidUid(uId)) { // token is invalid
+    throw HTTPError(BAD_REQUEST, 'Invalid Uid');
+  }
+  // const user1 = data.users.find(user => user.tokens.find(t => t === token));
+  const user = data.users.find(i => i.uId === uId);
 
   // checking if either uId or token are invalid
-  if (user1 === undefined || user2 === undefined) { return { error: 'error' }; }
+  // if (user1 === undefined) { throw HTTPError(FORBIDDEN, 'token passed in is invalid'); }
+  // if (user2 === undefined) { throw HTTPError(BAD_REQUEST, 'uId does not refer to a valid user'); }
 
   // constructing output
-  const user2Info: user = {
-    uId: user2.uId,
-    email: user2.email,
-    nameFirst: user2.nameFirst,
-    nameLast: user2.nameLast,
-    handleStr: user2.handleStr
+  const userInfo: user = {
+    uId: user.uId,
+    email: user.email,
+    nameFirst: user.nameFirst,
+    nameLast: user.nameLast,
+    handleStr: user.handleStr
   };
 
   return {
-    user: user2Info
+    user: userInfo
   };
 }
 
@@ -209,11 +222,11 @@ Given a session token, output all public user details in the system
     handleStr
 */
 
-function usersAllV1(token: string) {
+function usersAllV2(token: string) {
   if (!checkValidToken(token)) return { error: 'error' };
   const outputArray: { uId: number, email: string, nameFirst: string, nameLast: string, handleStr: string}[] = [];
   const data = getData();
-  for (const user of data.users) {
+  for (const user of data.users.filter(user => user.isActiveUser === true)) {
     outputArray.push(
       {
         uId: user.uId,
@@ -227,4 +240,4 @@ function usersAllV1(token: string) {
   return outputArray;
 }
 
-export { userProfileV2, userSetnameV1, userSetemailV1, userSethandlelV1, usersAllV1, user };
+export { userProfileV3, userSetnameV1, userSetemailV1, userSethandlelV1, usersAllV2, user };

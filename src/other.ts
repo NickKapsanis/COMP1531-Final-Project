@@ -1,4 +1,6 @@
-import { getData, setData, dataStoreType } from './dataStore';
+import { getData, setData, dataStoreType, message, dm, channel, user } from './dataStore';
+import { getChannel } from './channel';
+import HTTPError from 'http-errors';
 
 type errorMessage = {
   error: 'error'
@@ -67,4 +69,84 @@ export function checkValidUid(uId: number) {
   if (data.users?.find(user => user.uId === uId) === undefined) return false;
   else return true;
 }
-export { clearV1, getUId };
+
+/* SEARCH V1
+* Given a query string, return a collection of messages in all of the channels/DMs
+* that the user has joined that contain the query (case-insensitive).
+* There is no expected order for these messages.
+*
+* Parameters
+* Token     String     The session id for the individual
+* queryStr  String     The parameter to search against
+*
+* Result
+* Messages[] - An array of objects with type messages
+*/
+
+function searchV1(token: string, queryStr: string) {
+  const data: dataStoreType = getData();
+  const outputArray: message[] = [];
+  const user: user = data.users.find(user => user.tokens.find(tok => tok === token));
+
+  if (user === undefined) {
+    throw HTTPError(403, 'token is invalid');
+  }
+  if (queryStr.length >= 1000 || queryStr.length <= 0) {
+    throw HTTPError(400, 'invalid queryStr length');
+  }
+
+  const channels: channel[] = [];
+  const DMs: dm[] = [];
+  for (const channelId of user.channels) {
+    channels.push(getChannel(channelId, data.channels));
+  }
+  for (const DMid of user.dms) {
+    DMs.push(getDMs(DMid, data.dms));
+  }
+
+  for (const channel of channels) {
+    for (const message of channel.messages) {
+      if (message.message.toLowerCase().includes(queryStr.toLowerCase())) {
+        outputArray.push(message);
+      }
+    }
+  }
+  for (const dm of DMs) {
+    for (const message of dm.messages) {
+      if (message.message.toLowerCase().includes(queryStr.toLowerCase())) {
+        outputArray.push(message);
+      }
+    }
+  }
+  return outputArray;
+}
+
+function getDMs(DMid: number, DMsArray: dm[]) {
+  let dm: dm;
+  for (let i = 0; i < DMsArray.length; i++) {
+    if (DMid === DMsArray[i].dmId) {
+      dm = DMsArray[i];
+    }
+  }
+  return dm;
+}
+
+/* getTags
+*
+* Tag string - String (can contain none, single or multiple @___)
+* Returns an array of uIds corresponding to the tagged handles
+* should be uinque uIds }
+*/
+
+/*
+function getTags(message: string) {
+  const tagsArray: string[] = message.split('@');
+
+  const users: user[] = getData().users;
+  for (let user of users) {
+    for (tag of )
+    if (tagsArray.contains())
+  }
+*/
+
+export { clearV1, getUId, searchV1 };

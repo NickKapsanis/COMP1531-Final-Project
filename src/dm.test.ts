@@ -79,7 +79,7 @@ describe('Testing dm/details/v2', () => {
         },
       }
     );
-    expect(res.statusCode).toBe(BAD_REQ);
+    expect(res.statusCode).toBe(FORBID);
   });
   // all is correct
   test('testing sucessful call of non owner', () => {
@@ -213,7 +213,7 @@ describe('Testing dm/leave/v2', () => {
         },
       }
     );
-    expect(res.statusCode).toStrictEqual(BAD_REQ);
+    expect(res.statusCode).toStrictEqual(FORBID);
   });
   // all is correct
   test('testing sucessful call of non owner', () => {
@@ -295,7 +295,7 @@ describe('Testing dmMessagesV1', () => {
         },
       }
     );
-    expect(res.statusCode).toBe(BAD_REQ);
+    expect(res.statusCode).toBe(FORBID);
   });
   test('dmId is not valid', () => {
     /// ////////////////////////////set up the datastore/////////////////////////////////////////
@@ -514,7 +514,7 @@ describe('Testing dm/create/v2', () => {
     const uIds = [member1UId, member2UId, member3UId];
 
     const output = requestDmCreate('invalid-token', uIds);
-    expect(output.statusCode).toBe(BAD_REQ);
+    expect(output.statusCode).toBe(FORBID);
   });
 
   test('Testing if error is returned when uIds are invalid', () => {
@@ -576,7 +576,7 @@ describe('Testing dm/list/v2', () => {
 
   test('Testing if error is returned when token is invalid', () => {
     const output = requestDmList('invalid-token');
-    expect(output.statusCode).toBe(BAD_REQ);
+    expect(output.statusCode).toBe(FORBID);
   });
 
   test('Testing successful case - No Dms (i)', () => {
@@ -653,7 +653,7 @@ describe('Testing dm/remove/v2', () => {
     const dm = JSON.parse(String(requestDmCreate(creator.token, uIds).getBody()));
 
     const output = requestDmRemove('invalid-token', dm.dmId);
-    expect(output.statusCode).toStrictEqual(BAD_REQ);
+    expect(output.statusCode).toStrictEqual(FORBID);
   });
 
   test('Testing if error is returned when dmId is invalid', () => {
@@ -732,7 +732,7 @@ function requestAuthRegister(email: string, password: string, nameFirst: string,
   return JSON.parse(String(res.getBody()));
 }
 
-function requestDmCreate(token: string, uIds: Array<number>) {
+export function requestDmCreate(token: string, uIds: Array<number>) {
   const res = request(
     'POST',
     url + '/dm/create/v2',
