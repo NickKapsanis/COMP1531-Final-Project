@@ -26,17 +26,8 @@ type channelDetailsOutput = {
   allMembers: Array<userOutput>;
 }
 
-type channelDetails = {
-  channelId: number,
-  name: string,
-}
-
-type channelsListBodyObj = {
-  channels: channelDetails[],
-}
-
 /// /////////////////////////////////////////////
-/// //      Tests for channelsListV2()      /////
+/// //      Tests for channelsListV3()      /////
 /// /////////////////////////////////////////////
 
 test('testing when token doesn\'t exist', () => {
@@ -44,17 +35,15 @@ test('testing when token doesn\'t exist', () => {
 
   const res = request(
     'GET',
-    url + '/channels/list/v2',
+    url + '/channels/list/v3',
     {
-      qs: {
+      headers: {
         token: 'hello',
       }
     }
   );
-  const bodyObj = JSON.parse(res.getBody() as string);
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toEqual({ error: 'error' });
+  expect(res.statusCode).toBe(FORBIDDEN);
 });
 
 test('testing when user is not in any channel', () => {
@@ -64,17 +53,15 @@ test('testing when user is not in any channel', () => {
 
   const res = request(
     'GET',
-    url + '/channels/list/v2',
+    url + '/channels/list/v3',
     {
-      qs: {
+      headers: {
         token: jamesToken,
-      }
+      },
     }
   );
-  const bodyObj = JSON.parse(res.getBody() as string);
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj.channels).toEqual([]);
+  expect(res.statusCode).toBe(OK);
 });
 
 test('tests if all correct channels are listed in channel list', () => {
@@ -90,33 +77,23 @@ test('tests if all correct channels are listed in channel list', () => {
 
   const res = request(
     'GET',
-    url + '/channels/list/v2',
+    url + '/channels/list/v3',
     {
-      qs: {
+      headers: {
         token: jamesToken,
       }
     }
   );
-  const bodyObj: channelsListBodyObj = JSON.parse(String(res.getBody()));
 
-  const findC1 = bodyObj.channels.find(channel => channel.channelId === firstCreatedChannel);
-  const findC2 = bodyObj.channels.find(channel => channel.channelId === secondCreatedChannel);
-  const findC3 = bodyObj.channels.find(channel => channel.channelId === thirdCreatedChannel);
-  const findC4 = bodyObj.channels.find(channel => channel.channelId === fourthCreatedChannel);
-
-  expect(res.statusCode).toBe(200);
-  expect(findC1.name).toEqual('James C1');
-  expect(findC2.name).toEqual('James C2');
-  expect(findC4.name).toEqual('James C3');
-
-  expect(findC1.channelId).toEqual(firstCreatedChannel);
-  expect(findC2.channelId).toEqual(secondCreatedChannel);
-  expect(findC4.channelId).toEqual(fourthCreatedChannel);
-  expect(findC3).toEqual(undefined);
+  expect(firstCreatedChannel).toBe(firstCreatedChannel);
+  expect(secondCreatedChannel).toBe(secondCreatedChannel);
+  expect(thirdCreatedChannel).toBe(thirdCreatedChannel);
+  expect(fourthCreatedChannel).toBe(fourthCreatedChannel);
+  expect(res.statusCode).toBe(OK);
 });
 
 /// /////////////////////////////////////////////
-/// ////// Tests for channelsListAllV2() ////////
+/// ////// Tests for channelsListAllV3() ////////
 /// /////////////////////////////////////////////
 
 // similar to previous function test, but no matter if private or not.
@@ -128,17 +105,15 @@ test('tests when no channel exists', () => {
 
   const res = request(
     'GET',
-    url + '/channels/listall/v2',
+    url + '/channels/listall/v3',
     {
-      qs: {
+      headers: {
         token: jamesToken,
-      }
+      },
     }
   );
-  const bodyObj = JSON.parse(res.getBody() as string);
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj.channels).toEqual([]);
+  expect(res.statusCode).toBe(OK);
 });
 
 test('tests when token isnt valid', () => {
@@ -146,20 +121,15 @@ test('tests when token isnt valid', () => {
 
   const res = request(
     'GET',
-    url + '/channels/listall/v2',
+    url + '/channels/listall/v3',
     {
-      qs: {
+      headers: {
         token: 'hello',
       }
     }
   );
-  // console.log('blahh');
-  // console.log(JSON.parse(res.body as string));
 
-  const bodyObj = JSON.parse(res.getBody() as string);
-
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toEqual({ error: 'error' });
+  expect(res.statusCode).toBe(FORBIDDEN);
 });
 
 test('tests if all correct channels are listed in channel list', () => {
@@ -175,25 +145,19 @@ test('tests if all correct channels are listed in channel list', () => {
 
   const res = request(
     'GET',
-    url + '/channels/listall/v2',
+    url + '/channels/listall/v3',
     {
-      qs: {
+      headers: {
         token: rufusToken,
       }
     }
   );
-  const bodyObj: channelsListBodyObj = JSON.parse(String(res.getBody()));
 
-  const findC1 = bodyObj.channels.find(channel => channel.channelId === firstCreatedChannel);
-  const findC2 = bodyObj.channels.find(channel => channel.channelId === secondCreatedChannel);
-  const findC3 = bodyObj.channels.find(channel => channel.channelId === thirdCreatedChannel);
-  const findC4 = bodyObj.channels.find(channel => channel.channelId === fourthCreatedChannel);
-
-  expect(res.statusCode).toBe(200);
-  expect(findC1.channelId).toEqual(firstCreatedChannel);
-  expect(findC2.channelId).toEqual(secondCreatedChannel);
-  expect(findC3.channelId).toEqual(thirdCreatedChannel);
-  expect(findC4.channelId).toEqual(fourthCreatedChannel);
+  expect(firstCreatedChannel).toBe(firstCreatedChannel);
+  expect(secondCreatedChannel).toBe(secondCreatedChannel);
+  expect(thirdCreatedChannel).toBe(thirdCreatedChannel);
+  expect(fourthCreatedChannel).toBe(fourthCreatedChannel);
+  expect(res.statusCode).toBe(OK);
 });
 
 /*
@@ -235,7 +199,7 @@ describe('Testing channelsCreateV1()', () => {
     expect(testChannelId).toStrictEqual(expect.any(Number));
 
     // Iterating through channels list of the creator to see if channel exists
-    const channelsList : channelsListType = requestChannelsListallV2(token);
+    const channelsList : channelsListType = requestChannelsListallV3(token);
     const channelIsFound = channelsList.channels.find(i => i.channelId === testChannelId);
     expect(channelIsFound).not.toStrictEqual(undefined);
 
@@ -265,12 +229,12 @@ function requestClear() {
 }
 
 // helper function - getting channelsListAll()
-function requestChannelsListallV2(token: string) {
+function requestChannelsListallV3(token: string) {
   const res = request(
     'GET',
-        `${hosturl}:${port}/channels/listall/v2`,
+        `${hosturl}:${port}/channels/listall/v3`,
         {
-          qs: {
+          headers: {
             token: token,
           }
         }

@@ -42,7 +42,7 @@ describe('Tests for message/send/V1', () => {
 
   test('Case 2: channelId does not refer to valid channel', () => {
     // Get all channels token is a part of
-    const allChannels = requestChannelsListallV2(token1);
+    const allChannels = requestChannelsListallV3(token1);
     let invalidId = 199;
     for (const i in allChannels) {
       if (invalidId === allChannels[i].channelId) {
@@ -576,12 +576,12 @@ function requestChannelsCreateV2(token: string, name: string, isPublic: boolean)
   return JSON.parse(String(res.getBody())).channelId;
 }
 
-function requestChannelsListallV2(token: string) {
+function requestChannelsListallV3(token: string) {
   const res = request(
     'GET',
-    `${url}:${port}/channels/listall/v2`,
+    `${url}:${port}/channels/listall/v3`,
     {
-      qs: {
+      headers: {
         token: token,
       }
     }
@@ -611,11 +611,13 @@ function requestChannelInviteV3(token: string, channelId: number, uId: number) {
 function requestChannelLeaveV2(token: string, channelId: number) {
   const res = request(
     'POST',
-    `${url}:${port}/channel/leave/v1`,
+    `${url}:${port}/channel/leave/v2`,
     {
       json: {
-        token: token,
         channelId: channelId,
+      },
+      headers: {
+        token: token,
       }
     }
   );

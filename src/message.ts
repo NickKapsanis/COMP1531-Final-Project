@@ -1,5 +1,5 @@
 import { getData, setData, dataStoreType, user, channel, message, dm } from './dataStore';
-import { channelsListV2 } from './channels';
+import { channelsListV3 } from './channels';
 import { dmListV2 } from './dm';
 
 type channelOutput = {
@@ -34,7 +34,7 @@ export function messageSendV1(token: string, channelId: number, message: string)
   }
 
   const userId: number = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
-  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
+  const channelsMemberOf: Array<channelOutput> = channelsListV3(token).channels;
 
   // Checking if valid channelIds were given
   // Validating if authorised user is a member of the channel
@@ -259,7 +259,7 @@ function editInChannel(mode: string, token: string, userId: number, isGlobalUser
   }
 
   let isMember: boolean;
-  const channelsMemberOf: Array<channelOutput> = channelsListV2(token).channels;
+  const channelsMemberOf: Array<channelOutput> = channelsListV3(token).channels;
   if (channelsMemberOf.find(channel => channel.channelId === channelGiven.channelId) === undefined) {
     isMember = false;
   } else {

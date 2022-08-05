@@ -21,8 +21,8 @@ Arguments:
 Return Value:
     channelsArray: array    - an array of all channels user is in.
 */
-function channelsListV2(token: string) {
-  if (!checkValidToken(token)) return { error: 'error' };
+function channelsListV3(token: string) {
+  if (!checkValidToken(token)) throw HTTPError(FORBIDDEN, 'invalid token.');
 
   const data = getData();
 
@@ -66,8 +66,8 @@ function channelsListV2(token: string) {
   Return Value:
       allChannelsArray: array    - an array of all channels.
   */
-function channelsListallV2(token: string) {
-  if (!checkValidToken(token)) return { error: 'error' };
+function channelsListallV3(token: string) {
+  if (!checkValidToken(token)) throw HTTPError(FORBIDDEN, 'invalid token.');
 
   const data = getData();
 
@@ -143,4 +143,4 @@ function channelsCreateV3(token: string, name: string, isPublic: boolean) {
   return { channelId: newChannelId };
 }
 
-export { channelsCreateV3, channelsListV2, channelsListallV2 };
+export { channelsCreateV3, channelsListV3, channelsListallV3 };

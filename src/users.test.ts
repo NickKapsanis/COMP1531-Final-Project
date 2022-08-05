@@ -68,7 +68,7 @@ describe('Testing userProfileV1()', () => {
 });
 
 /// /////////////////////////////////////////////
-/// /////////Tests for userSetnameV1()////////////
+/// /////////Tests for userSetnameV2()////////////
 /// /////////////////////////////////////////////
 
 test('Testing invalid token case.', () => {
@@ -76,30 +76,28 @@ test('Testing invalid token case.', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
-  let aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+  let aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
+  let aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
   const res = request(
     'PUT',
-    url + '/user/profile/setname/v1',
+    url + '/user/profile/setname/v2',
     {
       body: JSON.stringify({
-        token: 'aWoogaWoogaWoo',
         nameFirst: aliceFirstName,
         nameLast: aliceLastName
       }),
       headers: {
+        token: 'aWoogaWoogaWoo',
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(res.getBody() as string);
 
-  aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
-  aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+  aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
+  aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(res.statusCode).toBe(FORBIDDEN);
   expect(aliceFirstName).toEqual('Alice');
   expect(aliceLastName).toEqual('Smith');
 });
@@ -109,30 +107,28 @@ test('Testing invalid name change case.', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
-  let aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+  let aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
+  let aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
   const res = request(
     'PUT',
-    url + '/user/profile/setname/v1',
+    url + '/user/profile/setname/v2',
     {
       body: JSON.stringify({
-        token: alice.token,
         nameFirst: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         nameLast: aliceLastName
       }),
       headers: {
+        token: alice.token,
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(res.getBody() as string);
 
-  aliceFirstName = requestUserProfileV2(alice.token, aliceUid).user.nameFirst;
-  aliceLastName = requestUserProfileV2(alice.token, aliceUid).user.nameLast;
+  aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
+  aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(res.statusCode).toBe(BAD_REQUEST);
   expect(aliceFirstName).toEqual('Alice');
   expect(aliceLastName).toEqual('Smith');
 });
@@ -147,25 +143,24 @@ test('Testing if changing nothing still returns same name.', () => {
 
   const res = request(
     'PUT',
-    url + '/user/profile/setname/v1',
+    url + '/user/profile/setname/v2',
     {
       body: JSON.stringify({
-        token: alice.token,
+
         nameFirst: aliceFirstName,
         nameLast: aliceLastName
       }),
       headers: {
+        token: alice.token,
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(res.getBody() as string);
 
   aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
   aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({});
+  expect(res.statusCode).toBe(OK);
   expect(aliceFirstName).toEqual('Alice');
   expect(aliceLastName).toEqual('Smith');
 });
@@ -180,26 +175,23 @@ test('Testing changing only first name.', () => {
 
   const res = request(
     'PUT',
-    url + '/user/profile/setname/v1',
+    url + '/user/profile/setname/v2',
     {
       body: JSON.stringify({
-        token: alice.token,
         nameFirst: 'Alison',
         nameLast: 'Smith'
       }),
       headers: {
+        token: alice.token,
         'Content-type': 'application/json',
       },
     }
   );
 
-  const bodyObj = JSON.parse(String(res.getBody()));
-
   aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
   aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({});
+  expect(res.statusCode).toBe(OK);
   expect(aliceFirstName).toEqual('Alison');
   expect(aliceLastName).toEqual('Smith');
 });
@@ -214,25 +206,23 @@ test('Testing changing only last name.', () => {
 
   const res = request(
     'PUT',
-    url + '/user/profile/setname/v1',
+    url + '/user/profile/setname/v2',
     {
       body: JSON.stringify({
-        token: alice.token,
         nameFirst: 'Alice',
         nameLast: 'Sithlord'
       }),
       headers: {
+        token: alice.token,
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody()));
 
   aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
   aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({});
+  expect(res.statusCode).toBe(OK);
   expect(aliceFirstName).toEqual('Alice');
   expect(aliceLastName).toEqual('Sithlord');
 });
@@ -247,32 +237,29 @@ test('Testing changing both names.', () => {
 
   const res = request(
     'PUT',
-    url + '/user/profile/setname/v1',
+    url + '/user/profile/setname/v2',
     {
       body: JSON.stringify({
-        token: alice.token,
         nameFirst: 'Alison',
         nameLast: 'Sithlord'
       }),
       headers: {
+        token: alice.token,
         'Content-type': 'application/json',
       },
     }
   );
 
-  const bodyObj = JSON.parse(String(res.getBody()));
-
   aliceFirstName = requestUserProfile(alice.token, aliceUid).user.nameFirst;
   aliceLastName = requestUserProfile(alice.token, aliceUid).user.nameLast;
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({});
+  expect(res.statusCode).toBe(OK);
   expect(aliceFirstName).toEqual('Alison');
   expect(aliceLastName).toEqual('Sithlord');
 });
 
 /// /////////////////////////////////////////////
-/// /////////Tests for userSetemailV1()////////////
+/// /////////Tests for userSetemailV2()////////////
 /// /////////////////////////////////////////////
 
 test('Testing invalid token.', () => {
@@ -280,27 +267,25 @@ test('Testing invalid token.', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+  let aliceEmail = requestUserProfile(alice.token, aliceUid).user.email;
 
   const res = request(
     'PUT',
-    url + '/user/profile/setemail/v1',
+    url + '/user/profile/setemail/v2',
     {
       body: JSON.stringify({
-        token: 'someInvalidToken',
         email: aliceEmail,
       }),
       headers: {
+        token: 'someInvalidToken',
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody()));
 
-  aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+  aliceEmail = requestUserProfile(alice.token, aliceUid).user.email;
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(res.statusCode).toBe(FORBIDDEN);
   expect(aliceEmail).toEqual('alice@email.com');
 });
 
@@ -309,27 +294,25 @@ test('Testing invalid email.', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+  let aliceEmail = requestUserProfile(alice.token, aliceUid).user.email;
 
   const res = request(
     'PUT',
-    url + '/user/profile/setemail/v1',
+    url + '/user/profile/setemail/v2',
     {
       body: JSON.stringify({
-        token: alice.token,
         email: 'thisIsNotAnEmail',
       }),
       headers: {
+        token: alice.token,
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody()));
 
-  aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
+  aliceEmail = requestUserProfile(alice.token, aliceUid).user.email;
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(res.statusCode).toBe(BAD_REQUEST);
   expect(aliceEmail).toEqual('alice@email.com');
 });
 
@@ -342,23 +325,21 @@ test('Testing if changing nothing still returns same email.', () => {
 
   const res = request(
     'PUT',
-    url + '/user/profile/setemail/v1',
+    url + '/user/profile/setemail/v2',
     {
       body: JSON.stringify({
-        token: alice.token,
         email: aliceEmail,
       }),
       headers: {
+        token: alice.token,
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody()));
 
   aliceEmail = requestUserProfile(alice.token, aliceUid).user.email;
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({});
+  expect(res.statusCode).toBe(OK);
   expect(aliceEmail).toEqual('alice@email.com');
 });
 
@@ -371,23 +352,20 @@ test('Testing changing email.', () => {
 
   const res = request(
     'PUT',
-    url + '/user/profile/setemail/v1',
+    url + '/user/profile/setemail/v2',
     {
       body: JSON.stringify({
-        token: alice.token,
         email: 'supercoolnew@email.com',
       }),
       headers: {
+        token: alice.token,
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody()));
-
   aliceEmail = requestUserProfile(alice.token, aliceUid).user.email;
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({});
+  expect(res.statusCode).toBe(OK);
   expect(aliceEmail).toEqual('supercoolnew@email.com');
 });
 
@@ -398,35 +376,33 @@ test('Testing changing email to somebody elses email', () => {
   const bob = createUser('bob@email.com', 'testPassword123', 'Bob', 'James');
   const aliceUid = Number(getUId(alice.authUserId));
   const bobUid = Number(getUId(bob.authUserId));
-  let aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
-  let bobEmail = requestUserProfileV2(bob.token, bobUid).user.email;
+  let aliceEmail = requestUserProfile(alice.token, aliceUid).user.email;
+  let bobEmail = requestUserProfile(bob.token, bobUid).user.email;
 
   const res = request(
     'PUT',
-    url + '/user/profile/setemail/v1',
+    url + '/user/profile/setemail/v2',
     {
       body: JSON.stringify({
-        token: alice.token,
         email: 'bob@email.com',
       }),
       headers: {
+        token: alice.token,
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody()));
 
-  aliceEmail = requestUserProfileV2(alice.token, aliceUid).user.email;
-  bobEmail = requestUserProfileV2(bob.token, bobUid).user.email;
+  aliceEmail = requestUserProfile(alice.token, aliceUid).user.email;
+  bobEmail = requestUserProfile(bob.token, bobUid).user.email;
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(res.statusCode).toBe(BAD_REQUEST);
   expect(aliceEmail).toEqual('alice@email.com');
   expect(bobEmail).toEqual('bob@email.com');
 });
 
 /// /////////////////////////////////////////////
-/// /////////Tests for userSethandleV1()//////////
+/// /////////Tests for userSethandleV2()//////////
 /// /////////////////////////////////////////////
 
 test('Testing invalid token.', () => {
@@ -434,28 +410,25 @@ test('Testing invalid token.', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+  let aliceHandle = requestUserProfile(alice.token, aliceUid).user.handleStr;
 
   const res = request(
     'PUT',
-    url + '/user/profile/sethandle/v1',
+    url + '/user/profile/sethandle/v2',
     {
       body: JSON.stringify({
-        token: 'thisIsNotAValidToken',
         handleStr: aliceHandle,
       }),
       headers: {
+        token: 'thisIsNotAValidToken',
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody()));
+  aliceHandle = requestUserProfile(alice.token, aliceUid).user.handleStr;
 
-  aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
-
-  expect(res.statusCode).toBe(200);
+  expect(res.statusCode).toBe(FORBIDDEN);
   expect(aliceHandle).toEqual('alicesmith');
-  expect(bodyObj).toStrictEqual({ error: 'error' });
 });
 
 test('Testing if changing nothing still returns same handle.', () => {
@@ -467,24 +440,21 @@ test('Testing if changing nothing still returns same handle.', () => {
 
   const res = request(
     'PUT',
-    url + '/user/profile/sethandle/v1',
+    url + '/user/profile/sethandle/v2',
     {
       body: JSON.stringify({
-        token: alice.token,
         handleStr: aliceHandle,
       }),
       headers: {
+        token: alice.token,
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody()));
-
   aliceHandle = requestUserProfile(alice.token, aliceUid).user.handleStr;
 
-  expect(res.statusCode).toBe(200);
+  expect(res.statusCode).toBe(OK);
   expect(aliceHandle).toEqual('alicesmith');
-  expect(bodyObj).toStrictEqual({});
 });
 
 test('Testing changing handle.', () => {
@@ -496,23 +466,20 @@ test('Testing changing handle.', () => {
 
   const res = request(
     'PUT',
-    url + '/user/profile/sethandle/v1',
+    url + '/user/profile/sethandle/v2',
     {
       body: JSON.stringify({
-        token: alice.token,
         handleStr: 'AwesomeNewHandle',
       }),
       headers: {
+        token: alice.token,
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody()));
-
   aliceHandle = requestUserProfile(alice.token, aliceUid).user.handleStr;
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({});
+  expect(res.statusCode).toBe(OK);
   expect(aliceHandle).toEqual('AwesomeNewHandle');
 });
 
@@ -521,27 +488,24 @@ test('Testing invalid new handle name', () => {
 
   const alice = createUser('alice@email.com', 'testPassword123', 'Alice', 'Smith');
   const aliceUid = Number(getUId(alice.authUserId));
-  let aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+  let aliceHandle = requestUserProfile(alice.token, aliceUid).user.handleStr;
 
   const res = request(
     'PUT',
-    url + '/user/profile/sethandle/v1',
+    url + '/user/profile/sethandle/v2',
     {
       body: JSON.stringify({
-        token: alice.token,
         handleStr: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       }),
       headers: {
+        token: alice.token,
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody()));
+  aliceHandle = requestUserProfile(alice.token, aliceUid).user.handleStr;
 
-  aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
-
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(res.statusCode).toBe(BAD_REQUEST);
   expect(aliceHandle).toEqual('alicesmith');
 });
 
@@ -552,28 +516,26 @@ test('Testing if handle already being used by another user', () => {
   const bob = createUser('bob@email.com', 'testPassword123', 'Bob', 'James');
   const aliceUid = Number(getUId(alice.authUserId));
   const bobUid = Number(getUId(bob.authUserId));
-  let aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
-  const bobHandle = requestUserProfileV2(bob.token, bobUid).user.handleStr;
+  let aliceHandle = requestUserProfile(alice.token, aliceUid).user.handleStr;
+  const bobHandle = requestUserProfile(bob.token, bobUid).user.handleStr;
 
   const res = request(
     'PUT',
-    url + '/user/profile/sethandle/v1',
+    url + '/user/profile/sethandle/v2',
     {
       body: JSON.stringify({
-        token: alice.token,
         handleStr: 'bobjames',
       }),
       headers: {
+        token: alice.token,
         'Content-type': 'application/json',
       },
     }
   );
-  const bodyObj = JSON.parse(String(res.getBody()));
 
-  aliceHandle = requestUserProfileV2(alice.token, aliceUid).user.handleStr;
+  aliceHandle = requestUserProfile(alice.token, aliceUid).user.handleStr;
 
-  expect(res.statusCode).toBe(200);
-  expect(bodyObj).toStrictEqual({ error: 'error' });
+  expect(res.statusCode).toBe(BAD_REQUEST);
   expect(aliceHandle).toEqual('alicesmith');
   expect(bobHandle).toEqual('bobjames');
 });

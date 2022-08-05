@@ -61,7 +61,7 @@ function userProfileV3(token: string, uId: number) {
 }
 
 /*
-Given an authUserId, firstname and lastname, the function userSetnameV1
+Given an authUserId, firstname and lastname, the function userSetnameV2
 changes the user details according to what was inputted.
 
 * Parameters :
@@ -76,15 +76,15 @@ changes the user details according to what was inputted.
   (2) nothing
     {}
 */
-function userSetnameV1(token: string, nameFirst: string, nameLast: string) {
-  if (!checkValidToken(token)) return { error: 'error' };
+function userSetnameV2(token: string, nameFirst: string, nameLast: string) {
+  if (!checkValidToken(token)) throw HTTPError(FORBIDDEN, 'invalid token.');
 
   const data = getData();
 
   // does all the error checking
   if (nameFirst.length > 50 || nameFirst.length < 1 ||
     nameLast.length > 50 || nameLast.length < 1) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQUEST, 'bad first or last name.');
   }
 
   // finds person from the data.
@@ -106,7 +106,7 @@ function userSetnameV1(token: string, nameFirst: string, nameLast: string) {
 }
 
 /*
-Given an authUserId, and email, the function userSetnameV1
+Given an authUserId, and email, the function userSetnameV2
 changes the user details according to what was inputted.
 
 * Parameters :
@@ -120,14 +120,14 @@ changes the user details according to what was inputted.
   (2) nothing
     {}
 */
-function userSetemailV1(token: string, email: string) {
-  if (!checkValidToken(token)) return { error: 'error' };
+function userSetemailV2(token: string, email: string) {
+  if (!checkValidToken(token)) throw HTTPError(FORBIDDEN, 'invalid token.');
 
   const data = getData();
 
   // does all the error checking
   if (!isEmail(email)) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQUEST, 'is not an email address.');
   }
 
   // finds person from the data.
@@ -146,7 +146,7 @@ function userSetemailV1(token: string, email: string) {
   }
   // if given email is somebody else's email, return error.
   if (data.users.find(i => i.email === email) !== undefined) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQUEST, 'this is somebody elses email.');
   }
 
   // changes users email.
@@ -157,7 +157,7 @@ function userSetemailV1(token: string, email: string) {
 }
 
 /*
-Given an authUserId, and handle, the function userSetnameV1
+Given an authUserId, and handle, the function userSetnameV2
 changes the user details according to what was inputted.
 
 * Parameters :
@@ -171,8 +171,8 @@ changes the user details according to what was inputted.
   (2) nothing
     {}
 */
-function userSethandlelV1(token: string, handleStr: string) {
-  if (!checkValidToken(token)) return { error: 'error' };
+function userSethandleV2(token: string, handleStr: string) {
+  if (!checkValidToken(token)) throw HTTPError(FORBIDDEN, 'invalid token.');
   const data = getData();
 
   // finds the user.
@@ -186,11 +186,11 @@ function userSethandlelV1(token: string, handleStr: string) {
   }
   // checks that the handle isn't already used by another user.
   if (data.users.find(i => i.handleStr === handleStr) !== undefined) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQUEST, 'handle being used by another user.');
   }
   // does error checking
   if (handleStr.length > 20 || handleStr.length < 3 || !(handleStr.match(/^[0-9a-zA-Z]+$/))) {
-    return { error: 'error' };
+    throw HTTPError(BAD_REQUEST, 'invalid handle name to change to.');
   }
   // seems unnecessary
   /* if (user === undefined) {
@@ -236,4 +236,4 @@ function usersAllV2(token: string) {
   return outputArray;
 }
 
-export { userProfileV3, userSetnameV1, userSetemailV1, userSethandlelV1, usersAllV2, user };
+export { userProfileV3, userSetnameV2, userSetemailV2, userSethandleV2, usersAllV2, user };
