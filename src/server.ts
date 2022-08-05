@@ -14,6 +14,7 @@ import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
 import { channelDetailsV3, channelMessagesV3 } from './channel';
 import errorHandler from 'middleware-http-errors';
+import { adminUserpermissionChangeV1, adminUserRemoveV1 } from './admin';
 import { standupActiveV1, standupSendV1, standupStartV1 } from './standup';
 
 // Set up web app, use JSON
@@ -231,18 +232,35 @@ app.put('/message/edit/v1', (req, res) => {
   res.json(messageEditV1(token, messageId, message));
 });
 
+// adminUserRemoveV1
+app.delete('/admin/user/remove/v1', (req, res) => {
+  const token = req.header('token');
+  const uId = Number(req.query.uId);
+  res.json(adminUserRemoveV1(uId, token));
+});
+
+// adminUserpermissionsChangeV1
+app.post('/admin/userpermission/change/v1', (req, res) => {
+  const token = req.header('token');
+  const uId = req.body.uId;
+  const permissionId = req.body.permissionId;
+  res.json(adminUserpermissionChangeV1(uId, permissionId, token));
+});
+
 // standupStartV1
 app.post('/standup/start/v1', (req, res) => {
   const { channelId, length } = req.body;
   const token = String(req.header('token'));
   res.json(standupStartV1(token, channelId, length));
 });
+
 // standupActiveV1
 app.get('/standup/active/v1', (req, res) => {
   const channelId = Number(req.query.channelId);
   const token = String(req.header('token'));
   res.json(standupActiveV1(token, channelId));
 });
+
 // standupSendV1
 app.post('/standup/send/v1', (req, res) => {
   const { channelId, message } = req.body;
