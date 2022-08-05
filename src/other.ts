@@ -130,4 +130,22 @@ function getDMs(DMid: number, DMsArray: dm[]) {
   return dm;
 }
 
+/* getTags
+*
+* Tag string - String (can contain none, single or multiple @___)
+* Returns an array of uIds corresponding to the tagged handles
+* should be uinque uIds }
+*/
+
+/*
+function getTags(message: string) {
+  if
+
+  const users: user[] = getData().users;
+  for (let user of users) {
+    if (user.handleStr)
+  }
+}
+*/
+
 export { clearV1, getUId, searchV1 };

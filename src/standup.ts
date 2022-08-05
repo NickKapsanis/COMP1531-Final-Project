@@ -139,6 +139,10 @@ function finishStandup(channelId: number, user: user) {
   const channel: channel = getChannel(channelId, data.channels);
   let finalOutput = '';
 
+  if (channelId === undefined) {
+    return;
+  }
+
   // send all messages in the standup bank as one big message from the user who began the standup
   if (channel.standupMessageBank.length !== 0) {
     for (let i = 0; i < channel.standupMessageBank.length - 1; i++) {
