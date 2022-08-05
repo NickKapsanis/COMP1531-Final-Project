@@ -32,7 +32,7 @@ type message = {
   timeSent : number; // unix timestamp
   message : string;
   isPinned: boolean;
-  reacts : react[];
+  reacts? : react[];
 }
 type dm = {
     dmId: number;

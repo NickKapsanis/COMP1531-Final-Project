@@ -63,44 +63,21 @@ export function messageSendV2(token: string, channelId: number, message: string)
     throw HTTPError(BAD_REQ, 'Invalid message length');
   }
 
-  const newMessageId: number = generateId('c');
+  let newMessageId: number = generateId('c');
 
   const newMessage: message = {
     messageId: newMessageId,
     uId: userId,
     timeSent: Math.floor(Date.now() / 1000),
     message: message,
+    isPinned: false,
+    reacts: undefined
   };
 
   data.channels[channelGivenIndex].messages.unshift(newMessage);
   setData(data);
 
-  // Notifcation >>>>>>>>
-  const uIds = getTags(message);
-  const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
-  sendNotificationsTag(data, uIds, channelId, userHandle, message);
-  // >>>>>>>>>>
-
-  // Analytics >>>>>>>>>>
-  const time = Date.now();
-  // User Stats
-  const uId = userId;
-  const userStats = data.userStats.find(i => i.uId === uId);
-
-  data.userStats = data.userStats.filter(i => i.uId !== uId);
-
-  const numMessagesSent = userStats.messagesSent[userStats.messagesSent.length - 1].numMessagesSent + 1;
-  userStats.messagesSent.push({ numMessagesSent: numMessagesSent, timeStamp: time });
-  data.userStats.push(userStats);
-
-  // Workspace stats
-  const numMessagesExist = data.workspaceStats.messagesExist[data.workspaceStats.messagesExist.length - 1].numMessagesExist + 1;
-  data.workspaceStats.messagesExist.push({ numMessagesExist: numMessagesExist, timeStamp: time });
-
-  setData(data);
-  // >>>>>>>>>>
-
-  const newMessageId = sendMessage(CHANNEL, userId, message, channelGivenIndex);
+  newMessageId = sendMessage(CHANNEL, userId, message, channelGivenIndex);
   return { messageId: newMessageId };
 }
 
@@ -144,44 +121,21 @@ export function messageSendDmV2(token: string, dmId: number, message: string) {
     throw HTTPError(BAD_REQ, 'Invalid message length');
   }
 
-  const newMessageId: number = generateId('d');
+  let newMessageId: number = generateId('d');
 
   const newMessage: message = {
     messageId: newMessageId,
     uId: userId,
     timeSent: Math.floor(Date.now() / 1000),
     message: message,
+    isPinned: false,
+    reacts: undefined
   };
 
   data.dms[dmGivenIndex].messages.unshift(newMessage);
   setData(data);
 
-  // Notifcation >>>>>>>>
-  const uIds = getTags(message);
-  const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
-  sendNotificationsTag(data, uIds, dmId, userHandle, message);
-  // >>>>>>>>>>
-
-  // Analytics >>>>>>>>
-  const time = Date.now();
-  // User Stats
-  const uId = userId;
-  const userStats = data.userStats.find(i => i.uId === uId);
-
-  data.userStats = data.userStats.filter(i => i.uId !== uId);
-
-  const numMessagesSent = userStats.messagesSent[userStats.messagesSent.length - 1].numMessagesSent + 1;
-  userStats.messagesSent.push({ numMessagesSent: numMessagesSent, timeStamp: time });
-  data.userStats.push(userStats);
-
-  // Workspace stats
-  const numMessagesExist = data.workspaceStats.messagesExist[data.workspaceStats.messagesExist.length - 1].numMessagesExist + 1;
-  data.workspaceStats.messagesExist.push({ numMessagesExist: numMessagesExist, timeStamp: time });
-
-  setData(data);
-  // >>>>>>>>>>
-
-  const newMessageId = sendMessage(DM, userId, message, dmGivenIndex);
+  newMessageId = sendMessage(DM, userId, message, dmGivenIndex);
   return { messageId: newMessageId };
 }
 
@@ -337,7 +291,7 @@ function editInChannel(mode: string, token: string, userId: number, isGlobalUser
 
   setData(data);
   // Notifcation >>>>>>>>
-  if (mode === 'e') {
+  if (mode === EDIT) {
     const uIds = getTags(message);
     const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
     sendNotificationsTag(data, uIds, channelGiven.channelId, userHandle, message);
@@ -346,7 +300,7 @@ function editInChannel(mode: string, token: string, userId: number, isGlobalUser
 
   // Analytics>>>>>>>>>>
   const time = Date.now();
-  if (mode === 'r') {
+  if (mode === REMOVE) {
     // Workspace stats
     const numMessagesExist = data.workspaceStats.messagesExist[data.workspaceStats.messagesExist.length - 1].numMessagesExist - 1;
     data.workspaceStats.messagesExist.push({ numMessagesExist: numMessagesExist, timeStamp: time });
@@ -397,6 +351,26 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
   }
 
   setData(data);
+
+  // Notification >>>>>>>>
+  if (mode === EDIT) {
+    const uIds = getTags(message);
+    const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
+    sendNotificationsTag(data, uIds, dmGiven.dmId, userHandle, message);
+  }
+  // >>>>>>>>>>
+
+  // Analytics>>>>>>>>>>
+  const time = Date.now();
+  if (mode === REMOVE) {
+    // Workspace stats
+    const numMessagesExist = data.workspaceStats.messagesExist[data.workspaceStats.messagesExist.length - 1].numMessagesExist - 1;
+    data.workspaceStats.messagesExist.push({ numMessagesExist: numMessagesExist, timeStamp: time });
+
+    setData(data);
+  }
+  // >>>>>>>>>>
+
   return {};
 }
 
@@ -924,25 +898,37 @@ function sendMessage(mode: string, userId: number, message: string, index: numbe
     data.dms[index].messages.unshift(newMessage);
   }
 
-  // Notifcation >>>>>>>>
-  if (mode === 'e') {
-    const uIds = getTags(message);
-    const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
-    sendNotificationsTag(data, uIds, dmGiven.dmId, userHandle, message);
+  // Notification >>>>>>>>
+  const uIds = getTags(message);
+  const userHandle = data.users.find(user => user.uId === userId).handleStr;
+  let id;
+  if (mode === CHANNEL) {
+    id = data.channels[index].channelId;
+  } else {
+    id = data.dms[index].dmId;
   }
+  sendNotificationsTag(data, uIds, id, userHandle, message);
   // >>>>>>>>>>
 
   setData(data);
 
   // Analytics
   const time = Date.now();
-  if (mode === 'r') {
-    // Workspace stats
-    const numMessagesExist = data.workspaceStats.messagesExist[data.workspaceStats.messagesExist.length - 1].numMessagesExist - 1;
-    data.workspaceStats.messagesExist.push({ numMessagesExist: numMessagesExist, timeStamp: time });
+  // User stats
+  const uId = userId;
+  const userStats = data.userStats.find(i => i.uId === uId);
 
-    setData(data);
-  }
+  data.userStats = data.userStats.filter(i => i.uId !== uId);
+
+  const numMessagesSent = userStats.messagesSent[userStats.messagesSent.length - 1].numMessagesSent + 1;
+  userStats.messagesSent.push({ numMessagesSent: numMessagesSent, timeStamp: time });
+  data.userStats.push(userStats);
+
+  // Workspace stats
+  const numMessagesExist = data.workspaceStats.messagesExist[data.workspaceStats.messagesExist.length - 1].numMessagesExist + 1;
+  data.workspaceStats.messagesExist.push({ numMessagesExist: numMessagesExist, timeStamp: time });
+
+  setData(data);
 
   return newMessageId;
 }

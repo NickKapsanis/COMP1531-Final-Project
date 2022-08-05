@@ -47,6 +47,25 @@ function standupStartV1(token: string, channelId: number, length: number) {
   data.channels[index].standupActiveTime.timeFinish = finishTime;
   setData(data);
   setTimeout(function() { finishStandup(channel.channelId, user); }, length * 1000);
+
+  // Analytics >>>>>>>
+  const time = finishTime;
+  // User stats
+  const uId = user.uId;
+  const userStats = data.userStats.find(i => i.uId === uId);
+
+  data.userStats = data.userStats.filter(i => i.uId !== uId);
+
+  const numMessagesSent = userStats.messagesSent[userStats.messagesSent.length - 1].numMessagesSent + 1;
+  userStats.messagesSent.push({ numMessagesSent: numMessagesSent, timeStamp: time });
+  data.userStats.push(userStats);
+
+  // Workspace stats
+  const numMessagesExist = data.workspaceStats.messagesExist[data.workspaceStats.messagesExist.length - 1].numMessagesExist + 1;
+  data.workspaceStats.messagesExist.push({ numMessagesExist: numMessagesExist, timeStamp: time });
+  setData(data);
+  // >>>>>>>>>>>
+
   return { finishTime: finishTime };
 }
 
