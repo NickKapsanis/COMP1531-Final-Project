@@ -230,15 +230,14 @@ function changePermission(Uid: number, permissionId: number, token: string) {
 function requestUserProfile(token: string, uId: number) {
   const res = request(
     'GET',
-    url + '/user/profile/v2',
+    url + '/user/profile/v3',
     {
       qs: {
         uId: uId,
-        token: token,
       },
-    // headers: {
-    //   token: token,
-    // },
+     headers: {
+       token: token,
+     },
     }
 
   );
