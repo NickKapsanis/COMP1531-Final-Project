@@ -20,9 +20,10 @@ describe('Tests for message/send/V1', () => {
   let channelId2: number;
 
   beforeEach(() => {
+    requestClear();
     //  Channels token[x] is member of: token1: [1], token2: [2]
-    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
-    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
     channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
   });
@@ -119,11 +120,11 @@ describe('Tests for message/senddm/V1', () => {
   beforeEach(() => {
     //  member of: token1: [1], token2: [2]
     // TODO: find uIDs of token1 and token2 to pass in
-    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
-    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
-    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adams');
-    dmId1 = requestDmCreateV1(token1, [1, 2]);
-    dmId2 = requestDmCreateV1(token2, [2, 3]);
+    token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adams');
+    dmId1 = requestDmCreateV2(token1, [1, 2]);
+    dmId2 = requestDmCreateV2(token2, [2, 3]);
   });
 
   afterEach(() => {
@@ -214,16 +215,16 @@ describe('Tests for message/edit/V1', () => {
 
   beforeEach(() => {
     //  channelId1: [owners: 1][members: 1,2] channelId2: [owners: 1, 2][members: 2, 3] (because token1 is a global owner)
-    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
-    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
-    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
+    token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adam');
 
     channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
 
     // Invite token2 into Channel 1 and token3 into Channel 2
-    requestChannelInviteV2(token1, channelId1, 2); // TODO: change uID... getUId helper function?
-    requestChannelInviteV2(token2, channelId2, 3);
+    requestChannelInviteV3(token1, channelId1, 2); // TODO: change uID... getUId helper function?
+    requestChannelInviteV3(token2, channelId2, 3);
 
     messageId1 = requestMessageSendV1(token1, channelId1, 'Message 1.1');
     messageId2 = requestMessageSendV1(token2, channelId1, 'Message 1.2');
@@ -300,7 +301,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 8: successful message edit (in channels)', () => {
     const res = requestMessageEditV1(token1, messageId1, 'Edited Message 1.1');
-    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV3(token1, channelId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -311,7 +312,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 9: successful message edit (empty message string)', () => {
     const res = requestMessageEditV1(token1, messageId1, '');
-    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV3(token1, channelId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -322,7 +323,7 @@ describe('Tests for message/edit/V1', () => {
 
   test('Case 10: successful message edit (with global permissions)', () => {
     const res = requestMessageEditV1(token1, messageId3, 'Edited Message 2.1');
-    const messages: Array<message | undefined> = requestChannelMessageV2(token2, channelId2, 0); // Assumption: global owner cannot access channelMessagesV2
+    const messages: Array<message | undefined> = requestChannelMessageV3(token2, channelId2, 0); // Assumption: global owner cannot access channelMessagesV3
     const editedMessage: message = messages.find(message => message.messageId === messageId3);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -332,11 +333,11 @@ describe('Tests for message/edit/V1', () => {
   });
 
   test('Case 11: successful message edit (with dms)', () => {
-    const dmId1: number = requestDmCreateV1(token1, [1, 3]);
+    const dmId1: number = requestDmCreateV2(token1, [1, 3]);
     const messageId5: number = requestMessageSendDmV1(token1, dmId1, 'Message Dm 1.1');
 
     const res = requestMessageEditV1(token1, messageId5, 'Edited Message Dm 1.1');
-    const messages: Array<message | undefined> = requestDmMessageV1(token1, dmId1, 0);
+    const messages: Array<message | undefined> = requestDmMessageV2(token1, dmId1, 0);
     const editedMessage: message = messages.find(message => message.messageId === messageId5);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -374,16 +375,16 @@ describe('Tests for message/remove/V1 (for input and channels)', () => {
 
   beforeEach(() => {
     //  channelId1: [owners: 1][members: 1,2] channelId2: [owners: 1, 2][members: 2, 3] (because token1 is a global owner)
-    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
-    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
-    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
+    token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adam');
 
     channelId1 = requestChannelsCreateV2(token1, 'Channel 1', true);
     channelId2 = requestChannelsCreateV2(token2, 'Channel 2', true);
 
     // Invite token2 into Channel 1
-    requestChannelInviteV2(token1, channelId1, 2);
-    requestChannelInviteV2(token2, channelId2, 3); // TODO: change uID
+    requestChannelInviteV3(token1, channelId1, 2);
+    requestChannelInviteV3(token2, channelId2, 3); // TODO: change uID
 
     messageId1 = requestMessageSendV1(token1, channelId1, 'Message 1.1');
     messageId2 = requestMessageSendV1(token2, channelId1, 'Message 1.2');
@@ -436,7 +437,7 @@ describe('Tests for message/remove/V1 (for input and channels)', () => {
 
   test('Case 6: successful message remove (channel)', () => {
     const res = requestMessageRemoveV1(token1, messageId1);
-    const messages: Array<message | undefined> = requestChannelMessageV2(token1, channelId1, 0);
+    const messages: Array<message | undefined> = requestChannelMessageV3(token1, channelId1, 0);
     const removedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -459,12 +460,12 @@ describe('Tests for message/remove/v1 (for dms)', () => {
 
   beforeEach(() => {
     //  dmId1: [owner: 1][members: 1, 2] dmId2: [owner: 2][members: 2, 3]
-    token1 = requestAuthUserRegisterV2('example1@email.com', 'password1', 'John', 'Smith');
-    token2 = requestAuthUserRegisterV2('example2@email.com', 'password2', 'Jane', 'Citizen');
-    token3 = requestAuthUserRegisterV2('example3@email.com', 'password3', 'James', 'Adam');
+    token1 = requestAuthUserRegisterV3('example1@email.com', 'password1', 'John', 'Smith');
+    token2 = requestAuthUserRegisterV3('example2@email.com', 'password2', 'Jane', 'Citizen');
+    token3 = requestAuthUserRegisterV3('example3@email.com', 'password3', 'James', 'Adam');
 
-    dmId1 = requestDmCreateV1(token1, [1, 2]);
-    dmId2 = requestDmCreateV1(token2, [2, 3]);
+    dmId1 = requestDmCreateV2(token1, [1, 2]);
+    dmId2 = requestDmCreateV2(token2, [2, 3]);
 
     messageId1 = requestMessageSendDmV1(token1, dmId1, 'Message 1.1');
     messageId2 = requestMessageSendDmV1(token2, dmId1, 'Message 1.2');
@@ -502,7 +503,7 @@ describe('Tests for message/remove/v1 (for dms)', () => {
 
   test('Case 4: success remove: user is owner, did not send message', () => {
     const res = requestMessageRemoveV1(token1, messageId2);
-    const messages: Array<message | undefined> = requestDmMessageV1(token1, dmId1, 0);
+    const messages: Array<message | undefined> = requestDmMessageV2(token1, dmId1, 0);
     const removedMessage: message = messages.find(message => message.messageId === messageId2);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -513,7 +514,7 @@ describe('Tests for message/remove/v1 (for dms)', () => {
 
   test('Case 5: successful message remove', () => {
     const res = requestMessageRemoveV1(token1, messageId1);
-    const messages: Array<message | undefined> = requestDmMessageV1(token1, dmId1, 0);
+    const messages: Array<message | undefined> = requestDmMessageV2(token1, dmId1, 0);
     const removedMessage: message = messages.find(message => message.messageId === messageId1);
 
     const bodyObj = JSON.parse(String(res.getBody()));
@@ -542,10 +543,10 @@ function requestMessageRemoveV1(token: string, messageId: number) {
 /// /////////////////////        Helper Functions       /////////////////////////
 /// /////////////////////////////////////////////////////////////////////////////
 /// /////////////////////////////////////////////////////////////////////////////
-function requestAuthUserRegisterV2(email: string, password: string, nameFirst: string, nameLast: string) {
+function requestAuthUserRegisterV3(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
-    `${url}:${port}/auth/register/v2`,
+    `${url}:${port}/auth/register/v3`,
     {
       json: {
         email: email,
@@ -562,13 +563,13 @@ function requestAuthUserRegisterV2(email: string, password: string, nameFirst: s
 function requestChannelsCreateV2(token: string, name: string, isPublic: boolean) {
   const res = request(
     'POST',
-    `${url}:${port}/channels/create/v2`,
+    `${url}:${port}/channels/create/v3`,
     {
-      json: {
+      body: JSON.stringify({ name: name, isPublic: isPublic }),
+      headers: {
         token: token,
-        name: name,
-        isPublic: isPublic,
-      }
+        'Content-type': 'application/json',
+      },
     }
   );
 
@@ -589,15 +590,17 @@ function requestChannelsListallV2(token: string) {
   return JSON.parse(String(res.getBody())).channels;
 }
 
-function requestChannelInviteV2(token: string, channelId: number, uId: number) {
+function requestChannelInviteV3(token: string, channelId: number, uId: number) {
   const res = request(
     'POST',
-    `${url}:${port}/channel/invite/v2`,
+    `${url}:${port}/channel/invite/v3`,
     {
       json: {
-        token: token,
         channelId: channelId,
         uId: uId,
+      },
+      headers: {
+        token: token,
       }
     }
   );
@@ -623,27 +626,31 @@ function requestChannelLeaveV2(token: string, channelId: number) {
 function requestDmLeaveV2(token: string, dmId: number) {
   const res = request(
     'POST',
-    `${url}:${port}/dm/leave/v1`,
+    `${url}:${port}/dm/leave/v2`,
     {
       json: {
-        token: token,
         dmId: dmId,
-      }
+      },
+      headers: {
+        token: token,
+      },
     }
   );
 
   return JSON.parse(String(res.getBody()));
 }
 
-function requestChannelMessageV2(token: string, channelId: number, start: number) {
+function requestChannelMessageV3(token: string, channelId: number, start: number) {
   const res = request(
     'GET',
-    `${url}:${port}/channel/messages/v2`,
+    `${url}:${port}/channel/messages/v3`,
     {
       qs: {
-        token: token,
         channelId: channelId,
         start: start,
+      },
+      headers: {
+        token: token,
       }
     }
   );
@@ -667,31 +674,35 @@ function requestMessageSendV1(token: string, channelId: number, message: string)
   return JSON.parse(String(res.getBody())).messageId;
 }
 
-function requestDmCreateV1(token: string, uIds: Array<number>) {
+function requestDmCreateV2(token: string, uIds: Array<number>) {
   const res = request(
     'POST',
-      `${url}:${port}/dm/create/v1`,
+      `${url}:${port}/dm/create/v2`,
       {
         json: {
-          token: token,
           uIds: uIds,
-        }
+        },
+        headers: {
+          token: token,
+        },
       }
   );
 
   return JSON.parse(String(res.getBody())).dmId;
 }
 
-function requestDmMessageV1(token: string, dmId: number, start: number) {
+function requestDmMessageV2(token: string, dmId: number, start: number) {
   const res = request(
     'GET',
-    `${url}:${port}/dm/messages/v1`,
+    `${url}:${port}/dm/messages/v2`,
     {
       qs: {
-        token: token,
         dmId: dmId,
         start: start,
-      }
+      },
+      headers: {
+        token: token,
+      },
     }
   );
 
@@ -707,7 +718,7 @@ function requestMessageSendDmV1(token: string, dmId: number, message: string) {
             token: token,
             dmId: dmId,
             message: message,
-          }
+          },
         }
   );
 

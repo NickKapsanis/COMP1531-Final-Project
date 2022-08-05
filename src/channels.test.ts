@@ -4,6 +4,9 @@ import { getUId } from './other';
 import { channelsListType } from './channels';
 
 const OK = 200;
+const FORBIDDEN = 403;
+const BAD_REQUEST = 400;
+
 const port = config.port;
 const hosturl = config.url;
 const url = hosturl + ':' + port;
@@ -207,19 +210,19 @@ describe('Testing channelsCreateV1()', () => {
     const user = createUser('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const token = user.token;
     const output = createChannel(token, '', true);
-    expect(output).toStrictEqual({ error: 'error' });
+    expect(output).toStrictEqual(BAD_REQUEST);
   });
 
   test('Testing if error is returned when name length > 20', () => {
     const user = createUser('testemail@email.com', 'testPassword123', 'testFirstName', 'testLastName');
     const token = user.token;
     const output = createChannel(token, 'thisIsAVeryLongChannelNameWhichIsInvalid', true);
-    expect(output).toStrictEqual({ error: 'error' });
+    expect(output).toStrictEqual(BAD_REQUEST);
   });
 
   test('Testing if error is returned when token is invalid', () => {
     const output = createChannel('invalid-token', 'testChannelName', true);
-    expect(output).toStrictEqual({ error: 'error' });
+    expect(output).toStrictEqual(FORBIDDEN);
   });
 
   test('Testing correct input - Checking if channel is created', () => {
@@ -237,7 +240,7 @@ describe('Testing channelsCreateV1()', () => {
     expect(channelIsFound).not.toStrictEqual(undefined);
 
     // Checking if channel is created through channelDetails function
-    const channelDetails : channelDetailsOutput = requestChannelDetailsV2(token, testChannelId);
+    const channelDetails : channelDetailsOutput = requestChannelDetailsV3(token, testChannelId);
     expect(channelDetails).not.toStrictEqual({ error: 'error' });
     expect(channelDetails.name).toStrictEqual('testChannelName');
     expect(channelDetails.isPublic).toStrictEqual(false);
@@ -278,15 +281,17 @@ function requestChannelsListallV2(token: string) {
 }
 
 // helper function - gets channelsDetails()
-function requestChannelDetailsV2(token: string, channelId: number) {
+function requestChannelDetailsV3(token: string, channelId: number) {
   const res = request(
     'GET',
-    `${hosturl}:${port}/channel/details/v2`,
+    `${hosturl}:${port}/channel/details/v3`,
     {
       qs: {
-        token: token,
         channelId: channelId,
-      }
+      },
+      headers: {
+        token: token,
+      },
     }
   );
 
@@ -297,7 +302,7 @@ function requestChannelDetailsV2(token: string, channelId: number) {
 // helper function - calls auth register through the server
 const createUser = (emails: string, passwords: string, name: string, surname: string) => {
   const res = request(
-    'POST', url + '/auth/register/v2',
+    'POST', url + '/auth/register/v3',
     {
       body: JSON.stringify({ email: emails, password: passwords, nameFirst: name, nameLast: surname }),
       headers: {
@@ -312,13 +317,19 @@ const createUser = (emails: string, passwords: string, name: string, surname: st
 const createChannel = (tokens: string, names: string, publicity: boolean) => {
   const res = request(
     'POST',
-    url + '/channels/create/v2',
+    url + '/channels/create/v3',
     {
-      body: JSON.stringify({ token: tokens, name: names, isPublic: publicity }),
+      body: JSON.stringify({ name: names, isPublic: publicity }),
       headers: {
+        token: tokens,
         'Content-type': 'application/json',
       },
     }
   );
+
+  if (res.statusCode !== 200) {
+    return (res.statusCode);
+  }
+
   return JSON.parse(String(res.getBody()));
 };
