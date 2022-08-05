@@ -1,7 +1,7 @@
 import request from 'sync-request';
 import config from './config.json';
 import { createUser, createChannel, userType } from './channel.test';
-import { messageSendV1, messageSendDmV1 } from './message';
+import { messageSendV2, messageSendDmV2 } from './message';
 import { dmCreateV2 } from './dm';
 import { getUID } from './channel.test';
 import { message } from './dataStore';
@@ -121,9 +121,9 @@ describe('testing for SearchV1', () => {
   test('successful search', () => {
     const channelID = createChannel(homer.token, 'channel1', true);
     const dmID = dmCreateV2(homer.token, [bartuId]);
-    messageSendV1(homer.token, channelID.channelId, 'I want to search for something!');
-    messageSendDmV1(homer.token, dmID.dmId, 'I also want to search something!');
-    messageSendDmV1(homer.token, dmID.dmId, 'This one shouldn\'t show up');
+    messageSendV2(homer.token, channelID.channelId, 'I want to search for something!');
+    messageSendDmV2(homer.token, dmID.dmId, 'I also want to search something!');
+    messageSendDmV2(homer.token, dmID.dmId, 'This one shouldn\'t show up');
     const searchData: message[] = searchV1(homer.token, 'search');
     expect(searchData.length).toEqual(2);
   });

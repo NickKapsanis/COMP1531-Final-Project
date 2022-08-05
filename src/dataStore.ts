@@ -12,12 +12,20 @@ type user = {
   channels: number[];
   dms: number[];
   isGlobalOwner: 1 | 2; // 1 for global owner 2 for not global
+  isActiveUser: boolean;
+}
+type react = {
+  reactId : number;
+  uIds : number[];
+  isThisUserReacted : boolean;
 }
 type message = {
   messageId : number;
   uId : number;
   timeSent : number; // unix timestamp
   message : string;
+  isPinned: boolean;
+  reacts : react[];
 }
 type dm = {
     dmId: number;
@@ -36,16 +44,25 @@ type channel = {
   standupActiveTime : { isActive: boolean, timeFinish?: number };
   standupMessageBank : string[];
 }
+type passwordReset = {
+  code: string,
+  userEmail: string,
+  timeToWait: number,
+  timeStamp: number,
+}
+
 type dataStoreType = {
   users? : user[];
   channels? : channel[];
   dms? : dm[];
+  passwordReset? : passwordReset[];
 }
 
 const data: dataStoreType = {
   users: [],
   channels: [],
   dms: [],
+  passwordReset: [],
 };
 
 type userType = {
