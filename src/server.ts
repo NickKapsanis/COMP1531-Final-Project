@@ -17,7 +17,6 @@ import errorHandler from 'middleware-http-errors';
 import { adminUserpermissionChangeV1, adminUserRemoveV1 } from './admin';
 import { standupActiveV1, standupSendV1, standupStartV1 } from './standup';
 
-
 // Set up web app, use JSON
 const app = express();
 app.use(express.json());
