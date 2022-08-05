@@ -19,6 +19,7 @@ type user = {
   dms: number[];
   isGlobalOwner: 1 | 2; // 1 for global owner 2 for not global
   notifications: notification[];
+  isActiveUser: boolean;
 }
 
 type react = {
@@ -97,12 +98,20 @@ type workspaceStatsType = {
   utilizationRate: number;
 }
 
+type passwordReset = {
+  code: string,
+  userEmail: string,
+  timeToWait: number,
+  timeStamp: number,
+}
+
 type dataStoreType = {
   users? : user[];
   channels? : channel[];
   dms? : dm[];
   userStats?: userStatsType[];
   workspaceStats?: workspaceStatsType;
+  passwordReset? : passwordReset[];
 }
 
 const data: dataStoreType = {
@@ -111,6 +120,7 @@ const data: dataStoreType = {
   dms: [],
   userStats: [],
   workspaceStats: undefined,
+  passwordReset: [],
 };
 
 type userType = {
