@@ -142,21 +142,21 @@ function channelsCreateV3(token: string, name: string, isPublic: boolean) {
 
   setData(data);
 
-  // Analytics 
+  // Analytics
   const time = Date.now();
   // User Stats
   const uId = creator.uId;
   const userStats = data.userStats.find(i => i.uId === uId);
 
   data.userStats = data.userStats.filter(i => i.uId !== uId);
-  
+
   const numChannelsJoined = userStats.channelsJoined[userStats.channelsJoined.length - 1].numChannelsJoined + 1;
-  userStats.channelsJoined.push({numChannelsJoined: numChannelsJoined, timeStamp: time})
+  userStats.channelsJoined.push({ numChannelsJoined: numChannelsJoined, timeStamp: time });
   data.userStats.push(userStats);
 
   // Workspace stats
-  const numChannelsExist = workspaceStats.channelsExist[workspaceStats.channelsExist.length - 1].numChannelsExist + 1;
-  data.workspaceStats.channelsExist.push({numChannelsExist: numChannelsExist, timeStamp: time})
+  const numChannelsExist = data.workspaceStats.channelsExist[data.workspaceStats.channelsExist.length - 1].numChannelsExist + 1;
+  data.workspaceStats.channelsExist.push({ numChannelsExist: numChannelsExist, timeStamp: time });
 
   setData(data);
   return { channelId: newChannelId };

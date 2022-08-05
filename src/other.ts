@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-import { getData, setData, dataStoreType } from './dataStore';
-import HTTPError from 'http-errors';
-import { user, notification, dataStoreType } from './dataStore'
-
-const FORBIDDEN = 403;
-=======
-import { getData, setData, dataStoreType, message, dm, channel, user } from './dataStore';
+import { getData, setData, dataStoreType, message, dm, channel, user, notification } from './dataStore';
 import { getChannel } from './channel';
 import HTTPError from 'http-errors';
->>>>>>> Analytics-users/stats-user/stats
+
+const FORBIDDEN = 403;
 
 type errorMessage = {
   error: 'error'
@@ -76,8 +70,6 @@ export function checkValidUid(uId: number) {
   if (data.users?.find(user => user.uId === uId) === undefined) return false;
   else return true;
 }
-
-<<<<<<< HEAD
 /*
 notifications/get/v1
 
@@ -88,15 +80,13 @@ Return type:
   array of 20 latest notifications (of type notifications)
 
 */
-function getNotifications(token: string) {
-
+export function getNotifications(token: string) {
   const data = getData();
   const user = data.users.find(user => user.tokens.find(t => t === token));
 
-  if (user === undefined) {throw HTTPError(FORBIDDEN, "token passed in is invalid") }
+  if (user === undefined) { throw HTTPError(FORBIDDEN, 'token passed in is invalid'); }
 
-  return { notifications : user.notifications}
-
+  return { notifications: user.notifications };
 }
 
 /*
@@ -112,19 +102,20 @@ output:
 
 */
 export function getTags(message: string) {
-  let uIdArray: number[] = []
- 
-  const tagsArray: string[] = message.split('@');
-  const users: user[] = getData().users;
-  for (let user of users) {
-    for (let tag of tagsArray) {
-      if (tag.includes(user.handleStr)) {
-        if (uIdArray.find(user.uId) === undefined) {
-          uIdArray.push(user.uId);
-        }
-      }
-    }
- }
+  const uIdArray: number[] = [];
+
+  // const tagsArray: string[] = message.split('@');
+  // const users: user[] = getData().users;
+  // for (let user of users) {
+  //   for (let tag of tagsArray) {
+  //     if (tag.includes(user.handleStr)) {
+  //       if (uIdArray.find(user.uId) === undefined) {
+  //         uIdArray.push(user.uId);
+  //       }
+  //     }
+  //   }
+  // }
+  return uIdArray;
 }
 
 /*
@@ -140,28 +131,28 @@ Parameter:
 return:
     none
 */
-export function sendNotificationsAdd(data: dataStoreType, uIds: Number[], ChannelOrDmid: Number, senderHandle: string) {
-
-  // Sends Notification for adding to channel/dm 
-  for (let i of uIds) {
+export function sendNotificationsAdd(data: dataStoreType, uIds: number[], ChannelOrDmid: number, senderHandle: string) {
+  // Sends Notification for adding to channel/dm
+  for (const i of uIds) {
     let user = data.users.find(j => j.uId === i);
     let notification: notification;
 
-    let channel = user.channels.find(j => j === ChannelOrDmid);
-    let dm = user.dms.find(j => j === ChannelOrDmid);
+    const channelFound = user.channels.find(j => j === ChannelOrDmid);
+    const dmFound = user.dms.find(j => j === ChannelOrDmid);
 
-    if (channel === undefined && dm === undefined) {
+    if (channelFound === undefined && dmFound === undefined) {
       continue;
     }
 
-    if (channel != undefined) {
+    if (channelFound !== undefined) {
+      const channel = data.channels.find(j => j.channelId === ChannelOrDmid);
       notification = {
         channelId: ChannelOrDmid,
         dmId: -1,
         notificationMessage: `${senderHandle} added you to ${channel.name}`
       };
-    }
-    else if (dm != undefined) {
+    } else if (dmFound !== undefined) {
+      const dm = data.dms.find(j => j.dmId === ChannelOrDmid);
       notification = {
         channelId: -1,
         dmId: ChannelOrDmid,
@@ -174,10 +165,7 @@ export function sendNotificationsAdd(data: dataStoreType, uIds: Number[], Channe
     user = addNotification(notification, user);
     data.users.push(user);
     setData(data);
-
   }
-
-  return;
 }
 
 /*
@@ -194,29 +182,30 @@ Parameter:
 return:
   none
 */
-function sendNotificationsTag(data: dataStoreType, uIds: Number[], ChannelOrDmid: Number, senderHandle: string, message: string) {
+export function sendNotificationsTag(data: dataStoreType, uIds: number[], ChannelOrDmid: number, senderHandle: string, message: string) {
   // Sends Notification for tags in channel/dms
 
-  const messageSlice = message.subString(0,20);
-  for (let i of uIds) {
+  const messageSlice = message.substring(0, 20);
+  for (const i of uIds) {
     let user = data.users.find(j => j.uId === i);
     let notification: notification;
 
-    let channel = user.channels.find(j => j === ChannelOrDmid);
-    let dm = user.dms.find(j => j === ChannelOrDmid);
+    const channelFound = user.channels.find(j => j === ChannelOrDmid);
+    const dmFound = user.dms.find(j => j === ChannelOrDmid);
 
-    if (channel === undefined && dm === undefined) {
+    if (channelFound === undefined && dmFound === undefined) {
       continue;
     }
 
-    if (channel !== undefined) {
+    if (channelFound !== undefined) {
+      const channel = data.channels.find(j => j.channelId === ChannelOrDmid);
       notification = {
         channelId: ChannelOrDmid,
         dmId: -1,
         notificationMessage: `${senderHandle} tagged you in ${channel.name}: ${messageSlice}`
       };
-    }
-    else if (dm !== undefined) {
+    } else if (dmFound !== undefined) {
+      const dm = data.dms.find(j => j.dmId === ChannelOrDmid);
       notification = {
         channelId: -1,
         dmId: ChannelOrDmid,
@@ -229,15 +218,13 @@ function sendNotificationsTag(data: dataStoreType, uIds: Number[], ChannelOrDmid
     user = addNotification(notification, user);
     data.users.push(user);
     setData(data);
-
   }
-  return;
 }
 
 /*
 sendNotificationReact
 
-PARAMETERS- 
+PARAMETERS-
   uId(of user who sent the message) - number
   ChannelOrDmid                     - number
   reactorHandle                     - string
@@ -245,25 +232,27 @@ PARAMETERS-
 RETURNS-
   {}
 */
-export function sendNotificationReact(uId: number, ChannelOrDmid: number, reactorHandle: strings) {
-  let user = data.users.find(j => j.uId === i);
+export function sendNotificationReact(uId: number, ChannelOrDmid: number, reactorHandle: string) {
+  const data = getData();
+  let user = data.users.find(j => j.uId === uId);
   let notification: notification;
 
-  let channel = user.channels.find(j => j === ChannelOrDmid);
-  let dm = user.dms.find(j => j === ChannelOrDmid);
+  const channelFound = user.channels.find(j => j === ChannelOrDmid);
+  const dmFound = user.dms.find(j => j === ChannelOrDmid);
 
-  if (channel === undefined && dm === undefined) {
-    continue;
+  if (channelFound === undefined && dmFound === undefined) {
+    return;
   }
 
-  if (channel !== undefined) {
+  if (channelFound !== undefined) {
+    const channel = data.channels.find(j => j.channelId === ChannelOrDmid);
     notification = {
       channelId: ChannelOrDmid,
       dmId: -1,
       notificationMessage: `${reactorHandle} reacted to your message in ${channel.name}`
     };
-  }
-  else if (dm !== undefined) {
+  } else if (dmFound !== undefined) {
+    const dm = data.dms.find(j => j.dmId === ChannelOrDmid);
     notification = {
       channelId: -1,
       dmId: ChannelOrDmid,
@@ -271,20 +260,19 @@ export function sendNotificationReact(uId: number, ChannelOrDmid: number, reacto
     };
   }
 
-  data.users = data.users.filter(j => j.uId !== i);
+  data.users = data.users.filter(j => j.uId !== uId);
 
   user = addNotification(notification, user);
   data.users.push(user);
   setData(data);
-
-  return;
 }
 
 /*
-getTags
+addNotification
 
 Parameter:
-  message - string
+  notification - notification type
+  user         - user
 
 output:
   user - Returns user with added notification
@@ -292,9 +280,8 @@ output:
 */
 
 export function addNotification(notification: notification, user: user) {
-
   if (user.notifications.length === 20) {
-    (user.notification).pop();
+    (user.notifications).pop();
   }
 
   user.notifications.unshift(notification);
@@ -302,9 +289,6 @@ export function addNotification(notification: notification, user: user) {
   return user;
 }
 
-
-export { clearV1, getUId, getNotifications };
-=======
 /* SEARCH V1
 * Given a query string, return a collection of messages in all of the channels/DMs
 * that the user has joined that contain the query (case-insensitive).
@@ -366,23 +350,4 @@ function getDMs(DMid: number, DMsArray: dm[]) {
   return dm;
 }
 
-/* getTags
-*
-* Tag string - String (can contain none, single or multiple @___)
-* Returns an array of uIds corresponding to the tagged handles
-* should be uinque uIds }
-*/
-
-/*
-function getTags(message: string) {
-  const tagsArray: string[] = message.split('@');
-
-  const users: user[] = getData().users;
-  for (let user of users) {
-    for (tag of )
-    if (tagsArray.contains())
-  }
-*/
-
 export { clearV1, getUId, searchV1 };
->>>>>>> Analytics-users/stats-user/stats

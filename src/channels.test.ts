@@ -334,7 +334,7 @@ const createChannel = (tokens: string, names: string, publicity: boolean) => {
   return JSON.parse(String(res.getBody()));
 };
 
-
+/*
 // helper function - calls channelInvite through the server
 const channelInvite = (tokens: string, channelIds: number, uIds: number) => {
   const res = request(
@@ -352,3 +352,4 @@ const channelInvite = (tokens: string, channelIds: number, uIds: number) => {
   }
   return JSON.parse(String(res.getBody()));
 };
+*/

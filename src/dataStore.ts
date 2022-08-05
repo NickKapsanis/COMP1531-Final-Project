@@ -3,9 +3,8 @@ import fs from 'fs';
 export type notification = {
   channelId: number;
   dmId: number;
-  notificationMessage: string; 
+  notificationMessage: string;
 }
-
 
 type user = {
   uId: number;
@@ -54,18 +53,18 @@ type channelsJoinedType = {
 type dmsJoinedType = {
   numDmsJoined: number;
   timeStamp: number;
-} 
+}
 
 type messagesSentType = {
   numMessagesSent: number;
   timeStamp: number;
-} 
+}
 
 type userStatsType = {
   uId: number;
   channelsJoined: channelsJoinedType[];
-  dmsJoined: dmsJoinedType[]; 
-  messagesSent: messagesSentType[]; 
+  dmsJoined: dmsJoinedType[];
+  messagesSent: messagesSentType[];
   involvementRate: number;
 }
 
@@ -85,10 +84,10 @@ type messagesExistType = {
 }
 
 type workspaceStatsType = {
-  channelsExist: channelsExistType[]; 
+  channelsExist: channelsExistType[];
   dmsExist: dmsExistType[];
   messagesExist: messagesExistType[];
-  utilizationRate: Number;
+  utilizationRate: number;
 }
 
 type dataStoreType = {
@@ -96,7 +95,7 @@ type dataStoreType = {
   channels? : channel[];
   dms? : dm[];
   userStats?: userStatsType[];
-  workspaceStats?: workspaceStatsType[];
+  workspaceStats?: workspaceStatsType;
 }
 
 const data: dataStoreType = {
@@ -104,7 +103,7 @@ const data: dataStoreType = {
   channels: [],
   dms: [],
   userStats: [],
-  workspaceStats: {},
+  workspaceStats: undefined,
 };
 
 type userType = {

@@ -15,6 +15,7 @@ import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from '
 import { channelDetailsV3, channelMessagesV3 } from './channel';
 import errorHandler from 'middleware-http-errors';
 import { standupActiveV1, standupSendV1, standupStartV1 } from './standup';
+import { usersStatsV1, userStatsV1 } from './stats';
 
 // Set up web app, use JSON
 const app = express();
@@ -260,7 +261,7 @@ app.get('/user/stats/v1', (req, res) => {
   res.json(userStatsV1(token));
 });
 
-//usersStats
+// usersStats
 app.get('/users/stats/v1', (req, res) => {
   const token = String(req.header('token'));
   res.json(usersStatsV1(token));

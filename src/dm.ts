@@ -1,6 +1,6 @@
 import { checkValidToken } from './auth';
 import { getData, setData, dm, dataStoreType } from './dataStore';
-import { checkValidUids } from './other';
+import { checkValidUids, sendNotificationsAdd } from './other';
 import { user } from './users';
 import HTTPError from 'http-errors';
 
@@ -99,15 +99,15 @@ export function dmLeaveV2(token: string, dmId: number) {
   // now set the modified data
   setData(data);
 
-  // Analytics 
+  // Analytics
   const time = Date.now();
   // UserStats
   const userStats = data.userStats.find(i => i.uId === userId);
 
   data.userStats = data.userStats.filter(i => i.uId !== userId);
-  
+
   const numDmsJoined = userStats.dmsJoined[userStats.dmsJoined.length - 1].numDmsJoined - 1;
-  userStats.dmsJoined.push({numDmsJoined: numDmsJoined, timeStamp: time})
+  userStats.dmsJoined.push({ numDmsJoined: numDmsJoined, timeStamp: time });
   data.userStats.push(userStats);
   setData(data);
 
@@ -241,27 +241,27 @@ export function dmCreateV2(token: string, uIds: number[]) {
   const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
   uIds.pop();
   sendNotificationsAdd(data, uIds, newDmId, userHandle);
-  //>>>>>>>>>>
+  // >>>>>>>>>>
 
   // Analytics >>>>>>>>
   const time = Date.now();
   // User Stats
-  for (let u of uIds) {
+  for (const u of uIds) {
     const userStats = data.userStats.find(i => i.uId === u);
 
     data.userStats = data.userStats.filter(i => i.uId !== u);
-  
+
     const numDmsJoined = userStats.dmsJoined[userStats.dmsJoined.length - 1].numDmsJoined + 1;
-    userStats.dmsJoined.push({numDmsJoined: numDmsJoined, timeStamp: time})
+    userStats.dmsJoined.push({ numDmsJoined: numDmsJoined, timeStamp: time });
     data.userStats.push(userStats);
   }
-  
+
   // Workspace stats
-  const numDmsExist = workspaceStats.dmsExist[workspaceStats.dmsExist.length - 1].numDmsExist + 1;
-  data.workspaceStats.dmsExist.push({numDmsExist: numDmsExist, timeStamp: time})
+  const numDmsExist = data.workspaceStats.dmsExist[data.workspaceStats.dmsExist.length - 1].numDmsExist + 1;
+  data.workspaceStats.dmsExist.push({ numDmsExist: numDmsExist, timeStamp: time });
 
   setData(data);
-  //>>>>>>>>>>
+  // >>>>>>>>>>
 
   return { dmId: newDmId };
 }
@@ -338,7 +338,7 @@ export function dmRemoveV2(token: string, dmId: number) {
 
   // For analytics
   const numMessages = dm.messages.length;
-  let uIds = dm.allMembers;
+  const uIds = dm.allMembers;
   uIds.push(dm.owner);
 
   data.dms = data.dms.filter(i => i.dmId !== dmId);
@@ -346,22 +346,22 @@ export function dmRemoveV2(token: string, dmId: number) {
 
   // Analytics
   const time = Date.now();
-  for (let u of uIds) {
+  for (const u of uIds) {
     const userStats = data.userStats.find(i => i.uId === u);
 
     data.userStats = data.userStats.filter(i => i.uId !== u);
-  
+
     const numDmsJoined = userStats.dmsJoined[userStats.dmsJoined.length - 1].numDmsJoined - 1;
-    userStats.dmsJoined.push({numDmsJoined: numDmsJoined, timeStamp: time})
+    userStats.dmsJoined.push({ numDmsJoined: numDmsJoined, timeStamp: time });
     data.userStats.push(userStats);
   }
 
   // Workspace stats
-  const numDmsExist = workspaceStats.dmsExist[workspaceStats.dmsExist.length - 1].numDmsExist - 1;
-  data.workspaceStats.dmsExist.push({numDmsExist: numDmsExist, timeStamp: time});
+  const numDmsExist = data.workspaceStats.dmsExist[data.workspaceStats.dmsExist.length - 1].numDmsExist - 1;
+  data.workspaceStats.dmsExist.push({ numDmsExist: numDmsExist, timeStamp: time });
 
-  const numMessagesExist = workspaceStats.messagesExist[workspaceStats.messagesExist.length - 1].numMessagesExist - numMessages;
-  data.workspaceStats.messagesExist.push({numMessagesExist: numMessagesExist, timeStamp: time});
+  const numMessagesExist = data.workspaceStats.messagesExist[data.workspaceStats.messagesExist.length - 1].numMessagesExist - numMessages;
+  data.workspaceStats.messagesExist.push({ numMessagesExist: numMessagesExist, timeStamp: time });
 
   setData(data);
   return {};
@@ -400,13 +400,6 @@ function isOwnerOf(dmId: number, token: string) {
   } else {
     return false;
   }
-}
-
-// helper function returns userId of authUserId returns -1 if the authUserId is not in the datastore.
-export function giveUid(authUserId: number) {
-  const userId = getData().users?.find(user => user.authUserId === authUserId)?.uId;
-  if (userId === undefined) return -1;
-  else return userId;
 }
 
 // helper function retunrs userId of given active token returns -1 if the userId does not exist.

@@ -3,6 +3,7 @@ import { userProfileV3 } from './users';
 import { channelsListV2 } from './channels';
 import { getUId } from './other';
 import { checkValidToken } from './auth';
+import { sendNotificationsAdd } from './other';
 import HTTPError from 'http-errors';
 
 type userOutput = {
@@ -196,16 +197,16 @@ function channelJoinV3(token: string, channelId: number) {
   data.channels[data.channels.indexOf(channel)].allMembers.push(user.uId);
   setData(data);
 
-  // Analytics 
+  // Analytics
   const time = Date.now();
   // User Stats
   const uId = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
   const userStats = data.userStats.find(i => i.uId === uId);
 
   data.userStats = data.userStats.filter(i => i.uId !== uId);
-  
+
   const numChannelsJoined = userStats.channelsJoined[userStats.channelsJoined.length - 1].numChannelsJoined + 1;
-  userStats.channelsJoined.push({numChannelsJoined: numChannelsJoined, timeStamp: time})
+  userStats.channelsJoined.push({ numChannelsJoined: numChannelsJoined, timeStamp: time });
   data.userStats.push(userStats);
 
   setData(data);
@@ -264,7 +265,7 @@ function channelInviteV3(token: string, channelId: number, uId: number) {
   const uIds = [uId];
   const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
   sendNotificationsAdd(data, uIds, channelId, userHandle);
-  //>>>>>>>>>>
+  // >>>>>>>>>>
 
   // Analytics >>>>>>>>>>
   const time = Date.now();
@@ -272,13 +273,13 @@ function channelInviteV3(token: string, channelId: number, uId: number) {
   const userStats = data.userStats.find(i => i.uId === uId);
 
   data.userStats = data.userStats.filter(i => i.uId !== uId);
-  
+
   const numChannelsJoined = userStats.channelsJoined[userStats.channelsJoined.length - 1].numChannelsJoined + 1;
-  userStats.channelsJoined.push({numChannelsJoined: numChannelsJoined, timeStamp: time})
+  userStats.channelsJoined.push({ numChannelsJoined: numChannelsJoined, timeStamp: time });
   data.userStats.push(userStats);
 
   setData(data);
-  //>>>>>>>>>>
+  // >>>>>>>>>>
 
   return {};
 }
@@ -423,16 +424,16 @@ function channelsLeaveV1(token: string, channelId: number) {
 
           setData(data);
 
-          // Analytics 
+          // Analytics
           const time = Date.now();
           // User Stats
           const uId = user.uId;
           const userStats = data.userStats.find(i => i.uId === uId);
 
           data.userStats = data.userStats.filter(i => i.uId !== uId);
-  
+
           const numChannelsJoined = userStats.channelsJoined[userStats.channelsJoined.length - 1].numChannelsJoined - 1;
-          userStats.channelsJoined.push({numChannelsJoined: numChannelsJoined, timeStamp: time})
+          userStats.channelsJoined.push({ numChannelsJoined: numChannelsJoined, timeStamp: time });
           data.userStats.push(userStats);
 
           setData(data);

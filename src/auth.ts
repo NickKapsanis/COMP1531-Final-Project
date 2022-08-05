@@ -159,22 +159,22 @@ export function authRegisterV3(email: string, password: string, nameFirst: strin
   // userStats
   const userStats = {
     uId: newUid,
-    channelsJoined: [{numChannelsJoined: 0, timeStamp: time}],
-    dmsJoined: [{numDmsJoined: 0, timeStamp: time}], 
-    messagesSent: [{numMessagesSent: 0, timeStamp: time}], 
+    channelsJoined: [{ numChannelsJoined: 0, timeStamp: time }],
+    dmsJoined: [{ numDmsJoined: 0, timeStamp: time }],
+    messagesSent: [{ numMessagesSent: 0, timeStamp: time }],
     involvementRate: 0
-  }
+  };
   data.userStats.push(userStats);
 
   // Workspace Stats
-  if (isGlobalOwner == 1) {
+  if (isGlobalOwner === 1) {
     const workspaceStats = {
-      channelsExist: [{numChannelsExist: 0, timeStamp: time}], 
-      dmsExist: [{numDmsExist: 0, timeStamp: time}],
-      messagesExist: [{numMessagesExist: 0, timeStamp: time}],
+      channelsExist: [{ numChannelsExist: 0, timeStamp: time }],
+      dmsExist: [{ numDmsExist: 0, timeStamp: time }],
+      messagesExist: [{ numMessagesExist: 0, timeStamp: time }],
       utilizationRate: 0
-    }
-    data.workspaceStats.push(workspaceStats);
+    };
+    data.workspaceStats = workspaceStats;
   }
 
   setData(data);
