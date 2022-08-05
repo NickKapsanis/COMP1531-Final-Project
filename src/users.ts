@@ -46,12 +46,12 @@ function userProfileV3(token: string, uId: number) {
   if (!checkValidUid(uId)) { // token is invalid
     throw HTTPError(BAD_REQUEST, 'Invalid Uid');
   }
- // const user1 = data.users.find(user => user.tokens.find(t => t === token));
+  // const user1 = data.users.find(user => user.tokens.find(t => t === token));
   const user = data.users.find(i => i.uId === uId);
 
   // checking if either uId or token are invalid
- // if (user1 === undefined) { throw HTTPError(FORBIDDEN, 'token passed in is invalid'); }
- // if (user2 === undefined) { throw HTTPError(BAD_REQUEST, 'uId does not refer to a valid user'); }
+  // if (user1 === undefined) { throw HTTPError(FORBIDDEN, 'token passed in is invalid'); }
+  // if (user2 === undefined) { throw HTTPError(BAD_REQUEST, 'uId does not refer to a valid user'); }
 
   // constructing output
   const userInfo: user = {

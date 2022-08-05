@@ -235,9 +235,9 @@ function requestUserProfile(token: string, uId: number) {
       qs: {
         uId: uId,
       },
-     headers: {
-       token: token,
-     },
+      headers: {
+        token: token,
+      },
     }
 
   );
