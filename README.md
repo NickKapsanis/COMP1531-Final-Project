@@ -574,11 +574,11 @@ These interface specifications come from Hayden & COMP6080, who are building the
     </td>
   </tr>
   <tr>
-    <td>(V3) (outputs only) named exactly <b>user</b></td>
+    <td>(Iteration 3) (outputs only) named exactly <b>user</b></td>
     <td>Object containing uId, email, nameFirst, nameLast, handleStr, profileImgUrl</td>
   </tr>
   <tr>
-    <td>(V3) (outputs only) named exactly <b>messages</b></td>
+    <td>(Iteration 3) (outputs only) named exactly <b>messages</b></td>
     <td>Array of objects, where each object contains types { messageId, uId, message, timeSent, reacts, isPinned  }</td>
   </tr>
 </table>

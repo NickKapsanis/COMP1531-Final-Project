@@ -2,6 +2,11 @@ import { checkValidToken } from './auth';
 import { getData, setData, dm, dataStoreType } from './dataStore';
 import { checkValidUids } from './other';
 import { user } from './users';
+import HTTPError from 'http-errors';
+
+const FORBID = 403;
+const BAD_REQ = 400;
+// const OKAY = 200;
 
 export type dmListItem = {
   dmId: number,
@@ -11,7 +16,7 @@ export type dmListItem = {
 export type dmList = { dms: dmListItem[]};
 
 /*
-dmDetailsV1 takes a dmId and an active token and returns basic details about the DM
+dmDetailsV2 takes a dmId and an active token and returns basic details about the DM
 
 Arguments:
     dmId    - the Id of the DM channel
@@ -24,15 +29,23 @@ Return Value:
      dmID is valid but authUserId is not a member of the DM
      token us not valid
 */
-export function dmDetailsV1(token: string, dmId: number) {
+
+export function dmDetailsV2(token: string, dmId: number) {
   // input check the 3 possible error returns
-  if (!checkValidToken(token)) return { error: 'error' };
-  if (!checkValidDmId(dmId)) return { error: 'error' };
-  if (!isMemberOf(dmId, token) && !isOwnerOf(dmId, token)) return { error: 'error' };
+  if (!checkValidToken(token)) { // token is invalid
+    throw HTTPError(BAD_REQ, 'Invalid Token');
+  }
+  if (!checkValidDmId(dmId)) { // if the dm is not a valid dm
+    throw HTTPError(BAD_REQ, 'Invalid DMID');
+  }
+  // this check relys on the dmId and token to be valid
+  if (!isOwnerOf(dmId, token) && !isMemberOf(dmId, token)) { // if the user is not authorised to see details
+    throw HTTPError(FORBID, 'User is not a member or owner of the DM');
+  }
   // if all if's above are not triggered, return details
   const data = getData();
   const members: user[] = [];
-  const memberuId = data.users?.filter(user => user.dms.includes(dmId));
+  const memberuId = data.users.filter(user => user.dms.includes(dmId));
   for (const user of memberuId) {
     const tempuser: user = {
       uId: user.uId,
@@ -44,12 +57,12 @@ export function dmDetailsV1(token: string, dmId: number) {
     members.push(tempuser);
   }
   return {
-    name: data.dms?.find(dm => dm.dmId === dmId)?.name,
+    name: data.dms.find(dm => dm.dmId === dmId).name,
     members: members,
   };
 }
 /*
-dmLeaveV1 takes a dmId and an active token and removes the calling user from the DM
+dmLeaveV2 takes a dmId and an active token and removes the calling user from the DM
 
 Arguments:
     dmId    - the Id of the DM channel
@@ -62,30 +75,46 @@ Return Value:
      dmID is valid but authUserId is not a member of the DM
      token us not valid
 */
-export function dmLeaveV1(token: string, dmId: number) {
+export function dmLeaveV2(token: string, dmId: number) {
   // input check the 3 possible error returns
-  if (!checkValidToken(token)) return { error: 'error' };
-  if (!checkValidDmId(dmId)) return { error: 'error' };
-  if (!isMemberOf(dmId, token)) return { error: 'error' };
+  if (!checkValidToken(token)) { // token is invalid
+    throw HTTPError(BAD_REQ, 'Invalid Token');
+  }
+  if (!checkValidDmId(dmId)) { // if the dm is not a valid dm
+    throw HTTPError(BAD_REQ, 'Invalid DMID');
+  }
+  // this check relys on the dmId and token to be valid
+  if (!isMemberOf(dmId, token)) { // if the user is not authorised
+    throw HTTPError(FORBID, 'User is not a member or owner of the DM');
+  }
   // if all if statements were passed over, remove the user from the dm
   const data = getData();
   const userId = tokenToUserId(token);
-  // need to remove user from dm all members in data
-  const dmUserIndex = data.dms?.find(dm => dm.dmId === dmId)?.allMembers.findIndex(member => member === userId);
-  if (dmUserIndex !== undefined) {
-    data.dms?.find(dm => dm.dmId === dmId)?.allMembers.splice(dmUserIndex, 1);
-  }
+  // need to remove user from the DM's allMembers array as the user exists and the dm exists no need to safe index with '?.'
+  const dmUserIndex = data.dms.find(dm => dm.dmId === dmId).allMembers.findIndex(member => member === userId);
+  data.dms.find(dm => dm.dmId === dmId).allMembers.splice(dmUserIndex, 1);
   // need to remove dmId from user.dms
-  const dmIndex = data.users?.find(user => user.uId === userId)?.dms.findIndex(dm => dm === dmId);
-  if (dmIndex !== undefined) {
-    data.users?.find(user => user.uId === userId)?.dms.splice(dmIndex, 1);
-  }
+  const dmIndex = data.users.find(user => user.uId === userId).dms.findIndex(dm => dm === dmId);
+  data.users.find(user => user.uId === userId).dms.splice(dmIndex, 1);
   // now set the modified data
   setData(data);
+
+  // Analytics 
+  const time = Date.now();
+  // UserStats
+  const userStats = data.userStats.find(i => i.uId === userId);
+
+  data.userStats = data.userStats.filter(i => i.uId !== userId);
+  
+  const numDmsJoined = userStats.dmsJoined[userStats.dmsJoined.length - 1].numDmsJoined - 1;
+  userStats.dmsJoined.push({numDmsJoined: numDmsJoined, timeStamp: time})
+  data.userStats.push(userStats);
+  setData(data);
+
   return {};
 }
 /*
-dmmessagesV1 takes a dmId an active token and a start index and paginates 50 messages from the DM
+dmmessagesV2 takes a dmId an active token and a start index and paginates 50 messages from the DM
 
 Arguments:
     dmId    - the Id of the DM channel
@@ -100,33 +129,44 @@ Return Value:
      token us not valid
      start is greater than the total number of messages in the channel
 */
-export function dmMessagesV1(token: string, dmId: number, start: number) {
+export function dmMessagesV2(token: string, dmId: number, start: number) {
   // input check the 3 possible error returns
-  if (!checkValidToken(token)) return { error: 'error' };
-  if (!checkValidDmId(dmId)) return { error: 'error' };
-  if (!isMemberOf(dmId, token)) return { error: 'error' };
+  if (!checkValidToken(token)) { // token is invalid
+    throw HTTPError(BAD_REQ, 'Invalid Token');
+  }
+  if (!checkValidDmId(dmId)) { // if the dm is not a valid dm
+    throw HTTPError(BAD_REQ, 'Invalid DMID');
+  }
+  // this check relys on the dmId and token to be valid
+  if (!isMemberOf(dmId, token)) { // if the user is not authorised
+    throw HTTPError(FORBID, 'User is not a member or owner of the DM');
+  }
   const data = getData();
-  const dmObjMessages = data.dms?.find(dm => dm.dmId === dmId)?.messages;
-  if (dmObjMessages === undefined || dmObjMessages.length < start) return { error: 'error' };
+  const dmObjMessages = data.dms.find(dm => dm.dmId === dmId).messages;
+  if (dmObjMessages === undefined || dmObjMessages.length < start) {
+    throw HTTPError(BAD_REQ, 'Start index greater than total messages');
+  }
   // if all if statements were passed over, paginate the messages.
   // start by setting the end of the current block to send
   let pageEnd = start + 50;
   let end : number;
+  // if pageEnd is greater than the messages array length,
+  // then let pageEnd be the array length, and end be -1 to indicate
+  // the completion of the pagination.
   if (pageEnd >= dmObjMessages.length) {
-    const numToPrint = pageEnd - 50;
-    pageEnd = start + numToPrint;
+    pageEnd = dmObjMessages.length;
     end = -1;
   } else {
     end = pageEnd;
   }
   return {
-    messages: dmObjMessages.slice(start, pageEnd + 1),
+    messages: dmObjMessages.slice(start, pageEnd),
     start: start,
     end: end,
   };
 }
 /*
-dmCreateV1
+dmCreateV2
 Given an active token and array of valid userIds create a DM containing the auth user and the users in the array,
 The creator is the owner of the DM. name should be automatically generated based on the users that are in this DM.
 The name should be an alphabetically-sorted, comma-and-space-separated array of user handles,
@@ -144,15 +184,21 @@ Return Value:
 
     Returns { dmID } on sucess
 */
-export function dmCreateV1(token: string, uIds: number[]) {
+export function dmCreateV2(token: string, uIds: number[]) {
   const data: dataStoreType = getData();
   // Input checking 3 possible failures
   // token is invalid
-  if (!checkValidToken(token)) return { error: 'error' };
+  if (!checkValidToken(token)) { // token is invalid
+    throw HTTPError(BAD_REQ, 'Invalid Token');
+  }
   // any uId in uIds is invalid
-  if (!checkValidUids(uIds)) return { error: 'error' };
+  if (!checkValidUids(uIds)) {
+    throw HTTPError(BAD_REQ, "One or more UID's are invalid");
+  }
   // duplicate uId in uIds by comparing array size to set size
-  if (uIds.length !== new Set(uIds).size) return { error: 'error' };
+  if (uIds.length !== new Set(uIds).size) {
+    throw HTTPError(BAD_REQ, "One or more UID's are duplicated");
+  }
   // if all above if's are passed over all input is valid and safe to reference into.
 
   const creator = data.users.find(user => user.tokens.find(t => t === token));
@@ -160,10 +206,9 @@ export function dmCreateV1(token: string, uIds: number[]) {
 
   const handleArray = [];
   // push the handle of the user who calls the creation of the DM
-  handleArray.push(data.users?.find(user => user.uId === tokenToUserId(token)).handleStr);
+  handleArray.push(data.users.find(user => user.uId === tokenToUserId(token)).handleStr);
   for (const x of uIds) {
     const uIdUser = data.users.find(user => user.uId === x);
-    if (uIdUser === undefined) { return { error: 'error' }; }
     data.users = data.users.filter(i => i.authUserId !== uIdUser.uId);
     uIdUser.dms.push(newDmId);
     data.users.push(uIdUser);
@@ -198,10 +243,30 @@ export function dmCreateV1(token: string, uIds: number[]) {
   sendNotificationsAdd(data, uIds, newDmId, userHandle);
   //>>>>>>>>>>
 
+  // Analytics >>>>>>>>
+  const time = Date.now();
+  // User Stats
+  for (let u of uIds) {
+    const userStats = data.userStats.find(i => i.uId === u);
+
+    data.userStats = data.userStats.filter(i => i.uId !== u);
+  
+    const numDmsJoined = userStats.dmsJoined[userStats.dmsJoined.length - 1].numDmsJoined + 1;
+    userStats.dmsJoined.push({numDmsJoined: numDmsJoined, timeStamp: time})
+    data.userStats.push(userStats);
+  }
+  
+  // Workspace stats
+  const numDmsExist = workspaceStats.dmsExist[workspaceStats.dmsExist.length - 1].numDmsExist + 1;
+  data.workspaceStats.dmsExist.push({numDmsExist: numDmsExist, timeStamp: time})
+
+  setData(data);
+  //>>>>>>>>>>
+
   return { dmId: newDmId };
 }
 /*
-dmListV1
+dmListV2
 Given an active token return an array of DMs the user is a member of.
 
 Arguments:
@@ -213,10 +278,12 @@ Return Value:
 
     Returns { dms } on sucess where dms: array of objects, each contains {dmId, name}
 */
-export function dmListV1(token: string) {
+export function dmListV2(token: string) {
   const data = getData();
   // token is invalid
-  if (!checkValidToken(token)) return { error: 'error' };
+  if (!checkValidToken(token)) { // token is invalid
+    throw HTTPError(BAD_REQ, 'Invalid Token');
+  }
   const user = data.users.find(user => user.tokens.find(t => t === token));
   const dmsArray = [];
 
@@ -232,7 +299,7 @@ export function dmListV1(token: string) {
   return { dms: dmsArray };
 }
 /*
-dmRemoveV1
+dmRemoveV2
 Given an active token and a valid dmId, remove the user from the DM. both in user and dm data.
 
 Arguments:
@@ -246,14 +313,18 @@ Return Value:
 
     Returns {} on sucess
 */
-export function dmRemoveV1(token: string, dmId: number) {
+export function dmRemoveV2(token: string, dmId: number) {
   const data = getData();
 
   let user = data.users.find(user => user.tokens.find(t => t === token));
   const dm = data.dms.find(dm => dm.dmId === dmId);
 
-  if (user === undefined || dm === undefined) { return { error: 'error' }; }
-  if (user.uId !== dm.owner) { return { error: 'error' }; }
+  if (user === undefined || dm === undefined) {
+    throw HTTPError(BAD_REQ, 'Invalid Token or Invalid DM');
+  }
+  if (user.uId !== dm.owner) {
+    throw HTTPError(FORBID, 'User is not an owner of the DM');
+  }
 
   const users = dm.allMembers;
   users.push(dm.owner);
@@ -265,41 +336,72 @@ export function dmRemoveV1(token: string, dmId: number) {
     data.users.push(user);
   }
 
+  // For analytics
+  const numMessages = dm.messages.length;
+  let uIds = dm.allMembers;
+  uIds.push(dm.owner);
+
   data.dms = data.dms.filter(i => i.dmId !== dmId);
+  setData(data);
+
+  // Analytics
+  const time = Date.now();
+  for (let u of uIds) {
+    const userStats = data.userStats.find(i => i.uId === u);
+
+    data.userStats = data.userStats.filter(i => i.uId !== u);
+  
+    const numDmsJoined = userStats.dmsJoined[userStats.dmsJoined.length - 1].numDmsJoined - 1;
+    userStats.dmsJoined.push({numDmsJoined: numDmsJoined, timeStamp: time})
+    data.userStats.push(userStats);
+  }
+
+  // Workspace stats
+  const numDmsExist = workspaceStats.dmsExist[workspaceStats.dmsExist.length - 1].numDmsExist - 1;
+  data.workspaceStats.dmsExist.push({numDmsExist: numDmsExist, timeStamp: time});
+
+  const numMessagesExist = workspaceStats.messagesExist[workspaceStats.messagesExist.length - 1].numMessagesExist - numMessages;
+  data.workspaceStats.messagesExist.push({numMessagesExist: numMessagesExist, timeStamp: time});
+
   setData(data);
   return {};
 }
+
 // helper function returns true or false if the input dmId is or is not a valid dmId in the datastore repectivly.
 function checkValidDmId(dmId: number) {
   const data = getData();
-  if (data.dms?.find(dm => dm.dmId === dmId) !== undefined) {
+  if (data.dms.find(dm => dm.dmId === dmId) !== undefined) {
     return true;
   } else {
     return false;
   }
 }
+
 // helper function returns true or false if the input token authuser is or is not a member of the dmId
 function isMemberOf(dmId: number, token: string) {
   const data = getData();
-  const userId = data.users?.find(user => user.tokens.find(tok => tok === token))?.uId;
+  const userId = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
 
-  if (data.dms?.find(dm => dm.dmId === dmId).allMembers.find(member => member === userId) !== undefined) {
+  if (data.dms.find(dm => dm.dmId === dmId).allMembers.find(member => member === userId) !== undefined) {
     return true;
   } else {
     return false;
   }
 }
+
 // helper function returns true or false if the input token authUSer is or is not a memebr of the dmId
+// assumes valid dmId and valid and active token
 function isOwnerOf(dmId: number, token: string) {
   const data = getData();
-  const userId = data.users?.find(user => user.tokens.find(tok => tok === token))?.uId;
+  const userId = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
   // now check in the owner field of the DM intrested in
-  if (data.dms?.find(dm => dm.dmId === dmId).owner === userId) {
+  if (data.dms.find(dm => dm.dmId === dmId).owner === userId) {
     return true;
   } else {
     return false;
   }
 }
+
 // helper function returns userId of authUserId returns -1 if the authUserId is not in the datastore.
 export function giveUid(authUserId: number) {
   const userId = getData().users?.find(user => user.authUserId === authUserId)?.uId;
@@ -308,9 +410,14 @@ export function giveUid(authUserId: number) {
 }
 
 // helper function retunrs userId of given active token returns -1 if the userId does not exist.
+// this function expects a valid acrtive token input
 function tokenToUserId(token: string) {
   const data = getData();
-  const userId = data.users?.find(user => user.tokens.find(tok => tok === token))?.uId;
+  return data.users.find(user => user.tokens.find(tok => tok === token)).uId;
+}
+// helper function returns userId of authUserId returns -1 if the authUserId is not in the datastore.
+export function giveUid(authUserId: number) {
+  const userId = getData().users?.find(user => user.authUserId === authUserId)?.uId;
   if (userId === undefined) return -1;
   else return userId;
 }

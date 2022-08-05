@@ -1,5 +1,9 @@
 import { getData, setData, channel } from './dataStore';
 import { checkValidToken } from './auth';
+import HTTPError from 'http-errors';
+
+const FORBIDDEN = 403;
+const BAD_REQUEST = 400;
 
 export type channelsListItem = {
     channelId: number,
@@ -109,13 +113,13 @@ Returns the unique channelId for the created channel.
     (2)
     channelId - (integer)
 */
-function channelsCreateV1(token: string, name: string, isPublic: boolean) {
+function channelsCreateV3(token: string, name: string, isPublic: boolean) {
   const data = getData();
   const creator = data.users.find(user => user.tokens.find(t => t === token));
 
   // Error cases
-  if (creator === undefined) { return { error: 'error' }; }
-  if (name.length > 20 || name.length < 1) { return { error: 'error' }; }
+  if (creator === undefined) { throw HTTPError(FORBIDDEN, 'token passed in is invalid'); }
+  if (name.length > 20 || name.length < 1) { throw HTTPError(BAD_REQUEST, 'length of name is less than 1 or more than 20 characters'); }
 
   const newChannelId = data.channels.length + 1;
 
@@ -126,7 +130,9 @@ function channelsCreateV1(token: string, name: string, isPublic: boolean) {
     isPublic: isPublic,
     allMembers: [creator.uId],
     ownerMembers: [creator.uId],
-    messages: []
+    messages: [],
+    standupActiveTime: { isActive: false },
+    standupMessageBank: []
   };
 
   data.channels.push(newChannel);
@@ -136,7 +142,24 @@ function channelsCreateV1(token: string, name: string, isPublic: boolean) {
 
   setData(data);
 
+  // Analytics 
+  const time = Date.now();
+  // User Stats
+  const uId = creator.uId;
+  const userStats = data.userStats.find(i => i.uId === uId);
+
+  data.userStats = data.userStats.filter(i => i.uId !== uId);
+  
+  const numChannelsJoined = userStats.channelsJoined[userStats.channelsJoined.length - 1].numChannelsJoined + 1;
+  userStats.channelsJoined.push({numChannelsJoined: numChannelsJoined, timeStamp: time})
+  data.userStats.push(userStats);
+
+  // Workspace stats
+  const numChannelsExist = workspaceStats.channelsExist[workspaceStats.channelsExist.length - 1].numChannelsExist + 1;
+  data.workspaceStats.channelsExist.push({numChannelsExist: numChannelsExist, timeStamp: time})
+
+  setData(data);
   return { channelId: newChannelId };
 }
 
-export { channelsCreateV1, channelsListV2, channelsListallV2 };
+export { channelsCreateV3, channelsListV2, channelsListallV2 };

@@ -2,8 +2,13 @@ import { getData, setData } from './dataStore';
 import isEmail from 'validator/lib/isEmail';
 import { user, dataStoreType } from './dataStore';
 import { v4 as uuidv4 } from 'uuid';
+import HTTPError from 'http-errors';
 
 export { checkValidToken };
+
+// const FORBID = 403;
+const BAD_REQ = 400;
+// const OKAY = 200;
 
 /*
 authLoginV1
@@ -20,12 +25,15 @@ Return Value:
 
     Returns {authUserId: authUserId} on sucessfull login, email and password both exist and are values of the same "User"
 */
-export function authLoginV1(email: string, password: string) {
+export function authLoginV3(email: string, password: string) {
   const data: dataStoreType = getData();
-  if (!containsEmail(email, data)) { return { error: 'error' }; }
+  if (!containsEmail(email, data)) { // email does not belong to a user
+    throw HTTPError(BAD_REQ, 'Incorrect Email');
+  }
   const user: user = data.users.find(u => u.email === email);
-  if (user.password !== password) { return { error: 'error' }; }
-
+  if (user.password !== password) {
+    throw HTTPError(BAD_REQ, 'Incorrect Password');
+  }
   const newtoken = assignToken(user.authUserId);
   return {
     token: newtoken,
@@ -45,7 +53,7 @@ Return Value:
     does not have an error return,
     interface specifies only active tokens will be input.
 */
-export function authLogoutV1(token: string) {
+export function authLogoutV2(token: string) {
   const data = getData();
   const authUserId = data.users.find(user => user.tokens.find(tok => tok === token)).authUserId;
   removeToken(authUserId, token);
@@ -74,8 +82,9 @@ Return Value:
 
     Returns {authUserId: authUserId} on otherwise
 */
-export function authRegisterV1(email: string, password: string, nameFirst: string, nameLast: string) {
+export function authRegisterV3(email: string, password: string, nameFirst: string, nameLast: string) {
   const data: dataStoreType = getData();
+  /*
   if (
     !isEmail(email) ||
         password.length < 6 ||
@@ -86,6 +95,22 @@ export function authRegisterV1(email: string, password: string, nameFirst: strin
         containsEmail(email, data)
   ) {
     return { error: 'error' };
+  }
+  */
+  if (!isEmail(email)) { // email entered is not validated as an email by 'validator'
+    throw HTTPError(BAD_REQ, 'email entered is not a valid email');
+  }
+  if (password.length < 6) { // password is too short
+    throw HTTPError(BAD_REQ, 'password is too short - less than 6 characters');
+  }
+  if (nameFirst.length < 1 || nameFirst.length > 50) { // first name must be >1 and < 50 characters
+    throw HTTPError(BAD_REQ, 'first name is not within range');
+  }
+  if (nameLast.length < 1 || nameLast.length > 50) { // last name must be >1 and <50 characters
+    throw HTTPError(BAD_REQ, 'last name is not within range');
+  }
+  if (containsEmail(email, data)) { // email is already contained in the dataStore registred to another user
+    throw HTTPError(BAD_REQ, 'email is already in use');
   }
 
   // This block creates a user handle according to specs in Interface V1
@@ -128,8 +153,33 @@ export function authRegisterV1(email: string, password: string, nameFirst: strin
   // put the new user into data and set the data.
   data.users.push(newUser);
   setData(data);
+
+  // Analytics
+  const time = Date.now();
+  // userStats
+  const userStats = {
+    uId: newUid,
+    channelsJoined: [{numChannelsJoined: 0, timeStamp: time}],
+    dmsJoined: [{numDmsJoined: 0, timeStamp: time}], 
+    messagesSent: [{numMessagesSent: 0, timeStamp: time}], 
+    involvementRate: 0
+  }
+  data.userStats.push(userStats);
+
+  // Workspace Stats
+  if (isGlobalOwner == 1) {
+    const workspaceStats = {
+      channelsExist: [{numChannelsExist: 0, timeStamp: time}], 
+      dmsExist: [{numDmsExist: 0, timeStamp: time}],
+      messagesExist: [{numMessagesExist: 0, timeStamp: time}],
+      utilizationRate: 0
+    }
+    data.workspaceStats.push(workspaceStats);
+  }
+
+  setData(data);
   // now log in the new user, and return token and authuserId as per authLogin
-  return authLoginV1(newUser.email, newUser.password);
+  return authLoginV3(newUser.email, newUser.password);
 }
 /*
 containsEmail takes the datastore object and an email to check if the email is already registred to a user.

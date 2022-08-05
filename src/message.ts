@@ -1,7 +1,7 @@
 import { getData, setData, dataStoreType, user, channel, message, dm } from './dataStore';
 import { channelsListV2 } from './channels';
-import { dmListV1 } from './dm';
 import { getTags, sendNotificationsAdd, sendNotificationsTag, sendNotificationReact } from './other'
+import { dmListV2 } from './dm';
 
 type channelOutput = {
   channelId: number;
@@ -69,6 +69,26 @@ export function messageSendV1(token: string, channelId: number, message: string)
   const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
   sendNotificationsTag(data, uIds, channelId, userHandle, message);
   //>>>>>>>>>>
+
+  // Analytics >>>>>>>>>>
+  const time = Date.now();
+  // User Stats
+  const uId = userId;
+  const userStats = data.userStats.find(i => i.uId === uId);
+
+  data.userStats = data.userStats.filter(i => i.uId !== uId);
+  
+  const numMessagesSent = userStats.messagesSent[userStats.messagesSent.length - 1].numMessagesSent + 1;
+  userStats.messagesSent.push({numMessagesSent: numMessagesSent, timeStamp: time})
+  data.userStats.push(userStats);
+
+  // Workspace stats
+  const numMessagesExist = workspaceStats.messagesExist[workspaceStats.messagesExist.length - 1].numMessagesExist + 1;
+  data.workspaceStats.messagesExist.push({numMessagesExist: numMessagesExist, timeStamp: time})
+
+  setData(data);
+  //>>>>>>>>>>
+
   return { messageId: newMessageId };
 }
 
@@ -94,7 +114,7 @@ export function messageSendDmV1(token: string, dmId: number, message: string) {
   }
 
   const userId: number = data.users.find(user => user.tokens.find(tok => tok === token)).uId;
-  const dmsMemberOf: Array<dmOutput> = dmListV1(token).dms;
+  const dmsMemberOf: Array<dmOutput> = dmListV2(token).dms;
 
   // Checking if valid dmId was given
   // Validating if authorised user is a member of the DM
@@ -127,6 +147,25 @@ export function messageSendDmV1(token: string, dmId: number, message: string) {
   const uIds = getTags(message);
   const userHandle = data.users.find(user => user.tokens.find(tok => tok === token)).handleStr;
   sendNotificationsTag(data, uIds, dmId, userHandle, message);
+  //>>>>>>>>>>
+
+  // Analytics >>>>>>>>
+  const time = Date.now();
+  // User Stats
+  const uId = userId;
+  const userStats = data.userStats.find(i => i.uId === uId);
+
+  data.userStats = data.userStats.filter(i => i.uId !== uId);
+  
+  const numMessagesSent = userStats.messagesSent[userStats.messagesSent.length - 1].numMessagesSent + 1;
+  userStats.messagesSent.push({numMessagesSent: numMessagesSent, timeStamp: time})
+  data.userStats.push(userStats);
+
+  // Workspace stats
+  const numMessagesExist = workspaceStats.messagesExist[workspaceStats.messagesExist.length - 1].numMessagesExist + 1;
+  data.workspaceStats.messagesExist.push({numMessagesExist: numMessagesExist, timeStamp: time})
+
+  setData(data);
   //>>>>>>>>>>
 
   return { messageId: newMessageId };
@@ -313,6 +352,16 @@ function editInChannel(mode: string, token: string, userId: number, isGlobalUser
   }
   //>>>>>>>>>>
   
+  // Analytics>>>>>>>>>>
+  const time = Date.now();
+  if (mode === 'r') {
+    // Workspace stats
+    const numMessagesExist = workspaceStats.messagesExist[workspaceStats.messagesExist.length - 1].numMessagesExist - 1;
+    data.workspaceStats.messagesExist.push({numMessagesExist: numMessagesExist, timeStamp: time})
+
+    setData(data);
+  }
+  //>>>>>>>>>>
 
   return {};
 }
@@ -349,7 +398,7 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
   }
 
   let isMember: boolean;
-  const dmsMemberOf: Array<dmOutput> = dmListV1(token).dms;
+  const dmsMemberOf: Array<dmOutput> = dmListV2(token).dms;
   if (dmsMemberOf.find(dm => dm.dmId === dmGiven.dmId) === undefined) {
     isMember = false;
   } else {
@@ -386,6 +435,15 @@ function editInDm(mode: string, token: string, userId: number, messageId: number
   //>>>>>>>>>>
 
   setData(data);
+  // Analytics 
+  const time = Date.now();
+  if (mode === 'r') {
+    // Workspace stats
+    const numMessagesExist = workspaceStats.messagesExist[workspaceStats.messagesExist.length - 1].numMessagesExist - 1;
+    data.workspaceStats.messagesExist.push({numMessagesExist: numMessagesExist, timeStamp: time})
+
+    setData(data);
+  }
   return {};
 }
 
