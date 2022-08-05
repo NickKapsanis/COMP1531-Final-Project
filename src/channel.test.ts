@@ -575,10 +575,11 @@ const createUser = (emails: string, passwords: string, name: string, surname: st
 const createChannel = (tokens: string, names: string, publicity: boolean) => {
   const res = request(
     'POST',
-    url + '/channels/create/v2',
+    url + '/channels/create/v3',
     {
-      body: JSON.stringify({ token: tokens, name: names, isPublic: publicity }),
+      body: JSON.stringify({ name: names, isPublic: publicity }),
       headers: {
+        token: tokens,
         'Content-type': 'application/json',
       },
     }

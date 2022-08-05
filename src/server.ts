@@ -4,11 +4,11 @@ import morgan from 'morgan';
 import config from './config.json';
 import { dmDetailsV2, dmLeaveV2, dmMessagesV2 } from './dm';
 import { dmCreateV2, dmListV2, dmRemoveV2 } from './dm';
-import { channelsCreateV1, channelsListV2, channelsListallV2 } from './channels';
+import { channelsCreateV3, channelsListV2, channelsListallV2 } from './channels';
 import { channelJoinV3, channelInviteV3, addChannelOwnerV2, removeChannelOwnerV2, channelsLeaveV1 } from './channel';
 import { authRegisterV3, authLoginV3, authLogoutV2 } from './auth';
 import cors from 'cors';
-import { usersAllV2, userProfileV2 } from './users';
+import { usersAllV2, userProfileV3 } from './users';
 import { clearV1, getUId, searchV1 } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
@@ -71,11 +71,11 @@ app.delete('/dm/remove/v2', (req, res) => {
   res.json(dmRemoveV2(token, dmId));
 });
 // channelsCreate
-app.post('/channels/create/v2', (req, res) => {
-  const token = String(req.body.token);
+app.post('/channels/create/v3', (req, res) => {
+  const token = String(req.header('token'));
   const name = String(req.body.name);
   const isPublic = Boolean(req.body.isPublic);
-  res.json(channelsCreateV1(token, name, isPublic));
+  res.json(channelsCreateV3(token, name, isPublic));
 });
 // authRegisterv3
 app.post('/auth/register/v3', (req, res) => {
@@ -140,10 +140,10 @@ app.get('/users/all/v2', (req, res) => {
   res.send(JSON.stringify(usersAllV2(token)));
 });
 // userProfile
-app.get('/user/profile/v2', (req, res) => {
-  const token = String(req.query.token);
+app.get('/user/profile/v3', (req, res) => {
+  const token = String(req.header('token'));
   const uId = Number(req.query.uId);
-  res.json(userProfileV2(token, uId));
+  res.json(userProfileV3(token, uId));
 });
 app.post('/other/getUId/v1', (req, res) => {
   const data = req.body;
@@ -158,12 +158,6 @@ app.get('/channels/list/v2', (req, res) => {
 app.get('/channels/listall/v2', (req, res) => {
   const data = req.query.token as string;
   res.json(channelsListallV2(data));
-});
-app.post('/channels/create/v2', (req, res) => {
-  const token = String(req.body.token);
-  const name = String(req.body.name);
-  const isPublic = Boolean(req.body.isPublic);
-  res.json(channelsCreateV1(token, name, isPublic));
 });
 // userSetnameV1
 app.put('/user/profile/setname/v1', (req, res) => {
@@ -236,6 +230,7 @@ app.put('/message/edit/v1', (req, res) => {
   const { token, messageId, message } = req.body;
   res.json(messageEditV1(token, messageId, message));
 });
+
 // standupStartV1
 app.post('/standup/start/v1', (req, res) => {
   const { channelId, length } = req.body;

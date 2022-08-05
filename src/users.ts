@@ -1,3 +1,8 @@
+import HTTPError from 'http-errors';
+
+const FORBIDDEN = 403;
+const BAD_REQUEST = 400;
+
 type user = {
   uId: number,
   email: string,
@@ -32,13 +37,14 @@ returns the user information of the corresponding uId
     }
 */
 
-function userProfileV2(token: string, uId: number) {
+function userProfileV3(token: string, uId: number) {
   const data = getData();
   const user1 = data.users.find(user => user.tokens.find(t => t === token));
   const user2 = data.users.find(i => i.uId === uId);
 
   // checking if either uId or token are invalid
-  if (user1 === undefined || user2 === undefined) { return { error: 'error' }; }
+  if (user1 === undefined) { throw HTTPError(FORBIDDEN, 'token passed in is invalid'); }
+  if (user2 === undefined) { throw HTTPError(BAD_REQUEST, 'uId does not refer to a valid user'); }
 
   // constructing output
   const user2Info: user = {
@@ -227,4 +233,4 @@ function usersAllV2(token: string) {
   return outputArray;
 }
 
-export { userProfileV2, userSetnameV1, userSetemailV1, userSethandlelV1, usersAllV2, user };
+export { userProfileV3, userSetnameV1, userSetemailV1, userSethandlelV1, usersAllV2, user };
