@@ -1884,7 +1884,7 @@ function requestChannelMessageV3(token: string, channelId: number, start: number
   return JSON.parse(String(res.getBody())).messages;
 }
 
-function requestMessageSendV2(token: string, channelId: number, message: string) {
+export function requestMessageSendV2(token: string, channelId: number, message: string) {
   const res = request(
     'POST',
     `${url}:${port}/message/send/v2`,
@@ -1954,7 +1954,7 @@ function requestDmRemoveV2(token: string, dmId: number) {
   return JSON.parse(String(res.getBody()));
 }
 
-function requestMessageSendDmV2(token: string, dmId: number, message: string) {
+export function requestMessageSendDmV2(token: string, dmId: number, message: string) {
   const res = request(
     'POST',
         `${url}:${port}/message/senddm/v2`,

@@ -33,7 +33,7 @@ Return Value:
 export function dmDetailsV2(token: string, dmId: number) {
   // input check the 3 possible error returns
   if (!checkValidToken(token)) { // token is invalid
-    throw HTTPError(BAD_REQ, 'Invalid Token');
+    throw HTTPError(FORBID, 'Invalid Token');
   }
   if (!checkValidDmId(dmId)) { // if the dm is not a valid dm
     throw HTTPError(BAD_REQ, 'Invalid DMID');
@@ -78,7 +78,7 @@ Return Value:
 export function dmLeaveV2(token: string, dmId: number) {
   // input check the 3 possible error returns
   if (!checkValidToken(token)) { // token is invalid
-    throw HTTPError(BAD_REQ, 'Invalid Token');
+    throw HTTPError(FORBID, 'Invalid Token');
   }
   if (!checkValidDmId(dmId)) { // if the dm is not a valid dm
     throw HTTPError(BAD_REQ, 'Invalid DMID');
@@ -119,13 +119,13 @@ Return Value:
 export function dmMessagesV2(token: string, dmId: number, start: number) {
   // input check the 3 possible error returns
   if (!checkValidToken(token)) { // token is invalid
-    throw HTTPError(BAD_REQ, 'Invalid Token');
+    throw HTTPError(FORBID, 'Invalid Token');
   }
   if (!checkValidDmId(dmId)) { // if the dm is not a valid dm
     throw HTTPError(BAD_REQ, 'Invalid DMID');
   }
   // this check relys on the dmId and token to be valid
-  if (!isMemberOf(dmId, token)) { // if the user is not authorised
+  if (!isMemberOf(dmId, token) && !isOwnerOf(dmId, token)) { // if the user is not authorised
     throw HTTPError(FORBID, 'User is not a member or owner of the DM');
   }
   const data = getData();
@@ -176,7 +176,7 @@ export function dmCreateV2(token: string, uIds: number[]) {
   // Input checking 3 possible failures
   // token is invalid
   if (!checkValidToken(token)) { // token is invalid
-    throw HTTPError(BAD_REQ, 'Invalid Token');
+    throw HTTPError(FORBID, 'Invalid Token');
   }
   // any uId in uIds is invalid
   if (!checkValidUids(uIds)) {
@@ -243,7 +243,7 @@ export function dmListV2(token: string) {
   const data = getData();
   // token is invalid
   if (!checkValidToken(token)) { // token is invalid
-    throw HTTPError(BAD_REQ, 'Invalid Token');
+    throw HTTPError(FORBID, 'Invalid Token');
   }
   const user = data.users.find(user => user.tokens.find(t => t === token));
   const dmsArray = [];
@@ -279,10 +279,13 @@ export function dmRemoveV2(token: string, dmId: number) {
 
   let user = data.users.find(user => user.tokens.find(t => t === token));
   const dm = data.dms.find(dm => dm.dmId === dmId);
-
-  if (user === undefined || dm === undefined) {
-    throw HTTPError(BAD_REQ, 'Invalid Token or Invalid DM');
+  if (!checkValidToken(token)) { // token is invalid
+    throw HTTPError(FORBID, 'Invalid Token');
   }
+  if (dm === undefined) {
+    throw HTTPError(BAD_REQ, 'Invalid dmId');
+  }
+
   if (user.uId !== dm.owner) {
     throw HTTPError(FORBID, 'User is not an owner of the DM');
   }

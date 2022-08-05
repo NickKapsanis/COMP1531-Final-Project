@@ -4,9 +4,9 @@ import morgan from 'morgan';
 import config from './config.json';
 import { dmDetailsV2, dmLeaveV2, dmMessagesV2 } from './dm';
 import { dmCreateV2, dmListV2, dmRemoveV2 } from './dm';
+import { authRegisterV3, authLoginV3, authLogoutV2, authPasswordresetRequestV1, authPasswordresetResetV1 } from './auth';
 import { channelsCreateV3, channelsListV2, channelsListallV2 } from './channels';
 import { channelJoinV3, channelInviteV3, addChannelOwnerV2, removeChannelOwnerV2, channelsLeaveV1 } from './channel';
-import { authRegisterV3, authLoginV3, authLogoutV2 } from './auth';
 import cors from 'cors';
 import { usersAllV2, userProfileV3 } from './users';
 import { clearV1, getUId, searchV1 } from './other';
@@ -14,6 +14,7 @@ import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV2, messageSendDmV2, messageRemoveV2, messageEditV2, messageShareV1, messageSendLaterV1, messageSendLaterDmV1, messagePinV1, messageUnPinV1, messageReactV1, messageUnReactV1 } from './message';
 import { channelDetailsV3, channelMessagesV3 } from './channel';
 import errorHandler from 'middleware-http-errors';
+import { adminUserpermissionChangeV1, adminUserRemoveV1 } from './admin';
 import { standupActiveV1, standupSendV1, standupStartV1 } from './standup';
 
 // Set up web app, use JSON
@@ -92,6 +93,20 @@ app.post('/auth/logout/v2', (req, res) => {
   const token = req.header('token');
   res.json(authLogoutV2(token));
 });
+
+// authPasswordresetRequestV1
+app.post('/auth/passwordreset/request/v1', (req, res) => {
+  const email = req.body.email;
+  res.json(authPasswordresetRequestV1(email));
+});
+
+// authPasswordresetResetV1
+app.post('/auth/passwordreset/reset/v1', (req, res) => {
+  const resetCode = req.body.resetCode;
+  const newPassword = req.body.newPassword;
+  res.json(authPasswordresetResetV1(resetCode, newPassword));
+});
+
 // clearV1()
 app.delete('/clear/v1', (req, res) => {
   res.json(clearV1());
@@ -283,18 +298,35 @@ app.post('/message/unreact/v1', (req, res) => {
   res.json(messageUnReactV1(token, messageId, reactId));
 });
 
+// adminUserRemoveV1
+app.delete('/admin/user/remove/v1', (req, res) => {
+  const token = req.header('token');
+  const uId = Number(req.query.uId);
+  res.json(adminUserRemoveV1(uId, token));
+});
+
+// adminUserpermissionsChangeV1
+app.post('/admin/userpermission/change/v1', (req, res) => {
+  const token = req.header('token');
+  const uId = req.body.uId;
+  const permissionId = req.body.permissionId;
+  res.json(adminUserpermissionChangeV1(uId, permissionId, token));
+});
+
 // standupStartV1
 app.post('/standup/start/v1', (req, res) => {
   const { channelId, length } = req.body;
   const token = String(req.header('token'));
   res.json(standupStartV1(token, channelId, length));
 });
+
 // standupActiveV1
 app.get('/standup/active/v1', (req, res) => {
   const channelId = Number(req.query.channelId);
   const token = String(req.header('token'));
   res.json(standupActiveV1(token, channelId));
 });
+
 // standupSendV1
 app.post('/standup/send/v1', (req, res) => {
   const { channelId, message } = req.body;
