@@ -9,11 +9,12 @@ import { channelJoinV3, channelInviteV3, addChannelOwnerV2, removeChannelOwnerV2
 import { authRegisterV3, authLoginV3, authLogoutV2 } from './auth';
 import cors from 'cors';
 import { usersAllV2, userProfileV3 } from './users';
-import { clearV1, getUId } from './other';
+import { clearV1, getUId, searchV1 } from './other';
 import { userSetemailV1, userSethandlelV1, userSetnameV1 } from './users';
 import { messageSendV1, messageSendDmV1, messageRemoveV1, messageEditV1 } from './message';
 import { channelDetailsV3, channelMessagesV3 } from './channel';
 import errorHandler from 'middleware-http-errors';
+import { standupActiveV1, standupSendV1, standupStartV1 } from './standup';
 
 // Set up web app, use JSON
 const app = express();
@@ -179,6 +180,12 @@ app.get('/channels/list/v2', (req, res) => {
   const data = req.query.token as string;
   res.json(channelsListV2(data));
 });
+// SearchV1
+app.get('/search/v1', (req, res) => {
+  const token = String(req.header('token'));
+  const queryStr = String(req.query.queryStr);
+  res.json(searchV1(token, queryStr));
+});
 // channelsListallV2
 app.get('/channels/listall/v2', (req, res) => {
   const data = req.query.token as string;
@@ -222,6 +229,25 @@ app.delete('/message/remove/v1', (req, res) => {
 app.put('/message/edit/v1', (req, res) => {
   const { token, messageId, message } = req.body;
   res.json(messageEditV1(token, messageId, message));
+});
+
+// standupStartV1
+app.post('/standup/start/v1', (req, res) => {
+  const { channelId, length } = req.body;
+  const token = String(req.header('token'));
+  res.json(standupStartV1(token, channelId, length));
+});
+// standupActiveV1
+app.get('/standup/active/v1', (req, res) => {
+  const channelId = Number(req.query.channelId);
+  const token = String(req.header('token'));
+  res.json(standupActiveV1(token, channelId));
+});
+// standupSendV1
+app.post('/standup/send/v1', (req, res) => {
+  const { channelId, message } = req.body;
+  const token = String(req.header('token'));
+  res.json(standupSendV1(token, channelId, message));
 });
 
 // handles errors nicely

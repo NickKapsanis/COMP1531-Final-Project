@@ -669,4 +669,4 @@ const channelsListV2 = (tokens: string) => {
   return JSON.parse(String(res.getBody()));
 };
 
-export { createChannel, createUser, channelJoin, getUID };
+export { createChannel, createUser, channelJoin, getUID, userType };
