@@ -1,0 +1,903 @@
+
+> ts-node-coverage
+> nyc --reporter=text --reporter=lcov ts-node src/server.ts
+
+⚡️ Server listening on port 48237 at localhost
+Invalid token
+[0mPOST /message/send/v2 [33m403[0m - ms - 37[0m
+Invalid channelId
+[0mPOST /message/send/v2 [33m400[0m - ms - 41[0m
+Invalid message length
+[0mPOST /message/send/v2 [33m400[0m - ms - 46[0m
+Invalid message length
+[0mPOST /message/send/v2 [33m400[0m - ms - 46[0m
+Invalid access to channel
+[0mPOST /message/send/v2 [33m403[0m - ms - 49[0m
+Invalid token
+[0mPOST /message/senddm/v2 [33m403[0m - ms - 37[0m
+Invalid dmId
+[0mPOST /message/senddm/v2 [33m400[0m - ms - 36[0m
+Invalid message length
+[0mPOST /message/senddm/v2 [33m400[0m - ms - 46[0m
+Invalid message length
+[0mPOST /message/senddm/v2 [33m400[0m - ms - 46[0m
+Invalid access to dm
+[0mPOST /message/senddm/v2 [33m403[0m - ms - 44[0m
+Invalid token
+[0mPUT /message/edit/v2 [33m403[0m - ms - 37[0m
+Invalid messageId
+[0mPUT /message/edit/v2 [33m400[0m - ms - 41[0m
+Invalid message length
+[0mPUT /message/edit/v2 [33m400[0m - ms - 46[0m
+Invalid user accessing valid message
+[0mPUT /message/edit/v2 [33m400[0m - ms - 60[0m
+Invalid user accessing message
+[0mPUT /message/edit/v2 [33m403[0m - ms - 54[0m
+token is: fe9f4062-dc47-4a55-bbee-d98a4ff9ae36
+Invalid user accessing valid message
+[0mPUT /message/edit/v2 [33m400[0m - ms - 60[0m
+Invalid token
+[0mDELETE /message/remove/v2?messageId=1165977175116840 [33m403[0m - ms - 37[0m
+Invalid messageId
+[0mDELETE /message/remove/v2?messageId=11 [33m400[0m - ms - 41[0m
+Invalid user accessing valid message
+[0mDELETE /message/remove/v2?messageId=1165977175147514 [33m400[0m - ms - 60[0m
+Invalid user accessing message
+[0mDELETE /message/remove/v2?messageId=1165977175162151 [33m403[0m - ms - 54[0m
+Invalid user accessing message
+[0mDELETE /message/remove/v2?messageId=116597717517758 [33m403[0m - ms - 54[0m
+Invalid messageId
+[0mDELETE /message/remove/v2?messageId=21 [33m400[0m - ms - 41[0m
+Invalid user accessing message
+[0mDELETE /message/remove/v2?messageId=2165977175224337 [33m403[0m - ms - 54[0m
+Invalid user accessing valid message
+[0mDELETE /message/remove/v2?messageId=2165977175241347 [33m400[0m - ms - 60[0m
+Invalid id pair
+[0mPOST /message/share/v1 [33m400[0m - ms - 39[0m
+Invalid channelId
+[0mPOST /message/share/v1 [33m400[0m - ms - 41[0m
+Invalid dmId
+[0mPOST /message/share/v1 [33m400[0m - ms - 36[0m
+Invalid id pair
+[0mPOST /message/share/v1 [33m400[0m - ms - 39[0m
+Invalid id pair
+[0mPOST /message/share/v1 [33m400[0m - ms - 39[0m
+Invalid id pair
+[0mPOST /message/share/v1 [33m400[0m - ms - 39[0m
+Invalid access to ogChannel
+[0mPOST /message/share/v1 [33m400[0m - ms - 51[0m
+Invalid access to ogDm
+[0mPOST /message/share/v1 [33m400[0m - ms - 46[0m
+Invalid message length
+[0mPOST /message/share/v1 [33m400[0m - ms - 46[0m
+Invalid access to channel
+[0mPOST /message/share/v1 [33m403[0m - ms - 49[0m
+Invalid access to dm
+[0mPOST /message/share/v1 [33m403[0m - ms - 44[0m
+Invalid token
+[0mPOST /message/share/v1 [33m403[0m - ms - 37[0m
+Invalid messageId
+[0mPOST /message/share/v1 [33m400[0m - ms - 41[0m
+Invalid messageId
+[0mPOST /message/share/v1 [33m400[0m - ms - 41[0m
+Invalid channelId
+[0mPOST /message/sendlater/v1 [33m400[0m - ms - 41[0m
+Invalid message length
+[0mPOST /message/sendlater/v1 [33m400[0m - ms - 46[0m
+Invalid message length
+[0mPOST /message/sendlater/v1 [33m400[0m - ms - 46[0m
+Invalid time
+[0mPOST /message/sendlater/v1 [33m400[0m - ms - 36[0m
+Invalid access to channel
+[0mPOST /message/sendlater/v1 [33m403[0m - ms - 49[0m
+Invalid token
+[0mPOST /message/sendlater/v1 [33m403[0m - ms - 37[0m
+Invalid dmId
+[0mPOST /message/sendlaterdm/v1 [33m400[0m - ms - 36[0m
+Invalid message length
+[0mPOST /message/sendlaterdm/v1 [33m400[0m - ms - 46[0m
+Invalid message length
+[0mPOST /message/sendlaterdm/v1 [33m400[0m - ms - 46[0m
+Invalid time
+[0mPOST /message/sendlaterdm/v1 [33m400[0m - ms - 36[0m
+Invalid access to dm
+[0mPOST /message/sendlaterdm/v1 [33m403[0m - ms - 44[0m
+Invalid token
+[0mPOST /message/sendlaterdm/v1 [33m403[0m - ms - 37[0m
+Invalid user accessing valid message
+[0mPOST /message/pin/v1 [33m400[0m - ms - 60[0m
+Invalid access to message
+[0mPOST /message/pin/v1 [33m400[0m - ms - 49[0m
+Message already pinned
+[0mPOST /message/pin/v1 [33m400[0m - ms - 46[0m
+Invalid permissions to pin message
+[0mPOST /message/pin/v1 [33m403[0m - ms - 58[0m
+Invalid permissions to pin message
+[0mPOST /message/pin/v1 [33m403[0m - ms - 58[0m
+Invalid token
+[0mPOST /message/pin/v1 [33m403[0m - ms - 37[0m
+Invalid messageId
+[0mPOST /message/pin/v1 [33m400[0m - ms - 41[0m
+Invalid user accessing valid message
+[0mPOST /message/unpin/v1 [33m400[0m - ms - 60[0m
+Message already unpinned
+[0mPOST /message/unpin/v1 [33m400[0m - ms - 48[0m
+Invalid permissions to pin message
+[0mPOST /message/unpin/v1 [33m403[0m - ms - 58[0m
+Invalid permissions to pin message
+[0mPOST /message/unpin/v1 [33m403[0m - ms - 58[0m
+Invalid token
+[0mPOST /message/unpin/v1 [33m403[0m - ms - 37[0m
+Invalid messageId
+[0mPOST /message/unpin/v1 [33m400[0m - ms - 41[0m
+Invalid reactId
+[0mPOST /message/react/v1 [33m400[0m - ms - 39[0m
+Invalid token
+[0mPOST /message/react/v1 [33m403[0m - ms - 37[0m
+Invalid access to message, user is not in given channel.
+[0mPOST /message/react/v1 [33m400[0m - ms - 80[0m
+invalid messageId!
+[0mPOST /message/react/v1 [33m400[0m - ms - 42[0m
+Message already reacted
+[0mPOST /message/react/v1 [33m400[0m - ms - 47[0m
+Invalid access to message
+[0mPOST /message/react/v1 [33m400[0m - ms - 49[0m
+Message already reacted
+[0mPOST /message/react/v1 [33m400[0m - ms - 47[0m
+Invalid reactId
+[0mPOST /message/unreact/v1 [33m400[0m - ms - 39[0m
+invalid messageId!
+[0mPOST /message/unreact/v1 [33m400[0m - ms - 42[0m
+Invalid token
+[0mPOST /message/unreact/v1 [33m403[0m - ms - 37[0m
+Invalid channelId
+[0mGET /channel/details/v3?channelId=199 [33m400[0m - ms - 41[0m
+Not a member of channel
+[0mGET /channel/details/v3?channelId=2 [33m403[0m - ms - 47[0m
+Invalid token
+[0mGET /channel/details/v3?channelId=1 [33m403[0m - ms - 37[0m
+Invalid channelId
+[0mGET /channel/messages/v3?channelId=199&start=0 [33m400[0m - ms - 41[0m
+Not a member of channel
+[0mGET /channel/messages/v3?channelId=2&start=0 [33m403[0m - ms - 47[0m
+Invalid start
+[0mGET /channel/messages/v3?channelId=1&start=1 [33m400[0m - ms - 37[0m
+Invalid token
+[0mGET /channel/messages/v3?channelId=1&start=0 [33m403[0m - ms - 37[0m
+bad channel ID
+[0mPOST /channel/join/v3 [33m400[0m - ms - 38[0m
+token is invalid
+[0mPOST /channel/join/v3 [33m403[0m - ms - 40[0m
+authorized user is already a member of the channel
+[0mPOST /channel/join/v3 [33m400[0m - ms - 74[0m
+channel is private, and the user is not already a member or a global owner
+[0mPOST /channel/join/v3 [33m403[0m - ms - 98[0m
+bad channel ID
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 38[0m
+bad user joining UID
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 44[0m
+token is invalid
+[0mPOST /channel/invite/v3 [33m403[0m - ms - 40[0m
+uId refers to user already in channel
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 61[0m
+user inviting is not a member of the channel
+[0mPOST /channel/invite/v3 [33m403[0m - ms - 68[0m
+bad channel ID
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 38[0m
+bad UID
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 31[0m
+user becoming owner is not a member of the channel
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 74[0m
+user is already a channel owner
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 55[0m
+invalid permissions
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 43[0m
+invalid permissions
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 43[0m
+token is invalid
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 40[0m
+bad channel ID
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 38[0m
+bad UID
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 31[0m
+user is currently the only owner of the channel
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 71[0m
+uId is not an owner of the channel
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 58[0m
+invalid permissions
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 43[0m
+user removing owner is not a member of the channel
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 74[0m
+token is invalid
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 40[0m
+token is: someInvalidToken
+Invalid token
+[0mPOST /channel/leave/v2 [33m403[0m - ms - 37[0m
+token is: 3701fafd-ee45-4c03-a778-34b282a045ee
+member isnt part of channel
+[0mPOST /channel/leave/v2 [33m403[0m - ms - 51[0m
+token is: 99c2ff1e-6c91-4204-aa06-da163ec6c599
+token is: 18576d4b-f0db-4343-b24f-5ab1028733b6
+token is: e1fa1d6c-eb0f-4772-b8eb-0cdbdfedc9ac
+Invalid DMID
+[0mGET /dm/details/v2?dmId=-100 [33m400[0m - ms - 36[0m
+User is not a member or owner of the DM
+[0mGET /dm/details/v2?dmId=1 [33m403[0m - ms - 63[0m
+Invalid Token
+[0mGET /dm/details/v2?dmId=1 [33m403[0m - ms - 37[0m
+Invalid DMID
+[0mPOST /dm/leave/v2 [33m400[0m - ms - 36[0m
+User is not a member or owner of the DM
+[0mPOST /dm/leave/v2 [33m403[0m - ms - 63[0m
+Invalid Token
+[0mPOST /dm/leave/v2 [33m403[0m - ms - 37[0m
+Invalid Token
+[0mGET /dm/messages/v2?dmId=1&start=10 [33m403[0m - ms - 37[0m
+Invalid DMID
+[0mGET /dm/messages/v2?dmId=-100&start=10 [33m400[0m - ms - 36[0m
+User is not a member or owner of the DM
+[0mGET /dm/messages/v2?dmId=1&start=10 [33m403[0m - ms - 63[0m
+Start index greater than total messages
+[0mGET /dm/messages/v2?dmId=1&start=10 [33m400[0m - ms - 63[0m
+Invalid Token
+[0mPOST /dm/create/v2 [33m403[0m - ms - 37[0m
+One or more UID's are invalid
+[0mPOST /dm/create/v2 [33m400[0m - ms - 53[0m
+One or more UID's are duplicated
+[0mPOST /dm/create/v2 [33m400[0m - ms - 56[0m
+Invalid Token
+[0mGET /dm/list/v2 [33m403[0m - ms - 37[0m
+Invalid Token
+[0mDELETE /dm/remove/v2?dmId=1 [33m403[0m - ms - 37[0m
+Invalid dmId
+[0mDELETE /dm/remove/v2?dmId=-1 [33m400[0m - ms - 36[0m
+User is not an owner of the DM
+[0mDELETE /dm/remove/v2?dmId=1 [33m403[0m - ms - 54[0m
+Invalid channelId
+[0mGET /channel/details/v3?channelId=199 [33m400[0m - ms - 41[0m
+Not a member of channel
+[0mGET /channel/details/v3?channelId=2 [33m403[0m - ms - 47[0m
+Invalid token
+[0mGET /channel/details/v3?channelId=1 [33m403[0m - ms - 37[0m
+Invalid channelId
+[0mGET /channel/messages/v3?channelId=199&start=0 [33m400[0m - ms - 41[0m
+Not a member of channel
+[0mGET /channel/messages/v3?channelId=2&start=0 [33m403[0m - ms - 47[0m
+Invalid start
+[0mGET /channel/messages/v3?channelId=1&start=1 [33m400[0m - ms - 37[0m
+Invalid token
+[0mGET /channel/messages/v3?channelId=1&start=0 [33m403[0m - ms - 37[0m
+bad channel ID
+[0mPOST /channel/join/v3 [33m400[0m - ms - 38[0m
+token is invalid
+[0mPOST /channel/join/v3 [33m403[0m - ms - 40[0m
+authorized user is already a member of the channel
+[0mPOST /channel/join/v3 [33m400[0m - ms - 74[0m
+channel is private, and the user is not already a member or a global owner
+[0mPOST /channel/join/v3 [33m403[0m - ms - 98[0m
+bad channel ID
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 38[0m
+bad user joining UID
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 44[0m
+token is invalid
+[0mPOST /channel/invite/v3 [33m403[0m - ms - 40[0m
+uId refers to user already in channel
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 61[0m
+user inviting is not a member of the channel
+[0mPOST /channel/invite/v3 [33m403[0m - ms - 68[0m
+bad channel ID
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 38[0m
+bad UID
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 31[0m
+user becoming owner is not a member of the channel
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 74[0m
+user is already a channel owner
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 55[0m
+invalid permissions
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 43[0m
+invalid permissions
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 43[0m
+token is invalid
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 40[0m
+bad channel ID
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 38[0m
+bad UID
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 31[0m
+user is currently the only owner of the channel
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 71[0m
+uId is not an owner of the channel
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 58[0m
+invalid permissions
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 43[0m
+user removing owner is not a member of the channel
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 74[0m
+token is invalid
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 40[0m
+token is: someInvalidToken
+Invalid token
+[0mPOST /channel/leave/v2 [33m403[0m - ms - 37[0m
+token is: aef2bec0-a400-4906-b771-6e188c148c04
+member isnt part of channel
+[0mPOST /channel/leave/v2 [33m403[0m - ms - 51[0m
+token is: 6274b99a-233d-4d03-b2cc-6687068579bb
+token is: 3b24add7-a8b6-472a-9274-b4be9c2d3f28
+token is: dccc5848-a8c8-4063-abbf-227fcb8479c6
+Invalid Token
+[0mGET /user/profile/v3?uId=-3 [33m403[0m - ms - 37[0m
+Invalid Token
+[0mGET /user/profile/v3?uId=1 [33m403[0m - ms - 37[0m
+Invalid Uid
+[0mGET /user/profile/v3?uId=-1 [33m400[0m - ms - 35[0m
+invalid token.
+[0mPUT /user/profile/setname/v2 [33m403[0m - ms - 38[0m
+bad first or last name.
+[0mPUT /user/profile/setname/v2 [33m400[0m - ms - 47[0m
+invalid token.
+[0mPUT /user/profile/setemail/v2 [33m403[0m - ms - 38[0m
+is not an email address.
+[0mPUT /user/profile/setemail/v2 [33m400[0m - ms - 48[0m
+this is somebody elses email.
+[0mPUT /user/profile/setemail/v2 [33m400[0m - ms - 53[0m
+invalid token.
+[0mPUT /user/profile/sethandle/v2 [33m403[0m - ms - 38[0m
+invalid handle name to change to.
+[0mPUT /user/profile/sethandle/v2 [33m400[0m - ms - 57[0m
+handle being used by another user.
+[0mPUT /user/profile/sethandle/v2 [33m400[0m - ms - 58[0m
+Invalid channelId
+[0mGET /channel/details/v3?channelId=199 [33m400[0m - ms - 41[0m
+Not a member of channel
+[0mGET /channel/details/v3?channelId=2 [33m403[0m - ms - 47[0m
+Invalid token
+[0mGET /channel/details/v3?channelId=1 [33m403[0m - ms - 37[0m
+Invalid channelId
+[0mGET /channel/messages/v3?channelId=199&start=0 [33m400[0m - ms - 41[0m
+Not a member of channel
+[0mGET /channel/messages/v3?channelId=2&start=0 [33m403[0m - ms - 47[0m
+Invalid start
+[0mGET /channel/messages/v3?channelId=1&start=1 [33m400[0m - ms - 37[0m
+Invalid token
+[0mGET /channel/messages/v3?channelId=1&start=0 [33m403[0m - ms - 37[0m
+bad channel ID
+[0mPOST /channel/join/v3 [33m400[0m - ms - 38[0m
+token is invalid
+[0mPOST /channel/join/v3 [33m403[0m - ms - 40[0m
+authorized user is already a member of the channel
+[0mPOST /channel/join/v3 [33m400[0m - ms - 74[0m
+channel is private, and the user is not already a member or a global owner
+[0mPOST /channel/join/v3 [33m403[0m - ms - 98[0m
+bad channel ID
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 38[0m
+bad user joining UID
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 44[0m
+token is invalid
+[0mPOST /channel/invite/v3 [33m403[0m - ms - 40[0m
+uId refers to user already in channel
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 61[0m
+user inviting is not a member of the channel
+[0mPOST /channel/invite/v3 [33m403[0m - ms - 68[0m
+bad channel ID
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 38[0m
+bad UID
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 31[0m
+user becoming owner is not a member of the channel
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 74[0m
+user is already a channel owner
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 55[0m
+invalid permissions
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 43[0m
+invalid permissions
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 43[0m
+token is invalid
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 40[0m
+bad channel ID
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 38[0m
+bad UID
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 31[0m
+user is currently the only owner of the channel
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 71[0m
+uId is not an owner of the channel
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 58[0m
+invalid permissions
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 43[0m
+user removing owner is not a member of the channel
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 74[0m
+token is invalid
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 40[0m
+token is: someInvalidToken
+Invalid token
+[0mPOST /channel/leave/v2 [33m403[0m - ms - 37[0m
+token is: 12596a37-7d33-473c-b93e-a37826c60a2d
+member isnt part of channel
+[0mPOST /channel/leave/v2 [33m403[0m - ms - 51[0m
+token is: 6f46e105-fdeb-4a49-b930-80d10397bc25
+token is: 7940741f-06ea-4df6-a933-98384cc4be84
+token is: 45ea8f59-b497-4903-ade4-48d7df940e96
+authorized user is already a member of the channel
+[0mPOST /channel/join/v3 [33m400[0m - ms - 74[0m
+authorized user is already a member of the channel
+[0mPOST /channel/join/v3 [33m400[0m - ms - 74[0m
+token is invalid
+[0mPOST /standup/start/v1 [33m403[0m - ms - 40[0m
+authorized user is already a member of the channel
+[0mPOST /channel/join/v3 [33m400[0m - ms - 74[0m
+channelId does not refer to a valid channel
+[0mPOST /standup/start/v1 [33m400[0m - ms - 67[0m
+authorized user is already a member of the channel
+[0mPOST /channel/join/v3 [33m400[0m - ms - 74[0m
+length is a negative integer
+[0mPOST /standup/start/v1 [33m400[0m - ms - 52[0m
+authorized user is already a member of the channel
+[0mPOST /channel/join/v3 [33m400[0m - ms - 74[0m
+an active standup is already running in the channel
+[0mPOST /standup/start/v1 [33m400[0m - ms - 75[0m
+authorized user is already a member of the channel
+[0mPOST /channel/join/v3 [33m400[0m - ms - 74[0m
+token is valid but user is not a member of the channel
+[0mPOST /standup/start/v1 [33m403[0m - ms - 78[0m
+channelId does not refer to a valid channel
+[0mGET /standup/active/v1?channelId=-100 [33m400[0m - ms - 67[0m
+token is valid but user is not a member of the channel
+[0mGET /standup/active/v1?channelId=1 [33m403[0m - ms - 78[0m
+token is invalid
+[0mGET /standup/active/v1?channelId=1 [33m403[0m - ms - 40[0m
+channelId does not refer to a valid channel
+[0mPOST /standup/send/v1 [33m400[0m - ms - 67[0m
+length of message is over 1000 characters
+[0mPOST /standup/send/v1 [33m400[0m - ms - 65[0m
+an active standup is not currently running in the channel
+[0mPOST /standup/send/v1 [33m400[0m - ms - 81[0m
+token is valid but user is not a member of the channel
+[0mPOST /standup/send/v1 [33m403[0m - ms - 78[0m
+token is invalid
+[0mPOST /standup/send/v1 [33m403[0m - ms - 40[0m
+Invalid channelId
+[0mGET /channel/details/v3?channelId=199 [33m400[0m - ms - 41[0m
+Not a member of channel
+[0mGET /channel/details/v3?channelId=2 [33m403[0m - ms - 47[0m
+Invalid token
+[0mGET /channel/details/v3?channelId=1 [33m403[0m - ms - 37[0m
+Invalid channelId
+[0mGET /channel/messages/v3?channelId=199&start=0 [33m400[0m - ms - 41[0m
+Not a member of channel
+[0mGET /channel/messages/v3?channelId=2&start=0 [33m403[0m - ms - 47[0m
+Invalid start
+[0mGET /channel/messages/v3?channelId=1&start=1 [33m400[0m - ms - 37[0m
+Invalid token
+[0mGET /channel/messages/v3?channelId=1&start=0 [33m403[0m - ms - 37[0m
+bad channel ID
+[0mPOST /channel/join/v3 [33m400[0m - ms - 38[0m
+token is invalid
+[0mPOST /channel/join/v3 [33m403[0m - ms - 40[0m
+authorized user is already a member of the channel
+[0mPOST /channel/join/v3 [33m400[0m - ms - 74[0m
+channel is private, and the user is not already a member or a global owner
+[0mPOST /channel/join/v3 [33m403[0m - ms - 98[0m
+bad channel ID
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 38[0m
+bad user joining UID
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 44[0m
+token is invalid
+[0mPOST /channel/invite/v3 [33m403[0m - ms - 40[0m
+uId refers to user already in channel
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 61[0m
+user inviting is not a member of the channel
+[0mPOST /channel/invite/v3 [33m403[0m - ms - 68[0m
+bad channel ID
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 38[0m
+bad UID
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 31[0m
+user becoming owner is not a member of the channel
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 74[0m
+user is already a channel owner
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 55[0m
+invalid permissions
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 43[0m
+invalid permissions
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 43[0m
+token is invalid
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 40[0m
+bad channel ID
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 38[0m
+bad UID
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 31[0m
+user is currently the only owner of the channel
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 71[0m
+uId is not an owner of the channel
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 58[0m
+invalid permissions
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 43[0m
+user removing owner is not a member of the channel
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 74[0m
+token is invalid
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 40[0m
+token is: someInvalidToken
+Invalid token
+[0mPOST /channel/leave/v2 [33m403[0m - ms - 37[0m
+token is: 1a59229b-8c4a-492c-8d99-b08e6a7c976c
+member isnt part of channel
+[0mPOST /channel/leave/v2 [33m403[0m - ms - 51[0m
+token is: ed882a1d-389e-4848-8ce3-0c4838e99425
+token is: 66bac5dd-5684-4b0a-94da-112d8d27f798
+token is: 3cee6420-19e5-4816-a3c9-906354c2aca7
+Invalid DMID
+[0mGET /dm/details/v2?dmId=-100 [33m400[0m - ms - 36[0m
+User is not a member or owner of the DM
+[0mGET /dm/details/v2?dmId=1 [33m403[0m - ms - 63[0m
+Invalid Token
+[0mGET /dm/details/v2?dmId=1 [33m403[0m - ms - 37[0m
+Invalid DMID
+[0mPOST /dm/leave/v2 [33m400[0m - ms - 36[0m
+User is not a member or owner of the DM
+[0mPOST /dm/leave/v2 [33m403[0m - ms - 63[0m
+Invalid Token
+[0mPOST /dm/leave/v2 [33m403[0m - ms - 37[0m
+Invalid Token
+[0mGET /dm/messages/v2?dmId=1&start=10 [33m403[0m - ms - 37[0m
+Invalid DMID
+[0mGET /dm/messages/v2?dmId=-100&start=10 [33m400[0m - ms - 36[0m
+User is not a member or owner of the DM
+[0mGET /dm/messages/v2?dmId=1&start=10 [33m403[0m - ms - 63[0m
+Start index greater than total messages
+[0mGET /dm/messages/v2?dmId=1&start=10 [33m400[0m - ms - 63[0m
+Invalid Token
+[0mPOST /dm/create/v2 [33m403[0m - ms - 37[0m
+One or more UID's are invalid
+[0mPOST /dm/create/v2 [33m400[0m - ms - 53[0m
+One or more UID's are duplicated
+[0mPOST /dm/create/v2 [33m400[0m - ms - 56[0m
+Invalid Token
+[0mGET /dm/list/v2 [33m403[0m - ms - 37[0m
+Invalid Token
+[0mDELETE /dm/remove/v2?dmId=1 [33m403[0m - ms - 37[0m
+Invalid dmId
+[0mDELETE /dm/remove/v2?dmId=-1 [33m400[0m - ms - 36[0m
+User is not an owner of the DM
+[0mDELETE /dm/remove/v2?dmId=1 [33m403[0m - ms - 54[0m
+Invalid token
+[0mPOST /message/send/v2 [33m403[0m - ms - 37[0m
+Invalid channelId
+[0mPOST /message/send/v2 [33m400[0m - ms - 41[0m
+Invalid message length
+[0mPOST /message/send/v2 [33m400[0m - ms - 46[0m
+Invalid message length
+[0mPOST /message/send/v2 [33m400[0m - ms - 46[0m
+Invalid access to channel
+[0mPOST /message/send/v2 [33m403[0m - ms - 49[0m
+Invalid token
+[0mPOST /message/senddm/v2 [33m403[0m - ms - 37[0m
+Invalid dmId
+[0mPOST /message/senddm/v2 [33m400[0m - ms - 36[0m
+Invalid message length
+[0mPOST /message/senddm/v2 [33m400[0m - ms - 46[0m
+Invalid message length
+[0mPOST /message/senddm/v2 [33m400[0m - ms - 46[0m
+Invalid access to dm
+[0mPOST /message/senddm/v2 [33m403[0m - ms - 44[0m
+Invalid token
+[0mPUT /message/edit/v2 [33m403[0m - ms - 37[0m
+Invalid messageId
+[0mPUT /message/edit/v2 [33m400[0m - ms - 41[0m
+Invalid message length
+[0mPUT /message/edit/v2 [33m400[0m - ms - 46[0m
+Invalid user accessing valid message
+[0mPUT /message/edit/v2 [33m400[0m - ms - 60[0m
+Invalid user accessing message
+[0mPUT /message/edit/v2 [33m403[0m - ms - 54[0m
+token is: 37f85eac-f9ee-412b-921f-883673014db8
+Invalid user accessing valid message
+[0mPUT /message/edit/v2 [33m400[0m - ms - 60[0m
+Invalid token
+[0mDELETE /message/remove/v2?messageId=1165977182260857 [33m403[0m - ms - 37[0m
+Invalid messageId
+[0mDELETE /message/remove/v2?messageId=11 [33m400[0m - ms - 41[0m
+Invalid user accessing valid message
+[0mDELETE /message/remove/v2?messageId=1165977182294740 [33m400[0m - ms - 60[0m
+Invalid user accessing message
+[0mDELETE /message/remove/v2?messageId=116597718231120 [33m403[0m - ms - 54[0m
+Invalid user accessing message
+[0mDELETE /message/remove/v2?messageId=1165977182329356 [33m403[0m - ms - 54[0m
+Invalid messageId
+[0mDELETE /message/remove/v2?messageId=21 [33m400[0m - ms - 41[0m
+Invalid user accessing message
+[0mDELETE /message/remove/v2?messageId=2165977182381124 [33m403[0m - ms - 54[0m
+Invalid user accessing valid message
+[0mDELETE /message/remove/v2?messageId=2165977182402778 [33m400[0m - ms - 60[0m
+Invalid id pair
+[0mPOST /message/share/v1 [33m400[0m - ms - 39[0m
+Invalid channelId
+[0mPOST /message/share/v1 [33m400[0m - ms - 41[0m
+Invalid dmId
+[0mPOST /message/share/v1 [33m400[0m - ms - 36[0m
+Invalid id pair
+[0mPOST /message/share/v1 [33m400[0m - ms - 39[0m
+Invalid id pair
+[0mPOST /message/share/v1 [33m400[0m - ms - 39[0m
+Invalid id pair
+[0mPOST /message/share/v1 [33m400[0m - ms - 39[0m
+Invalid access to ogChannel
+[0mPOST /message/share/v1 [33m400[0m - ms - 51[0m
+Invalid access to ogDm
+[0mPOST /message/share/v1 [33m400[0m - ms - 46[0m
+Invalid message length
+[0mPOST /message/share/v1 [33m400[0m - ms - 46[0m
+Invalid access to channel
+[0mPOST /message/share/v1 [33m403[0m - ms - 49[0m
+Invalid access to dm
+[0mPOST /message/share/v1 [33m403[0m - ms - 44[0m
+Invalid token
+[0mPOST /message/share/v1 [33m403[0m - ms - 37[0m
+Invalid messageId
+[0mPOST /message/share/v1 [33m400[0m - ms - 41[0m
+Invalid messageId
+[0mPOST /message/share/v1 [33m400[0m - ms - 41[0m
+Invalid channelId
+[0mPOST /message/sendlater/v1 [33m400[0m - ms - 41[0m
+Invalid message length
+[0mPOST /message/sendlater/v1 [33m400[0m - ms - 46[0m
+Invalid message length
+[0mPOST /message/sendlater/v1 [33m400[0m - ms - 46[0m
+Invalid time
+[0mPOST /message/sendlater/v1 [33m400[0m - ms - 36[0m
+Invalid access to channel
+[0mPOST /message/sendlater/v1 [33m403[0m - ms - 49[0m
+Invalid token
+[0mPOST /message/sendlater/v1 [33m403[0m - ms - 37[0m
+Invalid dmId
+[0mPOST /message/sendlaterdm/v1 [33m400[0m - ms - 36[0m
+Invalid message length
+[0mPOST /message/sendlaterdm/v1 [33m400[0m - ms - 46[0m
+Invalid message length
+[0mPOST /message/sendlaterdm/v1 [33m400[0m - ms - 46[0m
+Invalid time
+[0mPOST /message/sendlaterdm/v1 [33m400[0m - ms - 36[0m
+Invalid access to dm
+[0mPOST /message/sendlaterdm/v1 [33m403[0m - ms - 44[0m
+Invalid token
+[0mPOST /message/sendlaterdm/v1 [33m403[0m - ms - 37[0m
+Invalid user accessing valid message
+[0mPOST /message/pin/v1 [33m400[0m - ms - 60[0m
+Invalid access to message
+[0mPOST /message/pin/v1 [33m400[0m - ms - 49[0m
+Message already pinned
+[0mPOST /message/pin/v1 [33m400[0m - ms - 46[0m
+Invalid permissions to pin message
+[0mPOST /message/pin/v1 [33m403[0m - ms - 58[0m
+Invalid permissions to pin message
+[0mPOST /message/pin/v1 [33m403[0m - ms - 58[0m
+Invalid token
+[0mPOST /message/pin/v1 [33m403[0m - ms - 37[0m
+Invalid messageId
+[0mPOST /message/pin/v1 [33m400[0m - ms - 41[0m
+Invalid user accessing valid message
+[0mPOST /message/unpin/v1 [33m400[0m - ms - 60[0m
+Message already unpinned
+[0mPOST /message/unpin/v1 [33m400[0m - ms - 48[0m
+Invalid permissions to pin message
+[0mPOST /message/unpin/v1 [33m403[0m - ms - 58[0m
+Invalid permissions to pin message
+[0mPOST /message/unpin/v1 [33m403[0m - ms - 58[0m
+Invalid token
+[0mPOST /message/unpin/v1 [33m403[0m - ms - 37[0m
+Invalid messageId
+[0mPOST /message/unpin/v1 [33m400[0m - ms - 41[0m
+Invalid reactId
+[0mPOST /message/react/v1 [33m400[0m - ms - 39[0m
+Invalid token
+[0mPOST /message/react/v1 [33m403[0m - ms - 37[0m
+Invalid access to message, user is not in given channel.
+[0mPOST /message/react/v1 [33m400[0m - ms - 80[0m
+invalid messageId!
+[0mPOST /message/react/v1 [33m400[0m - ms - 42[0m
+Message already reacted
+[0mPOST /message/react/v1 [33m400[0m - ms - 47[0m
+Invalid access to message
+[0mPOST /message/react/v1 [33m400[0m - ms - 49[0m
+Message already reacted
+[0mPOST /message/react/v1 [33m400[0m - ms - 47[0m
+Invalid reactId
+[0mPOST /message/unreact/v1 [33m400[0m - ms - 39[0m
+invalid messageId!
+[0mPOST /message/unreact/v1 [33m400[0m - ms - 42[0m
+Invalid token
+[0mPOST /message/unreact/v1 [33m403[0m - ms - 37[0m
+Invalid uId
+[0mPOST /admin/userpermission/change/v1 [33m400[0m - ms - 35[0m
+Permission code must be 1 or 2
+[0mPOST /admin/userpermission/change/v1 [33m400[0m - ms - 54[0m
+User already has those permissions
+[0mPOST /admin/userpermission/change/v1 [33m400[0m - ms - 58[0m
+Cannot remove only global owner
+[0mPOST /admin/userpermission/change/v1 [33m400[0m - ms - 55[0m
+Must be a global owner to change permissions
+[0mPOST /admin/userpermission/change/v1 [33m403[0m - ms - 68[0m
+Invalid Token
+[0mPOST /admin/userpermission/change/v1 [33m403[0m - ms - 37[0m
+Invalid uId
+[0mDELETE /admin/user/remove/v1?uId=9898 [33m400[0m - ms - 35[0m
+Cannot remove only global owner
+[0mDELETE /admin/user/remove/v1?uId=1 [33m400[0m - ms - 55[0m
+Must be a global owner to remove a user
+[0mDELETE /admin/user/remove/v1?uId=3 [33m403[0m - ms - 63[0m
+Invalid Token
+[0mDELETE /admin/user/remove/v1?uId=1 [33m403[0m - ms - 37[0m
+Invalid DMID
+[0mGET /dm/details/v2?dmId=-100 [33m400[0m - ms - 36[0m
+User is not a member or owner of the DM
+[0mGET /dm/details/v2?dmId=1 [33m403[0m - ms - 63[0m
+Invalid Token
+[0mGET /dm/details/v2?dmId=1 [33m403[0m - ms - 37[0m
+Invalid DMID
+[0mPOST /dm/leave/v2 [33m400[0m - ms - 36[0m
+User is not a member or owner of the DM
+[0mPOST /dm/leave/v2 [33m403[0m - ms - 63[0m
+Invalid Token
+[0mPOST /dm/leave/v2 [33m403[0m - ms - 37[0m
+Invalid Token
+[0mGET /dm/messages/v2?dmId=1&start=10 [33m403[0m - ms - 37[0m
+Invalid DMID
+[0mGET /dm/messages/v2?dmId=-100&start=10 [33m400[0m - ms - 36[0m
+User is not a member or owner of the DM
+[0mGET /dm/messages/v2?dmId=1&start=10 [33m403[0m - ms - 63[0m
+Start index greater than total messages
+[0mGET /dm/messages/v2?dmId=1&start=10 [33m400[0m - ms - 63[0m
+Invalid Token
+[0mPOST /dm/create/v2 [33m403[0m - ms - 37[0m
+One or more UID's are invalid
+[0mPOST /dm/create/v2 [33m400[0m - ms - 53[0m
+One or more UID's are duplicated
+[0mPOST /dm/create/v2 [33m400[0m - ms - 56[0m
+Invalid Token
+[0mGET /dm/list/v2 [33m403[0m - ms - 37[0m
+Invalid Token
+[0mDELETE /dm/remove/v2?dmId=1 [33m403[0m - ms - 37[0m
+Invalid dmId
+[0mDELETE /dm/remove/v2?dmId=-1 [33m400[0m - ms - 36[0m
+User is not an owner of the DM
+[0mDELETE /dm/remove/v2?dmId=1 [33m403[0m - ms - 54[0m
+email entered is not a valid email
+[0mPOST /auth/register/v3 [33m400[0m - ms - 58[0m
+password is too short - less than 6 characters
+[0mPOST /auth/register/v3 [33m400[0m - ms - 70[0m
+first name is not within range
+[0mPOST /auth/register/v3 [33m400[0m - ms - 54[0m
+last name is not within range
+[0mPOST /auth/register/v3 [33m400[0m - ms - 53[0m
+first name is not within range
+[0mPOST /auth/register/v3 [33m400[0m - ms - 54[0m
+last name is not within range
+[0mPOST /auth/register/v3 [33m400[0m - ms - 53[0m
+Incorrect Email
+[0mPOST /auth/login/v3 [33m400[0m - ms - 39[0m
+Incorrect Password
+[0mPOST /auth/login/v3 [33m400[0m - ms - 42[0m
+Incorrect Email
+[0mPOST /auth/login/v3 [33m400[0m - ms - 39[0m
+Invalid Token
+[0mPOST /auth/logout/v2 [33m403[0m - ms - 37[0m
+Invalid Token
+[0mPOST /auth/logout/v2 [33m403[0m - ms - 37[0m
+Invalid Token
+[0mPOST /auth/logout/v2 [33m403[0m - ms - 37[0m
+Invalid Token
+[0mPOST /auth/logout/v2 [33m403[0m - ms - 37[0m
+Invalid Token
+[0mPOST /auth/logout/v2 [33m403[0m - ms - 37[0m
+Invalid Token
+[0mPOST /auth/logout/v2 [33m403[0m - ms - 37[0m
+Invalid Token
+[0mPOST /auth/logout/v2 [33m403[0m - ms - 37[0m
+Password Code is invalid
+[0mPOST /auth/passwordreset/reset/v1 [33m400[0m - ms - 48[0m
+invalid token.
+[0mGET /channels/list/v3 [33m403[0m - ms - 38[0m
+invalid token.
+[0mGET /channels/listall/v3 [33m403[0m - ms - 38[0m
+length of name is less than 1 or more than 20 characters
+[0mPOST /channels/create/v3 [33m400[0m - ms - 80[0m
+length of name is less than 1 or more than 20 characters
+[0mPOST /channels/create/v3 [33m400[0m - ms - 80[0m
+token passed in is invalid
+[0mPOST /channels/create/v3 [33m403[0m - ms - 50[0m
+Cannot echo "echo"
+[0mGET /echo?echo=echo [33m400[0m - ms - 44[0m
+Invalid channelId
+[0mGET /channel/details/v3?channelId=199 [33m400[0m - ms - 41[0m
+Not a member of channel
+[0mGET /channel/details/v3?channelId=2 [33m403[0m - ms - 47[0m
+Invalid token
+[0mGET /channel/details/v3?channelId=1 [33m403[0m - ms - 37[0m
+Invalid channelId
+[0mGET /channel/messages/v3?channelId=199&start=0 [33m400[0m - ms - 41[0m
+Not a member of channel
+[0mGET /channel/messages/v3?channelId=2&start=0 [33m403[0m - ms - 47[0m
+Invalid start
+[0mGET /channel/messages/v3?channelId=1&start=1 [33m400[0m - ms - 37[0m
+message sent: 250 2.0.0 OK <SI2PR01MB43237090A2AD81F99B6B3714E0619@SI2PR01MB4323.apcprd01.prod.exchangelabs.com> [Hostname=SI2PR01MB4323.apcprd01.prod.exchangelabs.com]
+Invalid token
+[0mGET /channel/messages/v3?channelId=1&start=0 [33m403[0m - ms - 37[0m
+bad channel ID
+[0mPOST /channel/join/v3 [33m400[0m - ms - 38[0m
+token is invalid
+[0mPOST /channel/join/v3 [33m403[0m - ms - 40[0m
+authorized user is already a member of the channel
+[0mPOST /channel/join/v3 [33m400[0m - ms - 74[0m
+channel is private, and the user is not already a member or a global owner
+[0mPOST /channel/join/v3 [33m403[0m - ms - 98[0m
+message sent: 250 2.0.0 OK <SI2PR01MB4323A1D6E687AD7C647D570EE0619@SI2PR01MB4323.apcprd01.prod.exchangelabs.com> [Hostname=SI2PR01MB4323.apcprd01.prod.exchangelabs.com]
+bad channel ID
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 38[0m
+bad user joining UID
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 44[0m
+token is invalid
+[0mPOST /channel/invite/v3 [33m403[0m - ms - 40[0m
+message sent: 250 2.0.0 OK <SI2PR01MB432334D159C5B2B260C40952E0619@SI2PR01MB4323.apcprd01.prod.exchangelabs.com> [Hostname=SI2PR01MB4323.apcprd01.prod.exchangelabs.com]
+uId refers to user already in channel
+[0mPOST /channel/invite/v3 [33m400[0m - ms - 61[0m
+user inviting is not a member of the channel
+[0mPOST /channel/invite/v3 [33m403[0m - ms - 68[0m
+bad channel ID
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 38[0m
+message sent: 250 2.0.0 OK <SI2PR01MB4323CC37ED5C18B0707CE486E0619@SI2PR01MB4323.apcprd01.prod.exchangelabs.com> [Hostname=SI2PR01MB4323.apcprd01.prod.exchangelabs.com]
+bad UID
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 31[0m
+user becoming owner is not a member of the channel
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 74[0m
+user is already a channel owner
+[0mPOST /channel/addowner/v2 [33m400[0m - ms - 55[0m
+invalid permissions
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 43[0m
+invalid permissions
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 43[0m
+token is invalid
+[0mPOST /channel/addowner/v2 [33m403[0m - ms - 40[0m
+bad channel ID
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 38[0m
+bad UID
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 31[0m
+user is currently the only owner of the channel
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 71[0m
+uId is not an owner of the channel
+[0mPOST /channel/removeowner/v2 [33m400[0m - ms - 58[0m
+invalid permissions
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 43[0m
+user removing owner is not a member of the channel
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 74[0m
+token is invalid
+[0mPOST /channel/removeowner/v2 [33m403[0m - ms - 40[0m
+token is: someInvalidToken
+Invalid token
+[0mPOST /channel/leave/v2 [33m403[0m - ms - 37[0m
+token is: 932e54ef-717c-43a2-939f-af37413876e5
+member isnt part of channel
+[0mPOST /channel/leave/v2 [33m403[0m - ms - 51[0m
+token is: 31d8f1a6-717a-4e8f-9601-e2cca51825b7
+token is: 510aa172-0a6f-4238-b9b1-a04c74ca14ec
+token is: 14aa108c-c169-425b-aff4-6e939f1e35ca
+Incorrect Email
+[0mPOST /auth/login/v3 [33m400[0m - ms - 39[0m
+token is invalid
+[0mGET /search/v1?queryStr=search [33m403[0m - ms - 40[0m
+invalid queryStr length
+[0mGET /search/v1?queryStr= [33m400[0m - ms - 47[0m
+invalid queryStr length
+[0mGET /search/v1?queryStr=bljUwrWuzjLodaeOV97GSZ23rlzLz6AyqSZm5V9EgJLxVv8ZIIyQI6HV%0A%20%20%20%2083X78XZaB53wCUVSUeuZpzOr9jpBEPxs4UR1qMZsX2DGR0P1GoRdugJ4F2Ct803XNlNMTFnQ6D5wwaokuKs%0A%20%20%20%20CQquJYLcdDkbFrWW9xZQCglXWzvpJgD3ITaNIddcnpusRhbhv1MsxLpNmUl5yTSAQaGuYDV2IJypWHu3H1XD%0A%20%20%20%20e6jqHnOsbXNskzMduAsNfpjl1aJTHsLjQnO77WIs0P9vjpho1ViZHqEC99wlRKdAbZjkxnD1Qdl2YVs1aoaAz%0A%20%20%20%20GEpkXF04whQe1fPg3iVrqU8QQXzi9awrt15bh5zb9osrgfmIhpMkMRaZwOOQRqTXLaXeEwCRrSvSrV8Ck5zw%0A%20%20%20%20HMg0qCRnMrpsytPw9j8i3JLHU8coVlANMSzjUw2qHh57gFRoxBci4fOmaS8OoLYXkl1Aa2hxMEB7rh22qrNy%0A%20%20%20%20UrldCcRjDrJxsahsRLFRsc0aijDFT0tiDMFgFfuHwTvuw4Notdpozf9lQHVjuHIEjbB6t9eqP2Q6EBBxBr8bm%0A%20%20%20%207QzzKaLHbWsETyrRfQmjerJgTVcLpi9SxwQCHd1nqYjFchcBuVkwAiewsNFyAkSgSsOLbxxlf2SVV2XnCGPRL%0A%20%20%20%20ICkJotjrzoD6uqZ6E4kwBKcpaUDJ4vEMRvaDgcuxMRzVrWibbzvrPJDSoKLiCXiKPSNla2FW0Lh5NP1smOuSxp%0A%20%20%20%20p3we6nMpOjgu9PpevwCKfmRANMFa0lhOeKwOQTnAFsPOzPvZX3Jg07aZE0TkW4nD9Fkq0Jd0RrCelZS3OfEz%0A%20%20%20%20xbQkJ0qQ0iu2BAdvuRKpwOFhjldgLgDytciqT4s7xVl4lwVRWvrdiZqBdyMf3aqJx1KfNgOzBPTpLVOu7bZ6%0A%20%20%20%20tKP405NmY3lFhZrag6cXkdSAmEUibz4xNgJmPymwt5EF3geATfdYA8yHzz6K42wx [33m400[0m - ms - 47[0m
+Shutting down server gracefully.
+--------------|---------|----------|---------|---------|---------------------
+File          | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s   
+--------------|---------|----------|---------|---------|---------------------
+All files     |   97.92 |     90.6 |   97.85 |   98.02 |                     
+ admin.ts     |   97.89 |    88.88 |     100 |   96.72 | 134-135             
+ auth.ts      |   87.78 |    83.33 |   86.66 |   89.32 | 105,180-183,222-233 
+ channel.ts   |   99.47 |     97.5 |     100 |   99.33 | 374                 
+ channels.ts  |     100 |      100 |     100 |     100 |                     
+ dataStore.ts |      80 |      100 |     100 |   77.77 | 80-81               
+ dm.ts        |   97.23 |    82.75 |   95.74 |   97.74 | 347-349             
+ echo.ts      |     100 |      100 |     100 |     100 |                     
+ email.ts     |   88.88 |       50 |     100 |   88.88 | 54                  
+ message.ts   |   99.48 |    89.81 |     100 |   99.36 | 555,574             
+ other.ts     |   98.59 |    81.81 |     100 |   97.77 | 28                  
+ server.ts    |   99.58 |      100 |      98 |   99.52 | 140                 
+ standup.ts   |     100 |      100 |     100 |     100 |                     
+ users.ts     |   98.78 |    96.96 |     100 |     100 | 229                 
+--------------|---------|----------|---------|---------|---------------------
